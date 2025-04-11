@@ -1,12 +1,11 @@
-// app/layout.tsx
 'use client';
 
 import React from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import theme from '../styles/theme';
 import Footer from '../components/Footer';
 import { Provider } from 'react-redux';
-import { store } from '../redux/store'; // adjust path if needed
+import { store } from '../redux/store';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,8 +14,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            {children}
-            <Footer />
+            <Box
+              
+            >
+              <Box
+                component="main"
+              >
+                {children}
+              </Box>
+              <Footer />
+            </Box>
           </ThemeProvider>
         </Provider>
       </body>

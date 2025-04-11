@@ -1,9 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/authSlice";
+import categoryReducer from "./features/industryStatsSlice";
+import jobsReducer from "./features/jobsSlice"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    category: categoryReducer,
+    jobs: jobsReducer,
   },
 });
 
