@@ -66,13 +66,19 @@ const LoginPage: React.FC = () => {
         console.log('role', role)
         console.log('res', res)
         if (res && res.token) {
-          // Save token and role in localStorage
           localStorage.setItem('token', res.token);
           localStorage.setItem('role', role);
-
-          dispatch(setAuth(res)); // Set user in redux
+          dispatch(setAuth(res));
           setOpenSnackbar(true);
-          router.push('/emp-dashboard');
+          
+          // Redirect based on role
+          if (role === 'admin') {
+            router.push('/admin-dashboard');
+          } else if (role === 'candidate') {
+            router.push('/emp-dashboard');
+          } else {
+            router.push('/dashboard'); // Default dashboard
+          }
         }
       } catch (error: any) {
         setErrorMessage(error.response?.data?.message || 'Invalid credentials');
