@@ -1,12 +1,12 @@
 import useSWRMutation from "swr/mutation";
-import axios from "../utils/axios";
 import { RegisterPayload, AuthResponse } from "@/types/auth";
+import axiosInstance from "../utils/axios";
 
 const registerFetcher = async (
   url: string,
   { arg }: { arg: RegisterPayload }
 ): Promise<AuthResponse> => {
-  const response = await axios.post(url, arg);
+  const response = await axiosInstance.post(url, arg);
   return response.data;
 };
 

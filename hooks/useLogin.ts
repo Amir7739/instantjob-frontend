@@ -1,13 +1,14 @@
 // hooks/useLogin.ts
 import useSWRMutation from "swr/mutation";
-import axios from "../utils/axios";
+
 import { AuthResponse, LoginPayload } from "@/types/auth";
+import axiosInstance from "../utils/axios";
 
 const loginFetcher = async (
   url: string,
   { arg }: { arg: LoginPayload }
 ): Promise<AuthResponse> => {
-  const response = await axios.post(url, arg);
+  const response = await axiosInstance.post(url, arg);
   return response.data;
 };
 

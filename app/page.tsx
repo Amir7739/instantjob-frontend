@@ -41,6 +41,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { motion } from "framer-motion";
 import { fetchAllJobs } from "@/redux/features/jobsSlice";
 import useDebounce from "@/utils/useDebounce";
+import JobCard from "@/components/JobCard";
 
 export default function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -200,7 +201,7 @@ export default function HomePage() {
       avatar: "/avatars/user5.jpg",
       quote:
         "The interview preparation resources were invaluable. I felt confident and landed multiple offers!",
-      rating: 5,
+      rating: 4,
     },
   ];
 
@@ -302,58 +303,59 @@ export default function HomePage() {
                 }}
               >
                 <Grid container spacing={10}>
-                  <Grid item xs={12} sm={5} md={5}>
-                    <TextField
-                      fullWidth
-                      placeholder="title, company, skills, or job type"
-                      variant="outlined"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon sx={{ color: "#4F46E5" }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      size="medium"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4} md={4}>
-                    <TextField
-                      fullWidth
-                      placeholder="Location"
-                      variant="outlined"
-                      value={searchLocation}
-                      onChange={(e) => setSearchLocation(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LocationOnIcon sx={{ color: "#4F46E5" }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      size="medium"
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={3} md={3}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      sx={{
-                        height: 54,
-                        borderRadius: 2,
-                        fontSize: "1rem",
-                        fontWeight: 600,
-                      }}
-                      onClick={handleSearch}
-                      endIcon={<ArrowForwardIcon />}
-                    >
-                      Search Jobs
-                    </Button>
-                  </Grid>
-                </Grid>
+  <Grid item xs={12} sm={5} md={5}>
+    <TextField
+      fullWidth
+      placeholder="title, company, skills, or job type"
+      variant="outlined"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      size="medium"
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon sx={{ color: "#4F46E5" }} />
+          </InputAdornment>
+        ),
+      }}
+    />
+  </Grid>
+  <Grid item xs={12} sm={4} md={4}>
+    <TextField
+      fullWidth
+      placeholder="Location"
+      variant="outlined"
+      value={searchLocation}
+      onChange={(e) => setSearchLocation(e.target.value)}
+      size="medium"
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <LocationOnIcon sx={{ color: "#4F46E5" }} />
+          </InputAdornment>
+        ),
+      }}
+    />
+  </Grid>
+  <Grid item xs={12} sm={3} md={3}>
+    <Button
+      fullWidth
+      variant="contained"
+      color="primary"
+      sx={{
+        height: 54,
+        borderRadius: 2,
+        fontSize: "1rem",
+        fontWeight: 600,
+      }}
+      onClick={handleSearch}
+      endIcon={<ArrowForwardIcon />}
+    >
+      Search Jobs
+    </Button>
+  </Grid>
+</Grid>
+
               </Paper>
 
               {/* Popular search chips with better styling */}
@@ -492,151 +494,7 @@ export default function HomePage() {
       </Box>
 
       {/* Categories Section with Improved Cards */}
-      <Container
-        maxWidth="xl"
-        sx={{
-          mt: { xs: 6, sm: 8, md: 10 },
-          mb: { xs: 6, sm: 5, md: 4 },
-          px: 2,
-          ml: 10,
-        }}
-      >
-        <Box
-          component={motion.div}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          sx={{ mb: { xs: 5, md: 7 }, textAlign: "center" }}
-        >
-          <Typography
-            variant="h4"
-            component="h2"
-            fontWeight="800"
-            gutterBottom
-            sx={{
-              fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
-              background: "linear-gradient(to right, #4F46E5, #7C3AED)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Browse Jobs by Category
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ maxWidth: "800px", mx: "auto" }}
-          >
-            Explore opportunities in top industries across India
-          </Typography>
-        </Box>
-
-        <Grid container spacing={3} alignItems="stretch">
-          {categories.map((category, index) => {
-            const { icon, color } = categoryIcons[category.industryType] || {};
-            return (
-              <Grid
-                item
-                xs={6}
-                sm={4}
-                md={15 / 5}
-                key={category.industryType}
-                component={motion.div}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-              >
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "all 0.3s",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                      "& .category-icon": {
-                        transform: "scale(1.15)",
-                        color: "#4F46E5", // Hover color effect
-                      },
-                    },
-                    position: "relative",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: "4px",
-                      background: "#4F46E5", // Fixed category color
-                    }}
-                  />
-                  <CardContent
-                    sx={{
-                      flexGrow: 1,
-                      textAlign: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      p: 3,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        mb: 2.5,
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Avatar
-                        className="category-icon"
-                        sx={{
-                          color: color || "#000", // Use the color from categoryIcons
-                          width: 70,
-                          height: 70,
-                          transition: "all 0.3s",
-                        }}
-                      >
-                        {/* Dynamically rendering the icon */}
-                        {icon}
-                      </Avatar>
-                    </Box>
-                    <Typography
-                      gutterBottom
-                      variant="h6"
-                      component="h3"
-                      sx={{
-                        fontSize: { xs: "1rem", md: "1.2rem" },
-                        fontWeight: 700,
-                        color: "#333",
-                      }}
-                    >
-                      {category.industryType}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      <Box component="span" fontWeight="600" color="#4F46E5">
-                        {category.count.toLocaleString()}
-                      </Box>{" "}
-                      jobs available
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Container>
+      
 
       {/* Featured Jobs Section with Improved Cards */}
       <Box
@@ -678,397 +536,48 @@ export default function HomePage() {
           </Box>
 
           <Grid container spacing={3} alignItems="stretch">
-            {jobs.map((job, index) => {
-              const jobColor = getJobColor(job.title);
-              const isExpanded = expandedSkillsCards[index] || false;
-              const displaySkills = isExpanded
-                ? job.keySkills
-                : job.keySkills.slice(0, 3);
-              const remainingSkills =
-                !isExpanded && job.keySkills.length > 3
-                  ? job.keySkills.length - 3
-                  : 0;
-              const isJobSaved = savedJobs.includes(job._id);
-
-              // Function to toggle skills expansion for this specific card
-              const toggleSkillsExpansion = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setExpandedSkillsCards((prev) => ({
-                  ...prev,
-                  [index]: !prev[index],
-                }));
-              };
-
-              return (
-                <Grid
-                  item
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={4}
-                  key={index}
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: (index * 0.1) % 0.3, duration: 0.5 }}
-                >
-                  <Card
-                    sx={{
-                      height: "100%",
-                      transition: "all 0.3s",
-                      position: "relative",
-                      display: "flex",
-                      flexDirection: "column",
-                      borderRadius: 3,
-                      overflow: "hidden",
-                      border: "1px solid rgba(0,0,0,0.05)",
-                      "&:hover": {
-                        transform: "translateY(-8px)",
-                        boxShadow: "0 12px 25px rgba(0,0,0,0.1)",
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "4px",
-                        background: jobColor,
-                      }}
-                    />
-                    <CardHeader
-                      avatar={
-                        <Avatar
-                          sx={{
-                            bgcolor: alpha(jobColor, 0.15),
-                            color: jobColor,
-                            fontWeight: "bold",
-                            width: 48,
-                            height: 48,
-                          }}
-                        >
-                          {getCompanyInitial(job.companyName)}
-                        </Avatar>
-                      }
-                      title={
-                        <Typography
-                          variant="h6"
-                          component="h3"
-                          sx={{
-                            fontSize: { xs: "1.1rem", md: "1.2rem" },
-                            fontWeight: 700,
-                            color: "#333",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {job.title}
-                        </Typography>
-                      }
-                      subheader={
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            color: "text.secondary",
-                            fontWeight: 500,
-                          }}
-                        >
-                          {job.companyName}
-                        </Typography>
-                      }
-                      action={
-                        <Button
-                          size="small"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleSaveJob(job._id);
-                          }}
-                          sx={{
-                            minWidth: "auto",
-                            color: isJobSaved ? jobColor : "text.secondary",
-                            "&:hover": { color: jobColor },
-                          }}
-                        >
-                          {isJobSaved ? (
-                            <BookmarkAddIcon fontSize="medium" />
-                          ) : (
-                            <BookmarkBorderIcon fontSize="medium" />
-                          )}
-                        </Button>
-                      }
-                      sx={{ pb: 0 }}
-                    />
-                    <CardContent sx={{ flexGrow: 1, pt: 1, pb: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 2,
-                          mb: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <LocationOnIcon
-                            fontSize="small"
-                            sx={{ color: "text.secondary", mr: 0.5 }}
-                          />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.location}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <BusinessCenterIcon
-                            fontSize="small"
-                            sx={{ color: "text.secondary", mr: 0.5 }}
-                          />
-                          <Typography variant="body2" color="text.secondary">
-                            {job.salaryRange}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                        <Chip
-                          label={job.jobType}
-                          size="small"
-                          sx={{
-                            bgcolor: alpha(jobColor, 0.08),
-                            color: jobColor,
-                            fontWeight: 600,
-                            borderRadius: 1,
-                          }}
-                        />
-                        <Chip
-                          label={job.experience}
-                          size="small"
-                          sx={{
-                            bgcolor: "rgba(0,0,0,0.04)",
-                            color: "text.secondary",
-                            fontWeight: 500,
-                            borderRadius: 1,
-                          }}
-                        />
-                      </Box>
-
-                      <Divider sx={{ my: 1.5 }} />
-
-                      <Box sx={{ mt: 1.5 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mb: 1.5,
-                            fontWeight: 600,
-                            color: "text.primary",
-                          }}
-                        >
-                          Key Skills:
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 0.75,
-                            minHeight: "60px",
-                            transition: "all 0.3s ease",
-                          }}
-                        >
-                          {displaySkills.map((skill, i) => (
-                            <Chip
-                              key={i}
-                              label={skill}
-                              size="small"
-                              sx={{
-                                bgcolor: alpha(jobColor, 0.08),
-                                color: jobColor,
-                                fontSize: "0.7rem",
-                                fontWeight: 500,
-                                mb: 0.5,
-                                borderRadius: "6px",
-                              }}
-                            />
-                          ))}
-                          {remainingSkills > 0 && (
-                            <Chip
-                              label={`+${remainingSkills} more`}
-                              size="small"
-                              onClick={toggleSkillsExpansion}
-                              sx={{
-                                bgcolor: alpha(jobColor, 0.03),
-                                color: "text.secondary",
-                                fontSize: "0.7rem",
-                                cursor: "pointer",
-                                fontWeight: 500,
-                                borderRadius: "6px",
-                                "&:hover": {
-                                  bgcolor: alpha(jobColor, 0.12),
-                                },
-                              }}
-                            />
-                          )}
-                          {isExpanded && (
-                            <Button
-                              size="small"
-                              onClick={toggleSkillsExpansion}
-                              sx={{
-                                minWidth: "auto",
-                                fontSize: "0.75rem",
-                                color: jobColor,
-                                p: 0,
-                                ml: 0.5,
-                                fontWeight: 600,
-                                "&:hover": {
-                                  bgcolor: "transparent",
-                                  textDecoration: "underline",
-                                },
-                              }}
-                            >
-                              Show less
-                            </Button>
-                          )}
-                        </Box>
-                      </Box>
-                    </CardContent>
-                    <CardActions
-                      sx={{
-                        justifyContent: "space-between",
-                        p: 2,
-                        pt: 0,
-                        mt: "auto",
-                        borderTop: "1px solid rgba(0,0,0,0.04)",
-                      }}
-                    >
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <AccessTimeIcon
-                          fontSize="small"
-                          sx={{
-                            color: "text.secondary",
-                            mr: 0.5,
-                            fontSize: "0.9rem",
-                          }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          Posted {job.postedAt}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            color: jobColor,
-                            borderColor: jobColor,
-                            borderRadius: "8px",
-                            fontWeight: 600,
-                            textTransform: "none",
-                            "&:hover": {
-                              bgcolor: alpha(jobColor, 0.08),
-                              borderColor: jobColor,
-                            },
-                          }}
-                        >
-                          Details
-                        </Button>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          sx={{
-                            bgcolor: jobColor,
-                            borderRadius: "8px",
-                            fontWeight: 600,
-                            textTransform: "none",
-                            boxShadow: `0 4px 12px ${alpha(jobColor, 0.4)}`,
-                            "&:hover": {
-                              bgcolor: alpha(jobColor, 0.85),
-                              boxShadow: `0 6px 15px ${alpha(jobColor, 0.5)}`,
-                            },
-                          }}
-                        >
-                          Apply Now
-                        </Button>
-                      </Box>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              );
-            })}
+            {jobs.map((job) => (
+              <Grid item xs={12} sm={6} md={4} lg={4} key={job._id}>
+                <JobCard job={job} />
+              </Grid>
+            ))}
           </Grid>
 
-          {/* Improved Pagination */}
-          {totalPages > 1 && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                mt: 8,
-              }}
-              component={motion.div}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <Paper
-                elevation={2}
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            mt={4}
+            mb={2}
+          >
+            <Link href="/all-jobs" passHref legacyBehavior>
+              <Button
+                component="a"
+                variant="contained"
+                size="large"
+                startIcon={<WorkIcon />}
                 sx={{
-                  py: 1,
-                  px: 2,
-                  borderRadius: 3,
-                  backgroundColor: "white",
+                  backgroundColor: "#1976d2",
+                  color: "white",
+                  padding: "10px 24px",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  boxShadow: "0 4px 10px rgba(25, 118, 210, 0.3)",
+                  transition: "all 0.3s",
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
+                    boxShadow: "0 6px 12px rgba(25, 118, 210, 0.4)",
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size="large"
-                  showFirstButton
-                  showLastButton
-                  sx={{
-                    "& .MuiPaginationItem-root": {
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                    },
-                    "& .Mui-selected": {
-                      backgroundColor: "#4F46E5 !important",
-                      color: "white",
-                    },
-                  }}
-                />
-              </Paper>
-            </Box>
-          )}
-
-          {/* Job count info */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mt: 2,
-            }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Showing {indexOfFirstJob + 1}-
-              {Math.min(indexOfLastJob, totalJobs)} of {totalJobs} jobs
-            </Typography>
+                View All Jobs
+              </Button>
+            </Link>
           </Box>
+          {/* Job count info */}
         </Container>
       </Box>
 
@@ -1287,7 +796,7 @@ export default function HomePage() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         sx={{
-          background: "linear-gradient(120deg, #4F46E5, #7C3AED)",
+          background: "linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b)",
           py: { xs: 6, sm: 8, md: 10 },
 
           position: "relative",

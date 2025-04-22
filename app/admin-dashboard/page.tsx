@@ -223,7 +223,7 @@ export default function AdminDashboard() {
     localStorage.removeItem('role');
     
     // Redirect to login page
-    router.push('/login');
+    router.push('/');
   };
 
   const handleTabChange = (tab) => {

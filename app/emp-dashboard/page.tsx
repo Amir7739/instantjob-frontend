@@ -56,6 +56,7 @@ import {
   KeyboardArrowUp,
   LocationOn
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 
 // Custom theme with InstantJob brand colors
 const instantJobTheme = createTheme({
@@ -129,6 +130,16 @@ const Dashboard: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [expandedJobId, setExpandedJobId] = useState<number | null>(null);
   const theme = useTheme();
+
+  const router = useRouter(); 
+
+  const handleLogOut = ()=> {
+    localStorage.removeItem('token'),
+      localStorage.removeItem('role');
+
+      router.push('/')
+    
+  }
   
   const handleExpandJob = (jobId: number) => {
     setExpandedJobId(expandedJobId === jobId ? null : jobId);
@@ -763,7 +774,7 @@ const Dashboard: React.FC = () => {
         >
           <MenuItem onClick={handleMenuClose}>My Profile</MenuItem>
           <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+          <MenuItem onClick={handleLogOut}>Logout</MenuItem>
         </Menu>
 
         {/* Notifications dropdown */}

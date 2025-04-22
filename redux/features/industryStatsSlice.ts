@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "@/utils/axios";
+import axiosInstance from "@/utils/axios";
 
 // Type for a job category
 export type JobCategory = {
@@ -11,7 +12,7 @@ export type JobCategory = {
 export const fetchCategories = createAsyncThunk<JobCategory[]>(
   "categories/fetch",
   async () => {
-    const response = await axios.get("/jobs/get-jobs-category");
+    const response = await axiosInstance.get("/jobs/get-jobs-category");
     return response.data.data; // ✅ Assuming { success: true, data: [...] }
   }
 );
