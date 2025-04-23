@@ -3,7 +3,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchJobById } from "@/redux/features/jobsSlice";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Box,
   Container,
@@ -20,7 +20,12 @@ import {
   ListItemIcon,
   Paper,
   Skeleton,
+  Snackbar,
+  Alert,
+  Tooltip,
 } from "@mui/material";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+
 import {
   BusinessCenter,
   LocationOn,
@@ -40,10 +45,19 @@ import Link from "next/link";
 
 import axiosInstance from "@/utils/axios";
 import { formatSalaryToLPA } from "@/components/JobCard";
+import { checkSavedJob, saveJob } from "@/services/saveJobService";
+import {
+  getCandidateId,
+  getRole,
+  getToken,
+  isCandidate,
+  isLoggedIn,
+} from "@/utils/authUtils";
+import { applyJob, checkJobAppliedOrNot } from "@/services/applyJob";
 
 // Custom styled components
 const JobHeaderSection = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #2557a7 0%, #4285f4 100%)",
+  background: "linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b)",
   padding: theme.spacing(4),
   color: "white",
   borderRadius: theme.spacing(1),
@@ -139,10 +153,18 @@ const dummyJobData = {
 };
 
 const JobDetailsPage = () => {
+  const [savedJobStatus, setSavedJobStatus] = useState<number>(0);
+  const [checkAppliedOrNot, setCheckAppliedOrNot] = useState<number>(0);
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false); // For Snackbar visibility
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const { id: jobId } = useParams();
+  const router = useRouter();
+  const candidateId = getCandidateId(); // Get candidateId from the utility function
+  const role = getRole(); // Get role from the utility function
+  const token = getToken();
   console.log("jobid", jobId);
 
   useEffect(() => {
@@ -164,6 +186,97 @@ const JobDetailsPage = () => {
       fetchJob();
     }
   }, [jobId]);
+
+  const handleSaveJob = async () => {
+    if (!isCandidate()) {
+      router.push("/login"); // Redirect to login if not logged in or not a candidate
+      return;
+    }
+    // If the job is already saved, no need to make an API call again
+    if (savedJobStatus === 1) {
+      setSnackbarMessage("You have already saved this job!"); // Warning message
+      setSnackbarOpen(true); // Show the Snackbar
+      return;
+    }
+
+    try {
+      if (candidateId && jobId) {
+        const result = await saveJob(candidateId, jobId); // Save the job
+        console.log(result);
+        setSnackbarMessage("Job saved successfully!"); // Success message
+        setSnackbarOpen(true); // Show the Snackbar
+      }
+    } catch (err) {
+      setSnackbarMessage("Error saving the job"); // Error message
+      setSnackbarOpen(true); // Show the Snackbar
+    }
+  };
+
+  const handleApplyJob = async () => {
+    if (!isCandidate()) {
+      router.push("/login"); // Redirect to login if not logged in or not a candidate
+      return;
+    }
+    // If the job is already saved, no need to make an API call again
+    if (checkAppliedOrNot === 1) {
+      setSnackbarMessage("You have already apply this job!"); // Warning message
+      setSnackbarOpen(true); // Show the Snackbar
+      return;
+    }
+
+    try {
+      if (candidateId && jobId) {
+        const result = await applyJob(candidateId, jobId); // Save the job
+        console.log(result);
+        setSnackbarMessage("Job Applied successfully!"); // Success message
+        setSnackbarOpen(true); // Show the Snackbar
+      }
+    } catch (err) {
+      setSnackbarMessage("Error applied the job"); // Error message
+      setSnackbarOpen(true); // Show the Snackbar
+    }
+  };
+
+  useEffect(() => {
+    const checkIfJobIsSaved = async () => {
+      if (candidateId && jobId) {
+        try {
+          const savedJobStatus = await checkSavedJob(candidateId, jobId);
+          setSavedJobStatus(savedJobStatus); // If job is saved, set to 1
+        } catch (error) {
+          console.error("Error checking saved job status", error);
+        }
+      }
+    };
+
+    if (candidateId && jobId) {
+      checkIfJobIsSaved();
+    }
+  }, [candidateId, jobId]);
+
+  useEffect(() => {
+    const jobAppliedOrNot = async () => {
+      if (candidateId && jobId) {
+        try {
+          const jobAppliedOrNot = await checkJobAppliedOrNot(
+            candidateId,
+            jobId
+          );
+          setCheckAppliedOrNot(jobAppliedOrNot); // If job is saved, set to 1
+        } catch (error) {
+          console.error("Error checking job applied or not", error);
+        }
+      }
+    };
+
+    if (candidateId && jobId) {
+      jobAppliedOrNot();
+    }
+  }, [candidateId, jobId]);
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false); // Close Snackbar
+  };
 
   if (loading) {
     return (
@@ -222,22 +335,88 @@ const JobDetailsPage = () => {
                     {jobData.minExp}-{jobData.maxExp}years
                   </Typography>
                 </Box>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <PeopleAltIcon fontSize="small" />
+                  <Typography
+                    variant="body2"
+                    sx={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                  >
+                    {jobData.openings || 1}{" "}
+                    {jobData.openings === 1 ? "opening" : "openings"}
+                  </Typography>
+                </Box>
               </Box>
             </Grid>
-            <Grid item xs={12} md="auto" sx={{ mt: { xs: 2, md: 0 } }}>
+            <Grid
+              item
+              xs={12}
+              md="auto"
+              sx={{ mt: { xs: 2, md: 0 }, ml: { xs: 2, sm: 3, md: 24 } }}
+            >
               <Box
                 sx={{
                   display: "flex",
+                  mt: { xs: 2, md: 0 },
+                  ml: { xs: 2, sm: 3, md: 54 },
                   gap: 2,
                   justifyContent: { xs: "center", md: "flex-end" },
                 }}
               >
-                <ApplyButton variant="contained" startIcon={<SendOutlined />}>
-                  Apply Now
-                </ApplyButton>
-                <SaveButton variant="outlined" startIcon={<Bookmark />}>
-                  Save
-                </SaveButton>
+                {/* Apply Now Button with Tooltip */}
+                <Tooltip
+                  title={
+                    role !== "candidate"
+                      ? "Only candidates can apply for this job"
+                      : ""
+                  }
+                  arrow
+                >
+                  <span>
+                    {" "}
+                    {/* Wrapping with span to enable tooltip on disabled button */}
+                    <ApplyButton
+                      variant="contained"
+                      startIcon={<SendOutlined />}
+                      onClick={handleApplyJob}
+                      disabled={checkAppliedOrNot === 1 || role !== "candidate"} // Disable if not candidate
+                    >
+                      {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
+                    </ApplyButton>
+                  </span>
+                </Tooltip>
+
+                {/* Save Button with Tooltip */}
+                <Tooltip
+                  title={
+                    role !== "candidate"
+                      ? "Only candidates can save this job"
+                      : ""
+                  }
+                  arrow
+                >
+                  <span>
+                    {" "}
+                    {/* Wrapping with span to enable tooltip on disabled button */}
+                    <SaveButton
+                      variant="outlined"
+                      startIcon={<Bookmark />}
+                      onClick={handleSaveJob}
+                      sx={{
+                        color: "#2557a7",
+                        borderColor: "#2557a7",
+                        ...(savedJobStatus === 1 && {
+                          backgroundColor: "#e0f7fa",
+                          color: "#00796b",
+                        }),
+                      }}
+                      disabled={savedJobStatus === 1 || role !== "candidate"} // Disable if already saved or not candidate
+                    >
+                      {savedJobStatus === 1 ? "Saved" : "Save"}
+                    </SaveButton>
+                  </span>
+                </Tooltip>
+
+                {/* Browse Jobs Button */}
                 <Button
                   variant="contained"
                   startIcon={<BusinessCenter />}
@@ -535,27 +714,70 @@ const JobDetailsPage = () => {
             </SectionCard>
 
             {/* Action Buttons */}
+           
             <SectionCard>
               <CardContent>
-                <ApplyButton
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  startIcon={<SendOutlined />}
-                >
-                  Apply Now
-                </ApplyButton>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "center",
                     mt: 2,
-                    gap: 2,
+                    gap: 3, // Adds space between the buttons
                   }}
                 >
-                  <Button startIcon={<Bookmark />} size="small" color="primary">
-                    Save Job
-                  </Button>
+                  {/* Apply Button with Tooltip */}
+                  <Tooltip
+                    title={
+                      role !== "candidate"
+                        ? "Only candidates can apply for this job"
+                        : ""
+                    }
+                    arrow
+                  >
+                    <span>
+                      <ApplyButton
+                        variant="contained"
+                        startIcon={<SendOutlined />}
+                        onClick={handleApplyJob}
+                        disabled={
+                          checkAppliedOrNot === 1 || role !== "candidate"
+                        } // Disable if not candidate
+                      >
+                        {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
+                      </ApplyButton>
+                    </span>
+                  </Tooltip>
+
+                  {/* Save Button with Tooltip */}
+                  <Tooltip
+                    title={
+                      role !== "candidate"
+                        ? "Only candidates can save this job"
+                        : ""
+                    }
+                    arrow
+                  >
+                    <span>
+                      <SaveButton
+                        variant="outlined"
+                        startIcon={<Bookmark />}
+                        onClick={handleSaveJob}
+                        sx={{
+                          color: "#2557a7",
+                          borderColor: "#2557a7",
+                          ...(savedJobStatus === 1 && {
+                            backgroundColor: "#e0f7fa",
+                            color: "#00796b",
+                          }),
+                        }}
+                        disabled={savedJobStatus === 1 || role !== "candidate"} // Disable if already saved or not candidate
+                      >
+                        {savedJobStatus === 1 ? "Saved" : "Save"}
+                      </SaveButton>
+                    </span>
+                  </Tooltip>
+
+                  {/* Share Button */}
                   <Button startIcon={<Share />} size="small" color="primary">
                     Share
                   </Button>
@@ -564,6 +786,30 @@ const JobDetailsPage = () => {
             </SectionCard>
           </Box>
         </Box>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{
+            vertical: "top", // position from the top of the screen
+            horizontal: "center", // position from the center horizontally
+          }}
+          sx={{
+            position: "fixed", // Keeps it fixed in the viewport
+            top: "100%", // Centers it vertically
+            left: "50%", // Centers it horizontally
+            transform: "translate(-50%, -50%)", // Offset to ensure it's in the exact middle
+            zIndex: 9999, // Ensure it's on top of other content
+          }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={savedJobStatus === 1 ? "error" : "success"} // Set the severity
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Container>
     </>
   );
