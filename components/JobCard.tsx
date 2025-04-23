@@ -10,10 +10,12 @@ import {
   Button,
   Stack,
   Grid,
+  Avatar,
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { Job } from "@/redux/features/jobsSlice";
 import Link from "next/link";
 import Navbar from "./Navbar";
@@ -54,13 +56,22 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           boxShadow: 3,
           display: "flex",
           flexDirection: "column",
-          height: { xs: "auto", sm: "260px", md: "260px" }, // Height adjusts based on screen size
+          height: { xs: "auto", sm: "280px", md: "280px" }, // Increased height slightly to accommodate new content
           width: { xs: "100%", sm: "500px", md: "440px" }, // Width adjusts based on screen size
           overflow: "hidden",
           margin: "0 auto", // Center the cards horizontally
         }}
       >
-        <CardContent sx={{ flex: 1 }}>
+        <CardContent sx={{ flex: 1, position: "relative", paddingTop: 2 }}>
+          {/* Company Logo in left top corner */}
+          <Box sx={{ position: "absolute", top: 16, left: 16 }}>
+            <Avatar
+              src={job.companyLogo || "/company-placeholder.png"}
+              alt={job.companyName}
+              sx={{ width: 40, height: 40 }}
+            />
+          </Box>
+
           <Typography
             variant="h6"
             fontWeight="bold"
@@ -69,8 +80,9 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              textAlign: 'center'
-            }} // Truncate the title if it's too long
+              textAlign: "center",
+              mt: 1,
+            }}
           >
             {job?.title}
           </Typography>
@@ -95,6 +107,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             alignItems="center"
             mt={1}
             mb={1}
+            flexWrap="wrap"
           >
             <Stack direction="row" spacing={1} alignItems="center">
               <LocationOnIcon fontSize="small" />
@@ -111,8 +124,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 variant="body2"
                 sx={{ overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {formatSalaryToLPA(job.salaryRange)}{" "}
-                {/* Format salary to LPA here */}
+                {formatSalaryToLPA(job.salaryRange)}
               </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
@@ -124,15 +136,16 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 {job.minExp}-{job.maxExp} years
               </Typography>
             </Stack>
+            {/* Added Number of Openings */}
           </Stack>
 
           <Stack
             direction="row"
             spacing={1}
             flexWrap="wrap"
-            mt={4}
+            mt={3}
             mb={2}
-            sx={{ marginBottom: "8px" }} // Added margin to space between lines
+            sx={{ marginBottom: "8px" }}
           >
             {job.keySkills.slice(0, 4).map((skill, index) => (
               <Chip key={index} label={skill} size="small" />
@@ -147,9 +160,9 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             justifyContent="space-between"
             alignItems="center"
             sx={{
-              flexDirection: { xs: "column", sm: "row" }, // Stack vertically on smaller screens, horizontally on larger ones
-              mt: { xs: 2, sm: 4 }, // Adjust top margin for smaller screens
-              marginTop: "auto", // Ensure that the bottom elements push to the bottom of the card
+              flexDirection: { xs: "column", sm: "row" },
+              mt: { xs: 2, sm: 3 },
+              marginTop: "auto",
             }}
           >
             <Typography
@@ -158,37 +171,37 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               sx={{
                 marginBottom: { xs: 2, sm: 0 },
                 marginTop: { xs: 0, sm: 1 },
-              }} // Adjust top margin for larger screens
+              }}
             >
               Posted {job.postedAt}
             </Typography>
 
             <Box sx={{ display: "flex", gap: 1 }}>
-              {/* Link to the job details page */}
               <Link href={`/jobs-desc/${job._id}`} passHref>
                 <Button
                   variant="outlined"
                   size="small"
                   sx={{
-                    minWidth: "auto", // Prevent stretching of the button
-                    paddingX: 1, // Adjust padding for responsiveness
+                    minWidth: "auto",
+                    paddingX: 1,
                   }}
                 >
                   Details
                 </Button>
               </Link>
 
-              {/* Apply Now Button */}
-              <Button
-                variant="contained"
-                size="small"
-                sx={{
-                  minWidth: "auto", // Prevent stretching of the button
-                  paddingX: 1, // Adjust padding for responsiveness
-                }}
-              >
-                Apply Now
-              </Button>
+              <Link href={`/jobs-desc/${job._id}`} passHref>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    minWidth: "auto",
+                    paddingX: 1,
+                  }}
+                >
+                  Apply Now
+                </Button>
+              </Link>
             </Box>
           </Stack>
         </CardContent>
