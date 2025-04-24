@@ -25,7 +25,7 @@ import * as Yup from "yup";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useLogin } from "@/hooks/useLogin";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch } from "@/redux/hooks";
 import { setAuth } from "@/redux/features/authSlice";
 
@@ -44,6 +44,9 @@ const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { trigger: login, isMutating } = useLogin();
+
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/emp-dashboard"; // Get redirect URL from query params or default to home
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -73,7 +76,7 @@ const LoginPage: React.FC = () => {
             if (role === "admin") {
               router.push("/admin-dashboard");
             } else if (role === "candidate") {
-              router.push("/emp-dashboard");
+              router.push(redirectUrl); // Redirect back to the page the user was on
             } else {
               router.push("/");
             }
@@ -157,12 +160,9 @@ const LoginPage: React.FC = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={
-                  formik.touched.emailOrPhone &&
-                  Boolean(formik.errors.emailOrPhone)
+                  formik.touched.emailOrPhone && Boolean(formik.errors.emailOrPhone)
                 }
-                helperText={
-                  formik.touched.emailOrPhone && formik.errors.emailOrPhone
-                }
+                helperText={formik.touched.emailOrPhone && formik.errors.emailOrPhone}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -182,9 +182,7 @@ const LoginPage: React.FC = () => {
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={
-                  formik.touched.password && Boolean(formik.errors.password)
-                }
+                error={formik.touched.password && Boolean(formik.errors.password)}
                 helperText={formik.touched.password && formik.errors.password}
                 InputProps={{
                   startAdornment: (
@@ -195,11 +193,7 @@ const LoginPage: React.FC = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={handleClickShowPassword} edge="end">
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </InputAdornment>
                   ),

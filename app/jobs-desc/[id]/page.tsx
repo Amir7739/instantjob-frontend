@@ -166,6 +166,7 @@ const JobDetailsPage = () => {
   const role = getRole(); // Get role from the utility function
   const token = getToken();
   console.log("jobid", jobId);
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -189,7 +190,7 @@ const JobDetailsPage = () => {
 
   const handleSaveJob = async () => {
     if (!isCandidate()) {
-      router.push("/login"); // Redirect to login if not logged in or not a candidate
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`); // Redirect to login if not logged in or not a candidate
       return;
     }
     // If the job is already saved, no need to make an API call again
@@ -214,7 +215,7 @@ const JobDetailsPage = () => {
 
   const handleApplyJob = async () => {
     if (!isCandidate()) {
-      router.push("/login"); // Redirect to login if not logged in or not a candidate
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
     // If the job is already saved, no need to make an API call again
@@ -365,7 +366,7 @@ const JobDetailsPage = () => {
                 {/* Apply Now Button with Tooltip */}
                 <Tooltip
                   title={
-                    role !== "candidate"
+                   role && role !== "candidate"
                       ? "Only candidates can apply for this job"
                       : ""
                   }
@@ -378,7 +379,10 @@ const JobDetailsPage = () => {
                       variant="contained"
                       startIcon={<SendOutlined />}
                       onClick={handleApplyJob}
-                      disabled={checkAppliedOrNot === 1 || role !== "candidate"} // Disable if not candidate
+                      disabled={
+                        checkAppliedOrNot === 1 || (role && role !== "candidate")
+                      }
+                      
                     >
                       {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
                     </ApplyButton>
@@ -388,7 +392,7 @@ const JobDetailsPage = () => {
                 {/* Save Button with Tooltip */}
                 <Tooltip
                   title={
-                    role !== "candidate"
+                    role && role !== "candidate"
                       ? "Only candidates can save this job"
                       : ""
                   }
@@ -409,7 +413,7 @@ const JobDetailsPage = () => {
                           color: "#00796b",
                         }),
                       }}
-                      disabled={savedJobStatus === 1 || role !== "candidate"} // Disable if already saved or not candidate
+                      disabled={savedJobStatus === 1 || (role && role !== "candidate")} // Disable if already saved or not candidate
                     >
                       {savedJobStatus === 1 ? "Saved" : "Save"}
                     </SaveButton>
@@ -728,7 +732,7 @@ const JobDetailsPage = () => {
                   {/* Apply Button with Tooltip */}
                   <Tooltip
                     title={
-                      role !== "candidate"
+                     role && role !== "candidate"
                         ? "Only candidates can apply for this job"
                         : ""
                     }
@@ -740,8 +744,9 @@ const JobDetailsPage = () => {
                         startIcon={<SendOutlined />}
                         onClick={handleApplyJob}
                         disabled={
-                          checkAppliedOrNot === 1 || role !== "candidate"
-                        } // Disable if not candidate
+                          checkAppliedOrNot === 1 || (role && role !== "candidate")
+                        }
+                        
                       >
                         {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
                       </ApplyButton>
@@ -751,7 +756,7 @@ const JobDetailsPage = () => {
                   {/* Save Button with Tooltip */}
                   <Tooltip
                     title={
-                      role !== "candidate"
+                    role&&role !== "candidate"
                         ? "Only candidates can save this job"
                         : ""
                     }
@@ -770,7 +775,7 @@ const JobDetailsPage = () => {
                             color: "#00796b",
                           }),
                         }}
-                        disabled={savedJobStatus === 1 || role !== "candidate"} // Disable if already saved or not candidate
+                        disabled={savedJobStatus === 1 || (role && role !== "candidate")} // Disable if already saved or not candidate
                       >
                         {savedJobStatus === 1 ? "Saved" : "Save"}
                       </SaveButton>
