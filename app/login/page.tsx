@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
           dispatch(setAuth(res));
           setOpenSnackbar(true);
 
-          // Delay navigation so the message is visible for a moment
+          
           setTimeout(() => {
             if (role === "admin") {
               router.push("/admin-dashboard");
