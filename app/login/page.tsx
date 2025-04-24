@@ -76,7 +76,7 @@ const LoginPage: React.FC = () => {
             if (role === "admin") {
               router.push("/admin-dashboard");
             } else if (role === "candidate") {
-              router.push(redirectUrl); // Redirect back to the page the user was on
+              router.push(redirectUrl); 
             } else {
               router.push("/");
             }
