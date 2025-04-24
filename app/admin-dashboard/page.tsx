@@ -226,7 +226,7 @@ export default function AdminDashboard() {
     router.push('/');
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab:any) => {
     setActiveTab(tab);
     if (isMobile) {
       setMobileOpen(false);
