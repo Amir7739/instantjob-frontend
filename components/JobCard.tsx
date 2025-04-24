@@ -19,6 +19,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { Job } from "@/redux/features/jobsSlice";
 import Link from "next/link";
 import Navbar from "./Navbar";
+import { capitalizeTitle } from "@/utils/wordFormat";
 
 type JobCardProps = {
   job: Job;
@@ -42,6 +43,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const handleShowMoreSkills = () => {
     setShowAllSkills(true);
   };
+  
 
   const skillsToDisplay = showAllSkills
     ? job.keySkills
@@ -84,7 +86,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               mt: 1,
             }}
           >
-            {job?.title}
+            {capitalizeTitle(job.title)}
           </Typography>
 
           <Stack
@@ -94,10 +96,10 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             spacing={2}
           >
             <Typography variant="subtitle2" color="#FE9900" gutterBottom>
-              {job.companyName}
+              {capitalizeTitle(job.companyName)}
             </Typography>
             <Typography variant="subtitle2" color="#E73CC2" gutterBottom>
-              {job.jobType}
+              {capitalizeTitle(job.jobType)}
             </Typography>
           </Stack>
 
@@ -115,7 +117,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                 variant="body2"
                 sx={{ overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {job.location}
+                {capitalizeTitle(job.location)}
               </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
