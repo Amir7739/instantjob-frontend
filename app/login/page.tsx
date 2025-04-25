@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import {
   Box,
   Button,
@@ -45,6 +45,7 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
   const { trigger: login, isMutating } = useLogin();
 
+  // Wrap useSearchParams() inside Suspense for client-side rendering (CSR)
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/emp-dashboard"; // Get redirect URL from query params or default to home
 
@@ -71,7 +72,6 @@ const LoginPage: React.FC = () => {
           dispatch(setAuth(res));
           setOpenSnackbar(true);
 
-          
           setTimeout(() => {
             if (role === "admin") {
               router.push("/admin-dashboard");
@@ -145,11 +145,7 @@ const LoginPage: React.FC = () => {
               </Alert>
             )}
 
-            <Box
-              component="form"
-              onSubmit={formik.handleSubmit}
-              sx={{ width: "100%" }}
-            >
+            <Box component="form" onSubmit={formik.handleSubmit} sx={{ width: "100%" }}>
               <TextField
                 margin="normal"
                 fullWidth
@@ -159,9 +155,7 @@ const LoginPage: React.FC = () => {
                 value={formik.values.emailOrPhone}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={
-                  formik.touched.emailOrPhone && Boolean(formik.errors.emailOrPhone)
-                }
+                error={formik.touched.emailOrPhone && Boolean(formik.errors.emailOrPhone)}
                 helperText={formik.touched.emailOrPhone && formik.errors.emailOrPhone}
                 InputProps={{
                   startAdornment: (
@@ -266,4 +260,11 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+// Wrap the component in Suspense for client-side rendering (CSR) support
+export default function LoginWithSuspense() {
+  return (
+    <Suspense fallback={<CircularProgress size={24} />}>
+      <LoginPage />
+    </Suspense>
+  );
+}
