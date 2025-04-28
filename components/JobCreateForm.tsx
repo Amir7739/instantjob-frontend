@@ -46,6 +46,7 @@ import axiosInstance from "@/utils/axios";
 import Navbar from "./Navbar";
 import { Formik, Form, Field, ErrorMessage, FieldProps } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 // Custom theme
 const theme = createTheme({
@@ -224,6 +225,8 @@ const JobCreateForm = () => {
   const [otherCategory, setOtherCategory] = useState("");
   const [otherIndustry, setOtherIndustry] = useState("");
 
+  const router = useRouter();
+
   const initialValues = {
     title: "",
     companyName: "",
@@ -313,6 +316,10 @@ const JobCreateForm = () => {
 
       resetForm();
       setLogoPreview(null);
+
+      setTimeout(() => {
+        router.push("/admin-dashboard");
+      }, 1000);
 
       console.log("Job created successfully:", res.data);
     } catch (err) {

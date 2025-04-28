@@ -2,7 +2,7 @@
   "name": "instantjob-frontend",
   "version": "0.1.0",
   "private": true,
- "scripts": {
+  "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
@@ -23,6 +23,8 @@
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.1",
     "react-redux": "^9.2.0",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "swr": "^2.3.3",
@@ -32,6 +34,7 @@
     "@types/node": "^22.15.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/react-window": "^1.8.8",
     "nodemon": "^3.1.10",
     "typescript": "^5.8.3"
   }
