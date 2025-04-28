@@ -14,6 +14,7 @@ import {
   Divider,
   useMediaQuery,
   alpha,
+  Button,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import {
@@ -432,15 +433,75 @@ const AdminDashboard = () => {
                         justifyContent: "space-between",
                         alignItems: "center",
                         mb: 2,
+                        flexDirection: { xs: "column", sm: "row" }, // Stack vertically on mobile, horizontally on larger screens
+                        gap: 2, // Add some gap between the title and buttons
+                        flexWrap: "nowrap", // Prevent wrapping of items
                       }}
                     >
-                      <Typography variant="h6" color="text.primary">
+                      {/* Left side: Recent Job Postings */}
+                      <Typography
+                        variant="h6"
+                        color="text.primary"
+                        sx={{
+                          mb: { xs: 2, sm: 0 }, // Add margin-bottom for mobile
+                          fontWeight: "600", // Make the title bolder for emphasis
+                          fontSize: { xs: "1.2rem", sm: "1.5rem" }, // Adjust font size for mobile
+                          flex: 1, // Allow the title to take available space
+                        }}
+                      >
                         Recent Job Postings
                       </Typography>
-                      <Typography variant="subtitle2" color="primary">
-                        View All
-                      </Typography>
+
+                      {/* Right side: Buttons */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end", // Align buttons to the right
+                          alignItems: "center",
+                          gap: 2, // Space between the buttons
+                          width: "auto", // Buttons take up only as much space as required
+                        }}
+                      >
+                        {/* Add New Job Button */}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => window.open("/jobs/create", "_blank")}
+                          sx={{
+                            width: { xs: "100%", sm: "auto" }, // Make button full-width on mobile
+                            padding: "12px 16px", // Add padding for a more prominent button on mobile
+                            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjust font size
+                            borderRadius: "8px", // Rounded corners for the button
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+                            "&:hover": {
+                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)", // Enhance shadow on hover
+                            },
+                          }}
+                        >
+                          + Post New Job
+                        </Button>
+
+                        {/* View All Button */}
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() => handleTabChange("jobs")}
+                          sx={{
+                            width: { xs: "100%", sm: "auto" }, // Make button full-width on mobile
+                            padding: "12px 16px", // Add padding for button
+                            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjust font size
+                            borderRadius: "8px", // Rounded corners for the button
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+                            "&:hover": {
+                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)", // Enhance shadow on hover
+                            },
+                          }}
+                        >
+                          View All
+                        </Button>
+                      </Box>
                     </Box>
+
                     <JobTable jobs={jobs} getStatusColor={getStatusColor} />
                   </CardContent>
                 </Card>
@@ -656,7 +717,14 @@ const AdminDashboard = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", minHeight: "100vh", width: "100%",overflow:'hidden' }}>
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+          width: "100%",
+          overflow: "hidden",
+        }}
+      >
         <CssBaseline />
         <Sidebar
           activeTab={activeTab}
@@ -667,10 +735,10 @@ const AdminDashboard = () => {
           component="main"
           sx={{
             flexGrow: 1,
-            height: "100vh",        // Important
-            overflowY: "auto",       // Only main area vertically scroll kare
-            overflowX: "auto",   
-            width: '100%',    // Horizontal scroll bhi allow karo
+            height: "100vh", // Important
+            overflowY: "auto", // Only main area vertically scroll kare
+            overflowX: "auto",
+            width: "100%", // Horizontal scroll bhi allow karo
             backgroundColor: "background.default",
             p: { xs: 1, sm: 2, md: 3 },
             mt: { xs: 8, sm: 8, md: 0 }, // mobile ke liye
