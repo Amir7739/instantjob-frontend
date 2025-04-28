@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   List, 
@@ -12,7 +12,9 @@ import {
   Avatar,
   Tooltip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Drawer,
+  AppBar
 } from '@mui/material';
 import { 
   Dashboard as DashboardIcon, 
@@ -25,7 +27,14 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
-const StyledSidebar = styled(Box)(({ theme, open }) => ({
+// Fix for TypeScript props
+interface StyledSidebarProps {
+  open: boolean;
+}
+
+const StyledSidebar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})<StyledSidebarProps>(({ theme, open }) => ({
   width: open ? 240 : 73,
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -36,16 +45,21 @@ const StyledSidebar = styled(Box)(({ theme, open }) => ({
   borderRight: `1px solid ${theme.palette.divider}`,
   height: '100vh',
   display: 'flex',
+  position: 'sticky',
+  left: 0,
   flexDirection: 'column',
   [theme.breakpoints.down('sm')]: {
-    position: 'fixed',
-    zIndex: 1200,
-    width: open ? 240 : 0,
-    boxShadow: open ? theme.shadows[8] : 'none',
+    display: 'none', // Hide completely on mobile as we use Drawer instead
   }
 }));
 
-const StyledListItem = styled(ListItem)(({ theme, active }) => ({
+interface StyledListItemProps {
+  active: number;
+}
+
+const StyledListItem = styled(ListItem, {
+  shouldForwardProp: (prop) => prop !== 'active',
+})<StyledListItemProps>(({ theme, active }) => ({
   margin: '4px 8px',
   borderRadius: theme.shape.borderRadius,
   '&:hover': {
@@ -65,17 +79,36 @@ const HeaderBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin User", userAvatar = null }) => {
-  const [open, setOpen] = React.useState(true);
+const Sidebar = ({ 
+  activeTab, 
+  handleTabChange, 
+  handleLogout, 
+  userName = "Admin User", 
+  userAvatar = null 
+}) => {
+  // Separate mobile open state from regular sidebar state
+  const [open, setOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
-  React.useEffect(() => {
-    setOpen(!isMobile);
+  // Initialize open state based on screen size
+  useEffect(() => {
+    if (!isMobile) {
+      setOpen(true);
+    }
   }, [isMobile]);
 
+  // Handle desktop sidebar toggle
   const toggleDrawer = () => {
-    setOpen(!open);
+    if (!isMobile) {
+      setOpen(!open);
+    }
+  };
+
+  // Handle mobile sidebar toggle - explicitly separated
+  const handleMobileToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   const menuItems = [
@@ -85,16 +118,16 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
     { id: 'employers', text: 'Employers', icon: <BusinessIcon /> },
   ];
 
-  return (
-    <StyledSidebar open={open}>
+  const sidebarContent = (
+    <>
       <HeaderBox sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {open ? (
+        {(open || isMobile) ? (
           <>
             <Typography variant="h6" fontWeight="bold" noWrap>
               Admin Portal
             </Typography>
             <IconButton 
-              onClick={toggleDrawer} 
+              onClick={isMobile ? handleMobileToggle : toggleDrawer} 
               sx={{ color: 'inherit' }}
               size="small"
             >
@@ -112,7 +145,7 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
         )}
       </HeaderBox>
       
-      {open && (
+      {(open || isMobile) && (
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
           <Avatar 
             src={userAvatar} 
@@ -138,7 +171,7 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
             const isActive = activeTab === item.id;
             return (
               <Tooltip 
-                title={!open ? item.text : ""} 
+                title={!open && !isMobile ? item.text : ""} 
                 placement="right" 
                 key={item.id}
                 arrow
@@ -146,19 +179,24 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
                 <StyledListItem 
                   button 
                   active={isActive ? 1 : 0}
-                  onClick={() => handleTabChange(item.id)}
+                  onClick={() => {
+                    handleTabChange(item.id);
+                    if (isMobile) {
+                      setMobileOpen(false);
+                    }
+                  }}
                   sx={{ py: 1 }}
                 >
                   <ListItemIcon 
                     sx={{ 
                       color: isActive ? 'primary.main' : 'text.secondary',
-                      minWidth: open ? 40 : 36,
-                      ml: open ? 0 : '2px'
+                      minWidth: (open || isMobile) ? 40 : 36,
+                      ml: (open || isMobile) ? 0 : '2px'
                     }}
                   >
                     {item.icon}
                   </ListItemIcon>
-                  {open && (
+                  {(open || isMobile) && (
                     <ListItemText 
                       primary={item.text} 
                       primaryTypographyProps={{ 
@@ -177,12 +215,17 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
       <Box>
         <Divider />
         <List>
-          <Tooltip title={!open ? "Logout" : ""} placement="right" arrow>
-            <StyledListItem button onClick={handleLogout} sx={{ color: 'error.main' }}>
-              <ListItemIcon sx={{ color: 'error.main', minWidth: open ? 40 : 36, ml: open ? 0 : '2px' }}>
+          <Tooltip title={!open && !isMobile ? "Logout" : ""} placement="right" arrow>
+            <StyledListItem 
+              button 
+              onClick={handleLogout} 
+              sx={{ color: 'error.main' }} 
+              active={0}
+            >
+              <ListItemIcon sx={{ color: 'error.main', minWidth: (open || isMobile) ? 40 : 36, ml: (open || isMobile) ? 0 : '2px' }}>
                 <LogoutIcon />
               </ListItemIcon>
-              {open && (
+              {(open || isMobile) && (
                 <ListItemText 
                   primary="Logout" 
                   primaryTypographyProps={{ fontWeight: 'medium' }}
@@ -192,7 +235,57 @@ const Sidebar = ({ activeTab, handleTabChange, handleLogout, userName = "Admin U
           </Tooltip>
         </List>
       </Box>
-    </StyledSidebar>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile app bar with menu button */}
+      {isMobile && (
+        <AppBar position="fixed" sx={{ backgroundColor: theme.palette.primary.main }}>
+          <Toolbar>
+            <IconButton
+              onClick={handleMobileToggle}
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Admin Portal
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <StyledSidebar open={open}>
+          {sidebarContent}
+        </StyledSidebar>
+      )}
+
+      {/* Mobile drawer */}
+      <Drawer
+        open={isMobile && mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        ModalProps={{
+          keepMounted: true, // Better mobile performance
+        }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: 240,
+          },
+        }}
+      >
+        {sidebarContent}
+      </Drawer>
+    </>
   );
 };
 
