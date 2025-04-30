@@ -150,7 +150,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             sx={{ marginBottom: "8px" }}
           >
             {job.keySkills.slice(0, 4).map((skill, index) => (
-              <Chip key={index} label={skill} size="small" />
+              <Chip key={index} label={skill.toUpperCase()} size="small" />
             ))}
             {job.keySkills.length > 5 && !showAllSkills && (
               <Chip label={`+${job.keySkills.length - 5} more`} size="small" />

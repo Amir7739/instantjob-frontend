@@ -80,7 +80,7 @@ const LoginPage: React.FC = () => {
             } else {
               router.push("/");
             }
-          }, 1500);
+          }, 500);
         }
       } catch (error: any) {
         setErrorMessage(error.response?.data?.message || "Invalid credentials");

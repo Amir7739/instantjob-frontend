@@ -166,7 +166,7 @@ const Sidebar = ({
       <Divider />
       
       <Box sx={{ flexGrow: 1, overflow: 'auto', mt: 1 }}>
-        <List>
+        <List style={{cursor: 'pointer'}}>
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -219,7 +219,7 @@ const Sidebar = ({
             <StyledListItem 
               button 
               onClick={handleLogout} 
-              sx={{ color: 'error.main' }} 
+              sx={{ color: 'error.main', cursor: 'pointer' }} 
               active={0}
             >
               <ListItemIcon sx={{ color: 'error.main', minWidth: (open || isMobile) ? 40 : 36, ml: (open || isMobile) ? 0 : '2px' }}>

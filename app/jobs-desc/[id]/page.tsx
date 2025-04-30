@@ -336,7 +336,7 @@ const JobDetailsPage = () => {
                     {jobData.minExp}-{jobData.maxExp}years
                   </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <PeopleAltIcon fontSize="small" />
                   <Typography
                     variant="body2"
@@ -480,7 +480,7 @@ const JobDetailsPage = () => {
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <CheckCircle color="success" fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText primary={item} />
+                      <ListItemText primary={item.toUpperCase()} />
                     </ListItem>
                   ))}
                 </List>
@@ -499,7 +499,7 @@ const JobDetailsPage = () => {
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <School color="primary" fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText primary={item} />
+                      <ListItemText primary={item.toUpperCase()} />
                     </ListItem>
                   ))}
                 </List>
@@ -521,7 +521,7 @@ const JobDetailsPage = () => {
                   {jobData.keySkills.map((skill, index) => (
                     <Chip
                       key={index}
-                      label={skill}
+                      label={skill.toUpperCase()}
                       icon={<LocalOffer />}
                       color="primary"
                       variant="outlined"
@@ -710,7 +710,7 @@ const JobDetailsPage = () => {
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <CheckCircle color="success" fontSize="small" />
                       </ListItemIcon>
-                      <ListItemText primary={benefit} />
+                      <ListItemText primary={benefit.toUpperCase()} />
                     </ListItem>
                   ))}
                 </List>

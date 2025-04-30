@@ -32,85 +32,7 @@ import Sidebar from "@/components/adminDashboard/Sidebar";
 import StatsCard from "@/components/adminDashboard/StatsCard";
 
 // Dummy data for jobs and candidates
-const jobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Tech Solutions",
-    location: "Bangalore, India",
-    type: "Full Time",
-    salary: "$100-200$",
-    applications: 24,
-    status: "Active",
-    posted: "2 days ago",
-  },
-  {
-    id: 2,
-    title: "Backend Developer",
-    company: "InnovateX",
-    location: "Remote",
-    type: "Part Time",
-    salary: "$100-200$",
-    applications: 18,
-    status: "Active",
-    posted: "1 day ago",
-  },
-  {
-    id: 3,
-    title: "UI/UX Designer",
-    company: "Designify",
-    location: "Delhi, India",
-    type: "Contract",
-    salary: "$100-200$",
-    applications: 12,
-    status: "Active",
-    posted: "3 days ago",
-  },
-  {
-    id: 4,
-    title: "DevOps Engineer",
-    company: "CloudNative",
-    location: "Mumbai, India",
-    type: "Full Time",
-    salary: "$100-200$",
-    applications: 8,
-    status: "Review",
-    posted: "5 days ago",
-  },
-  {
-    id: 5,
-    title: "Product Manager",
-    company: "GrowthLabs",
-    location: "Hyderabad, India",
-    type: "Full Time",
-    salary: "$100-200$",
-    applications: 15,
-    status: "Active",
-    posted: "4 days ago",
-  },
-  {
-    id: 6,
-    title: "Data Scientist",
-    company: "Analytics Pro",
-    location: "Pune, India",
-    type: "Full Time",
-    salary: "$150-250$",
-    applications: 22,
-    status: "Active",
-    posted: "3 days ago",
-  },
-  {
-    id: 7,
-    title: "Mobile Developer",
-    company: "AppWorks",
-    location: "Chennai, India",
-    type: "Contract",
-    salary: "$120-220$",
-    applications: 17,
-    status: "Review",
-    posted: "6 days ago",
-  },
-];
+
 
 const candidates = [
   {
@@ -268,6 +190,8 @@ const AdminDashboard = () => {
     switch (status) {
       case "Active":
         return "success";
+        case "In-Active":
+          return "error";
       case "Review":
         return "warning";
       case "Paused":
@@ -502,7 +426,7 @@ const AdminDashboard = () => {
                       </Box>
                     </Box>
 
-                    <JobTable jobs={jobs} getStatusColor={getStatusColor} />
+                    <JobTable getStatusColor={getStatusColor} />
                   </CardContent>
                 </Card>
               </Grid>
@@ -549,13 +473,12 @@ const AdminDashboard = () => {
                 Job Management
               </Typography>
               <Typography variant="body2">
-                Manage all job postings across your platform. Currently showing{" "}
-                {jobs.length} active listings.
+                Manage all job postings across your platform.
               </Typography>
             </Box>
             <Divider />
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <JobTable jobs={jobs} getStatusColor={getStatusColor} />
+              <JobTable getStatusColor={getStatusColor} />
             </CardContent>
           </Card>
         );
