@@ -1,4 +1,3 @@
-// app/admin-dashboard/page.tsx
 
 "use client";
 
@@ -29,11 +28,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CandidateList from "@/components/adminDashboard/CandidateList";
 import JobTable from "@/components/adminDashboard/JobTable";
 import Sidebar from "@/components/adminDashboard/Sidebar";
-import StatsCard from "@/components/adminDashboard/StatsCard";
+import axiosInstance from "@/utils/axios";
 
 // Dummy data for jobs and candidates
-
-
 const candidates = [
   {
     id: 1,
@@ -107,12 +104,12 @@ const employers = [
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#5E35B1", // Deep purple
+      main: "#5E35B1",
       light: "#7E57C2",
       dark: "#4527A0",
     },
     secondary: {
-      main: "#FF5722", // Deep orange
+      main: "#FF5722",
       light: "#FF7043",
       dark: "#E64A19",
     },
@@ -171,10 +168,24 @@ const theme = createTheme({
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userName, setUserName] = useState("Admin");
+  const [statsData, setStatsData] = useState([]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Function to update active tab when sidebar item is clicked
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axiosInstance.get("/jobs/admin-dashboard-stats");
+        setStatsData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        setStatsData([]); 
+      }
+    };
+    fetchStats();
+  }, []);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -190,8 +201,8 @@ const AdminDashboard = () => {
     switch (status) {
       case "Active":
         return "success";
-        case "In-Active":
-          return "error";
+      case "In-Active":
+        return "error";
       case "Review":
         return "warning";
       case "Paused":
@@ -206,58 +217,6 @@ const AdminDashboard = () => {
         return "default";
     }
   };
-
-  // Enhanced statistics for dashboard
-  const statsData = [
-    {
-      title: "Total Jobs",
-      value: "156",
-      change: "+12%",
-      changeType: "positive",
-      icon: <ArrowUpwardIcon />,
-      color: theme.palette.primary.main,
-    },
-    {
-      title: "Active Applications",
-      value: "1,285",
-      change: "+7.2%",
-      changeType: "positive",
-      icon: <ArrowUpwardIcon />,
-      color: theme.palette.success.main,
-    },
-    {
-      title: "Registered Employers",
-      value: "47",
-      change: "+5%",
-      changeType: "positive",
-      icon: <ArrowUpwardIcon />,
-      color: theme.palette.info.main,
-    },
-    {
-      title: "Hiring Rate",
-      value: "68%",
-      change: "-3%",
-      changeType: "negative",
-      icon: <ArrowDownwardIcon />,
-      color: theme.palette.warning.main,
-    },
-    {
-      title: "Abc",
-      value: "68%",
-      change: "-3%",
-      changeType: "negative",
-      icon: <ArrowDownwardIcon />,
-      color: theme.palette.warning.main,
-    },
-    {
-      title: "Hiring Rate",
-      value: "68%",
-      change: "-3%",
-      changeType: "negative",
-      icon: <ArrowDownwardIcon />,
-      color: theme.palette.warning.main,
-    },
-  ];
 
   // Render content based on active tab
   const renderDashboardContent = () => {
@@ -299,7 +258,6 @@ const AdminDashboard = () => {
                         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                       }}
                     >
-                      {/* Your Stats Card Content */}
                       <Box
                         sx={{
                           display: "flex",
@@ -321,7 +279,11 @@ const AdminDashboard = () => {
                             mb: 1,
                           }}
                         >
-                          {stat.icon}
+                          {stat.icon === "ArrowUpwardIcon" ? (
+                            <ArrowUpwardIcon />
+                          ) : (
+                            <ArrowDownwardIcon />
+                          )}
                         </Box>
                         <Typography variant="subtitle2" color="textSecondary">
                           {stat.title}
@@ -357,67 +319,61 @@ const AdminDashboard = () => {
                         justifyContent: "space-between",
                         alignItems: "center",
                         mb: 2,
-                        flexDirection: { xs: "column", sm: "row" }, // Stack vertically on mobile, horizontally on larger screens
-                        gap: 2, // Add some gap between the title and buttons
-                        flexWrap: "nowrap", // Prevent wrapping of items
+                        flexDirection: { xs: "column", sm: "row" },
+                        gap: 2,
+                        flexWrap: "nowrap",
                       }}
                     >
-                      {/* Left side: Recent Job Postings */}
                       <Typography
                         variant="h6"
                         color="text.primary"
                         sx={{
-                          mb: { xs: 2, sm: 0 }, // Add margin-bottom for mobile
-                          fontWeight: "600", // Make the title bolder for emphasis
-                          fontSize: { xs: "1.2rem", sm: "1.5rem" }, // Adjust font size for mobile
-                          flex: 1, // Allow the title to take available space
+                          mb: { xs: 2, sm: 0 },
+                          fontWeight: "600",
+                          fontSize: { xs: "1.2rem", sm: "1.5rem" },
+                          flex: 1,
                         }}
                       >
                         Recent Job Postings
                       </Typography>
-
-                      {/* Right side: Buttons */}
                       <Box
                         sx={{
                           display: "flex",
-                          justifyContent: "flex-end", // Align buttons to the right
+                          justifyContent: "flex-end",
                           alignItems: "center",
-                          gap: 2, // Space between the buttons
-                          width: "auto", // Buttons take up only as much space as required
+                          gap: 2,
+                          width: "auto",
                         }}
                       >
-                        {/* Add New Job Button */}
                         <Button
                           variant="contained"
                           color="primary"
                           onClick={() => window.open("/jobs/create", "_blank")}
                           sx={{
-                            width: { xs: "100%", sm: "auto" }, // Make button full-width on mobile
-                            padding: "12px 16px", // Add padding for a more prominent button on mobile
-                            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjust font size
-                            borderRadius: "8px", // Rounded corners for the button
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+                            width: { xs: "100%", sm: "auto" },
+                            padding: "12px 16px",
+                            fontSize: { xs: "1rem", sm: "1.1rem" },
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                             "&:hover": {
-                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)", // Enhance shadow on hover
+                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
                             },
                           }}
                         >
                           + Post New Job
                         </Button>
-
-                        {/* View All Button */}
                         <Button
                           variant="outlined"
                           color="primary"
                           onClick={() => handleTabChange("jobs")}
                           sx={{
-                            width: { xs: "100%", sm: "auto" }, // Make button full-width on mobile
-                            padding: "12px 16px", // Add padding for button
-                            fontSize: { xs: "1rem", sm: "1.1rem" }, // Adjust font size
-                            borderRadius: "8px", // Rounded corners for the button
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+                            width: { xs: "100%", sm: "auto" },
+                            padding: "12px 16px",
+                            fontSize: { xs: "1rem", sm: "1.1rem" },
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                             "&:hover": {
-                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)", // Enhance shadow on hover
+                              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
                             },
                           }}
                         >
@@ -425,7 +381,6 @@ const AdminDashboard = () => {
                         </Button>
                       </Box>
                     </Box>
-
                     <JobTable getStatusColor={getStatusColor} />
                   </CardContent>
                 </Card>
@@ -535,10 +490,7 @@ const AdminDashboard = () => {
                     <thead>
                       <tr
                         style={{
-                          backgroundColor: alpha(
-                            theme.palette.primary.main,
-                            0.05
-                          ),
+                          backgroundColor: alpha(theme.palette.primary.main, 0.05),
                         }}
                       >
                         <th
@@ -585,10 +537,7 @@ const AdminDashboard = () => {
                           key={employer.id}
                           style={{
                             "&:hover": {
-                              backgroundColor: alpha(
-                                theme.palette.primary.main,
-                                0.05
-                              ),
+                              backgroundColor: alpha(theme.palette.primary.main, 0.05),
                             },
                           }}
                         >
@@ -658,13 +607,13 @@ const AdminDashboard = () => {
           component="main"
           sx={{
             flexGrow: 1,
-            height: "100vh", // Important
-            overflowY: "auto", // Only main area vertically scroll kare
+            height: "100vh",
+            overflowY: "auto",
             overflowX: "auto",
-            width: "100%", // Horizontal scroll bhi allow karo
+            width: "100%",
             backgroundColor: "background.default",
             p: { xs: 1, sm: 2, md: 3 },
-            mt: { xs: 8, sm: 8, md: 0 }, // mobile ke liye
+            mt: { xs: 8, sm: 8, md: 0 },
             transition: theme.transitions.create(["margin", "width"], {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
@@ -684,22 +633,16 @@ const AdminDashboard = () => {
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               {activeTab === "dashboard" && (
-                <DashboardIcon
-                  sx={{ mr: 1, color: theme.palette.primary.main }}
-                />
+                <DashboardIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
               {activeTab === "jobs" && (
                 <JobsIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
               {activeTab === "candidates" && (
-                <CandidatesIcon
-                  sx={{ mr: 1, color: theme.palette.primary.main }}
-                />
+                <CandidatesIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
               {activeTab === "employers" && (
-                <EmployersIcon
-                  sx={{ mr: 1, color: theme.palette.primary.main }}
-                />
+                <EmployersIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
               <Typography variant="h5" color="text.primary">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}

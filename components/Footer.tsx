@@ -126,7 +126,7 @@ const Footer = () => {
               {["About Us", "Contact", "Careers", "Press"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
-                    href="#"
+                   href={item === "About Us" ? "/about" : item === "Contact" ? "/contact" : "#"}
                     style={{
                       textDecoration: "none",
                       color: "#e4e8ed",
@@ -149,15 +149,15 @@ const Footer = () => {
               Email: support@instantjob.com
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2" paragraph>
-              Phone: +91 1234 567 890
+              Phone:  0120-4461787
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2">
-              Address: Cyber Hub, Gurgaon, India
+            911,9th Floor, Tower-B, Advant IT Park
             </Typography>
           </Grid>
         </Grid>
         <Divider sx={{ my: 3, borderColor: "grey.800" }} />
-        <Typography variant="body2" align="center">
+        <Typography style={{color: 'white'}} variant="body2" align="center">
           © {new Date().getFullYear()} InstantJob. All rights reserved.
         </Typography>
       </Container>
