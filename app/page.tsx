@@ -18,6 +18,7 @@ import {
   CardActions,
   Divider,
   Pagination,
+  CircularProgress,
 } from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -42,6 +43,7 @@ import { motion } from "framer-motion";
 import { fetchAllJobs } from "@/redux/features/jobsSlice";
 import useDebounce from "@/utils/useDebounce";
 import JobCard from "@/components/JobCard";
+import FormSkeleton from "@/components/FormSkeleton";
 
 export default function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -50,6 +52,7 @@ export default function HomePage() {
   const [savedJobs, setSavedJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
+  const [isLoadingAllJobs, setIsLoadingAllJobs] = useState(false);
 
   const jobsPerPage = 9;
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -511,78 +514,100 @@ export default function HomePage() {
     px: { xs: 2, md: 4 },  // <-- instead of ml, use px for side padding
   }}
 >
+  <Container maxWidth="xl" sx={{ px: 2 }}>
+    <Box sx={{ mb: { xs: 5, md: 7 }, textAlign: "center" }}>
+      <Typography
+        variant="h4"
+        component="h2"
+        fontWeight="800"
+        gutterBottom
+        sx={{
+          fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
+          background: "linear-gradient(to right, #4F46E5, #7C3AED)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        Featured Job Openings
+      </Typography>
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ maxWidth: "800px", mx: "auto" }}
+      >
+        Handpicked opportunities from top companies
+      </Typography>
+    </Box>
 
-        <Container maxWidth="xl" sx={{ px: 2 }}>
-          <Box sx={{ mb: { xs: 5, md: 7 }, textAlign: "center" }}>
-            <Typography
-              variant="h4"
-              component="h2"
-              fontWeight="800"
-              gutterBottom
-              sx={{
-                fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
-                background: "linear-gradient(to right, #4F46E5, #7C3AED)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Featured Job Openings
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ maxWidth: "800px", mx: "auto" }}
-            >
-              Handpicked opportunities from top companies
-            </Typography>
-          </Box>
+    {isLoadingAllJobs ? (
+      <Grid container spacing={2}>
+        {[...Array(9)].map((_, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <FormSkeleton />
+          </Grid>
+        ))}
+      </Grid>
+    ) : (
+      <Grid container spacing={2}>
+        {jobs.map((job) => (
+          <Grid item xs={12} sm={6} md={4} key={job._id}>
+            <JobCard job={job} />
+          </Grid>
+        ))}
+      </Grid>
+    )}
 
-          <Grid container spacing={2}>
-  {jobs.map((job) => (
-    <Grid item xs={12} sm={6} md={4} key={job._id}>
-      <JobCard job={job} />
-    </Grid>
-  ))}
-</Grid>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      mt={4}
+      mb={2}
+    >
+      <Button
+        variant="contained"
+        size="large"
+        startIcon={
+          isLoadingAllJobs ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            <WorkIcon />
+          )
+        }
+        sx={{
+          backgroundColor: "#1976d2",
+          color: "white",
+          padding: "10px 24px",
+          borderRadius: "8px",
+          fontWeight: 600,
+          textTransform: "none",
+          fontSize: "1rem",
+          boxShadow: "0 4px 10px rgba(25, 118, 210, 0.3)",
+          transition: "all 0.3s",
+          "&:hover": {
+            backgroundColor: "#1565c0",
+            boxShadow: "0 6px 12px rgba(25, 118, 210, 0.4)",
+            transform: "translateY(-2px)",
+          },
+          "&:disabled": {
+            backgroundColor: "#1976d2",
+            opacity: 0.7,
+          },
+        }}
+        onClick={() => {
+          setIsLoadingAllJobs(true);
+          setTimeout(() => {
+            window.location.href = "/all-jobs";
+          }, 2000); // Simulate loading delay
+        }}
+        disabled={isLoadingAllJobs}
+      >
+        {isLoadingAllJobs ? "Loading..." : "View All Jobs"}
+      </Button>
+    </Box>
+  </Container>
+</Box>
 
-
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            mt={4}
-            mb={2}
-          >
-            <Link href="/all-jobs" passHref legacyBehavior>
-              <Button
-                component="a"
-                variant="contained"
-                size="large"
-                startIcon={<WorkIcon />}
-                sx={{
-                  backgroundColor: "#1976d2",
-                  color: "white",
-                  padding: "10px 24px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1rem",
-                  boxShadow: "0 4px 10px rgba(25, 118, 210, 0.3)",
-                  transition: "all 0.3s",
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                    boxShadow: "0 6px 12px rgba(25, 118, 210, 0.4)",
-                    transform: "translateY(-2px)",
-                  },
-                }}
-              >
-                View All Jobs
-              </Button>
-            </Link>
-          </Box>
-          {/* Job count info */}
-        </Container>
-      </Box>
 
       {/* Testimonials Section (NEW) */}
       {/* Testimonials Section with Auto-Carousel */}

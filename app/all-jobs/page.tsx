@@ -38,6 +38,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import CloseIcon from "@mui/icons-material/Close";
 import useDebounce from "@/utils/useDebounce";
 import axiosInstance from "@/utils/axios";
+import FormSkeleton from "@/components/FormSkeleton";
 
 const ViewAllJobsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -639,11 +640,17 @@ const ViewAllJobsPage = () => {
 
             {/* Job Cards Grid */}
             <Grid container spacing={{ xs: 2, md: 3 }}>
-              {jobs.map((job) => (
-                <Grid item xs={12} key={job._id}>
-                  <JobCard job={job} />
-                </Grid>
-              ))}
+              {loading
+                ? [...Array(6)].map((_, index) => (
+                    <Grid item xs={12} key={index}>
+                      <FormSkeleton />
+                    </Grid>
+                  ))
+                : jobs.map((job) => (
+                    <Grid item xs={12} key={job._id}>
+                      <JobCard job={job} />
+                    </Grid>
+                  ))}
             </Grid>
 
             {/* Empty state */}
