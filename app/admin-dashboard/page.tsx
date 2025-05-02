@@ -29,6 +29,8 @@ import CandidateList from "@/components/adminDashboard/CandidateList";
 import JobTable from "@/components/adminDashboard/JobTable";
 import Sidebar from "@/components/adminDashboard/Sidebar";
 import axiosInstance from "@/utils/axios";
+import JobApplication from "@/components/adminDashboard/jobApplicationList";
+import withAdminAuth from "@/components/withAdminProtection";
 
 // Dummy data for jobs and candidates
 const candidates = [
@@ -437,6 +439,29 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
+        case "jobsApp":
+        return (
+          <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+            <Box
+              sx={{
+                p: 3,
+                background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.light} 90%)`,
+                color: "white",
+              }}
+            >
+              <Typography variant="h6" gutterBottom>
+                Job Applications Management
+              </Typography>
+              <Typography variant="body2">
+                Manage all job applications across your platform.
+              </Typography>
+            </Box>
+            <Divider />
+            <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+              <JobApplication getStatusColor={getStatusColor} />
+            </CardContent>
+          </Card>
+        );
       case "candidates":
         return (
           <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
@@ -638,6 +663,9 @@ const AdminDashboard = () => {
               {activeTab === "jobs" && (
                 <JobsIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
+              {activeTab === "jobsApp" && (
+                <CandidatesIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+              )}
               {activeTab === "candidates" && (
                 <CandidatesIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
@@ -653,6 +681,8 @@ const AdminDashboard = () => {
                 "Overview of platform performance and recent activities"}
               {activeTab === "jobs" &&
                 "View and manage all job postings across the platform"}
+                {activeTab === "jobsApp" &&
+                "View and manage all job Applications across the platform"}
               {activeTab === "candidates" &&
                 "Track and manage candidate applications"}
               {activeTab === "employers" &&
@@ -668,4 +698,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAdminAuth(AdminDashboard);

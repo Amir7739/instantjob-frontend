@@ -23,7 +23,8 @@ import {
   Business as BusinessIcon, 
   Logout as LogoutIcon,
   ChevronLeft as ChevronLeftIcon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Assignment as AssignmentIcon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
@@ -114,6 +115,7 @@ const Sidebar = ({
   const menuItems = [
     { id: 'dashboard', text: 'Dashboard', icon: <DashboardIcon /> },
     { id: 'jobs', text: 'Jobs', icon: <WorkIcon /> },
+    { id: 'jobsApp', text: 'Job Applications', icon: <AssignmentIcon /> },
     { id: 'candidates', text: 'Candidates', icon: <PeopleIcon /> },
     { id: 'employers', text: 'Employers', icon: <BusinessIcon /> },
   ];

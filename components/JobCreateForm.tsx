@@ -309,7 +309,7 @@ const JobCreateForm = ({
       console.error("Invalid jobId:", jobId);
       return;
     }
-
+  
     const data = { ...values };
     delete data.companyLogo;
     if (data.applyBy) {
@@ -318,17 +318,21 @@ const JobCreateForm = ({
     data.minExp = Number(data.minExp);
     data.maxExp = Number(data.maxExp);
     data.openings = Number(data.openings);
-
+  
     console.log("Submitting payload:", data);
-
+  
     try {
       const url = isEditing ? `/jobs/update/${jobId}` : "/jobs/create";
       let res;
       if (values.companyLogo) {
         const formData = new FormData();
+        // Append non-array fields and arrays correctly
         for (const key in data) {
           if (Array.isArray(data[key])) {
-            formData.append(key, JSON.stringify(data[key]));
+            // Append each array element individually
+            data[key].forEach((item: any) => {
+              formData.append(`${key}[]`, item); // Use key[] to indicate an array
+            });
           } else {
             formData.append(key, data[key]);
           }
@@ -348,29 +352,32 @@ const JobCreateForm = ({
           headers: { "Content-Type": "application/json" },
         });
       }
-
+  
       console.log("API response:", res.data);
-
+  
       if (!res.data.success) {
         throw new Error(res.data.message || "Failed to update job");
       }
-
+  
       setSnackbar({
         open: true,
-        message: isEditing ? "Job updated successfully!" : "Job created successfully!",
+        message: isEditing
+          ? "Job updated successfully!"
+          : "Job created successfully!",
         severity: "success",
       });
-
+  
       if (!isEditing) {
         resetForm();
         setLogoPreview(null);
       }
-
+  
       setTimeout(() => {
         router.push("/admin-dashboard");
       }, 1000);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || "Error updating job";
+      const errorMessage =
+        err.response?.data?.message || err.message || "Error updating job";
       setSnackbar({
         open: true,
         message: errorMessage,

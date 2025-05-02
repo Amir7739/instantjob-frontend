@@ -315,6 +315,7 @@ const JobTable = ({ getStatusColor = (status) => (status === 'Active' ? 'success
         </div>
       )}
       <DataGrid
+      showToolbar
         rows={rows}
         columns={columns}
         rowHeight={isMobile ? 50 : 60}
