@@ -68,7 +68,7 @@ const ProfileUpdate = () => {
       const fetchCandidateData = async () => {
         try {
           const res = await axiosInstance.get(`/candidates/get/${userId}`);
-          console.log('candidate res',res)
+
           setCandidateData(res.data.candidate);
           setFormData(res.data.candidate);
         } catch (err) {
@@ -82,7 +82,9 @@ const ProfileUpdate = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev!,
@@ -93,7 +95,7 @@ const ProfileUpdate = () => {
   const handleArrayChange = (
     e: React.ChangeEvent<{ name?: string; value: unknown }>,
     index: number,
-    field: string,
+    field: string
   ) => {
     const { name, value } = e.target;
     const newArray = [...(formData?.[name as keyof Candidate] as any[])];
@@ -295,13 +297,20 @@ const ProfileUpdate = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <IconButton color="secondary" onClick={() => handleRemoveEducation(index)}>
+                <IconButton
+                  color="secondary"
+                  onClick={() => handleRemoveEducation(index)}
+                >
                   <Delete />
                 </IconButton>
               </Grid>
             </Grid>
           ))}
-          <Button onClick={handleAddEducation} variant="contained" color="primary">
+          <Button
+            onClick={handleAddEducation}
+            variant="contained"
+            color="primary"
+          >
             Add Education
           </Button>
         </Grid>
@@ -364,13 +373,20 @@ const ProfileUpdate = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <IconButton color="secondary" onClick={() => handleRemoveExperience(index)}>
+                <IconButton
+                  color="secondary"
+                  onClick={() => handleRemoveExperience(index)}
+                >
                   <Delete />
                 </IconButton>
               </Grid>
             </Grid>
           ))}
-          <Button onClick={handleAddExperience} variant="contained" color="primary">
+          <Button
+            onClick={handleAddExperience}
+            variant="contained"
+            color="primary"
+          >
             Add Experience
           </Button>
         </Grid>

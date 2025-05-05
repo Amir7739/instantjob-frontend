@@ -51,7 +51,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
         const response = await fetchInitialJobApplications(); // Fetch first 10 job applications
         setJobApplications(response.data);
         setTotalJobs(response.totalJobApplications); // Use totalDocuments from response
-        console.log(`Initial job applications loaded: ${response.data.length}, total: ${response.totalJobApplications}`);
+       
       } catch (error) {
         setError(error.message || 'Error fetching initial job applications');
       } finally {
@@ -64,7 +64,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
     const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
     if (gridElement) {
       gridElement.scrollTop = 0;
-      console.log('Scroll position reset to top');
+    
     }
   }, []);
 
@@ -78,7 +78,6 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
       if (gridElement) {
         gridElement.addEventListener('scroll', handleScroll);
-        console.log('Scroll listener attached');
         return true;
       }
       return false;
@@ -88,7 +87,6 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       if (retryCount < maxRetries) {
         if (!attachScrollListener()) {
           retryCount++;
-          console.log(`Retry ${retryCount}/${maxRetries} to attach scroll listener`);
           setTimeout(tryAttachListener, retryInterval);
         }
       } else {
@@ -98,7 +96,6 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
 
     const handleScroll = () => {
       if (!gridRef.current || isLoading) {
-        console.log('Scroll skipped: No gridRef or loading in progress');
         return;
       }
       const gridElement = gridRef.current.querySelector('.MuiDataGrid-virtualScroller');
@@ -108,10 +105,9 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       }
 
       const { scrollTop, scrollHeight, clientHeight } = gridElement;
-      console.log(`Scroll: scrollTop=${scrollTop}, clientHeight=${clientHeight}, scrollHeight=${scrollHeight}`);
-      console.log(`Scroll condition: ${scrollTop + clientHeight} >= ${scrollHeight - 200}`);
+     
       if (scrollTop + clientHeight >= scrollHeight - 200 && jobApplications.length < totalJobs) {
-        console.log(`Triggering load: jobApplications=${jobApplications.length}, totalJobs=${totalJobs}`);
+       
         setIsLoading(true);
         fetchMoreJobsHandler();
       }
@@ -122,10 +118,10 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
         const nextPage = Math.floor(jobApplications.length / 10) + 2; // Calculate next page
         const response = await fetchMoreJobApplications(nextPage); // Fetch next 10 job applications
         if (response.data.length > 0) {
-          console.log(`Loading ${response.data.length} new job applications`);
+
           setJobApplications((prev) => {
             const newJobs = [...prev, ...response.data];
-            console.log(`New jobApplications length: ${newJobs.length}`);
+            
             return newJobs;
           });
         } else {
@@ -144,7 +140,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
       if (gridElement) {
         gridElement.removeEventListener('scroll', handleScroll);
-        console.log('Scroll listener removed');
+       
       }
     };
   }, [jobApplications.length, isLoading, totalJobs]);
@@ -328,45 +324,45 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
             minWidth: 100,
            // renderCell: (params) => new Date(params.value).toLocaleDateString(),
           },
-          {
-            field: 'actions',
-            headerName: 'Actions',
-            flex: 0.15,
-            minWidth: 120,
-            sortable: false,
-            filterable: false,
-            disableColumnMenu: true,
-            renderCell: (params: GridRenderCellParams) => (
-              <Box sx={{ display: 'flex', gap: isMobile ? 0.5 : 1, alignItems: 'center', mt: 1 }}>
-                <IconButton
-                  size="small"
-                  color="primary"
-                  sx={{ padding: isMobile ? '1px' : '2px' }}
-                  onClick={() => handleEdit(params.row.id)}
-                >
-                  <EditIcon fontSize={isMobile ? 'small' : 'medium'} />
-                </IconButton>
-                <Tooltip title="View full job description" arrow>
-                  <IconButton
-                    size="small"
-                    color="info"
-                    sx={{ padding: isMobile ? '1px' : '2px' }}
-                    onClick={() => handleViewDetails(params.row.id)}
-                  >
-                    <VisibilityIcon fontSize={isMobile ? 'small' : 'medium'} />
-                  </IconButton>
-                </Tooltip>
-                <IconButton
-                  size="small"
-                  color="error"
-                  sx={{ padding: isMobile ? '1px' : '2px' }}
-                  onClick={() => handleDeleteClick(params.row.id)}
-                >
-                  <DeleteIcon fontSize={isMobile ? 'small' : 'medium'} />
-                </IconButton>
-              </Box>
-            ),
-          },
+          // {
+          //   field: 'actions',
+          //   headerName: 'Actions',
+          //   flex: 0.15,
+          //   minWidth: 120,
+          //   sortable: false,
+          //   filterable: false,
+          //   disableColumnMenu: true,
+          //   renderCell: (params: GridRenderCellParams) => (
+          //     <Box sx={{ display: 'flex', gap: isMobile ? 0.5 : 1, alignItems: 'center', mt: 1 }}>
+          //       <IconButton
+          //         size="small"
+          //         color="primary"
+          //         sx={{ padding: isMobile ? '1px' : '2px' }}
+          //         onClick={() => handleEdit(params.row.id)}
+          //       >
+          //         <EditIcon fontSize={isMobile ? 'small' : 'medium'} />
+          //       </IconButton>
+          //       <Tooltip title="View full job description" arrow>
+          //         <IconButton
+          //           size="small"
+          //           color="info"
+          //           sx={{ padding: isMobile ? '1px' : '2px' }}
+          //           onClick={() => handleViewDetails(params.row.id)}
+          //         >
+          //           <VisibilityIcon fontSize={isMobile ? 'small' : 'medium'} />
+          //         </IconButton>
+          //       </Tooltip>
+          //       <IconButton
+          //         size="small"
+          //         color="error"
+          //         sx={{ padding: isMobile ? '1px' : '2px' }}
+          //         onClick={() => handleDeleteClick(params.row.id)}
+          //       >
+          //         <DeleteIcon fontSize={isMobile ? 'small' : 'medium'} />
+          //       </IconButton>
+          //     </Box>
+          //   ),
+          // },
     ];
 
     return baseColumns;
@@ -399,8 +395,6 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
   appliedAt: app.appliedAt,
   updatedAt: app.updatedAt,
   }));
-
-  console.log('rowss', rows)
 
   return (
     <div style={{ height: 700, width: '100%' }} ref={gridRef}>

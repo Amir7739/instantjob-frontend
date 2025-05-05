@@ -21,11 +21,11 @@ const EditJobPage = () => {
       setLoading(true);
       setError(null);
       try {
-        console.log("Fetching job with ID:", jobId);
+       
         const job = await fetchJobById(jobId);
-        console.log('job by id',job)
+       
         setJobData({ ...job }); // Ensure new object reference
-        console.log("Job data loaded:", job);
+        
       } catch (err: any) {
         setError(err.message || "Error loading job data");
         console.error("Fetch error:", err);

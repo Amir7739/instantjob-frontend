@@ -14,7 +14,8 @@ import {
   ListItem,
   ListItemText,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Skeleton
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Link from 'next/link';
@@ -22,6 +23,9 @@ import Link from 'next/link';
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -31,6 +35,13 @@ const Navbar = () => {
   ];
 
   useEffect(() => {
+    setIsLoading(true);
+    const storedToken = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    setToken(storedToken);
+    setRole(storedRole);
+    setIsLoading(false);
+    
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
       if (isScrolled !== scrolled) {
@@ -51,6 +62,8 @@ const Navbar = () => {
     setDrawerOpen(open);
   };
 
+  const dashboardPath = role === 'candidate' ? '/emp-dashboard' : role === 'admin' ? '/admin-dashboard' : '/';
+
   return (
     <AppBar
       position="fixed"
@@ -65,7 +78,6 @@ const Navbar = () => {
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ height: '100%', justifyContent: 'space-between' }}>
-          {/* Left: Logo + Navigation */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography
               variant="h6"
@@ -104,36 +116,44 @@ const Navbar = () => {
             )}
           </Box>
 
-          {/* Right: Login, Signup, Post Job or Drawer */}
           {!isMobile ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Link href="/login" style={{ textDecoration: 'none' }}>
-                <Button
-                  color="inherit"
-                  sx={{ textTransform: 'none', fontWeight: 500 }}
-                >
-                  Login
-                </Button>
-              </Link>
-              <Link href="/register" style={{ textDecoration: 'none' }}>
-                <Button
-                  color="inherit"
-                  sx={{ textTransform: 'none', fontWeight: 500 }}
-                >
-                  Signup
-                </Button>
-              </Link>
-              {/* <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  borderRadius: '4px',
-                  textTransform: 'none',
-                  fontWeight: 600
-                }}
-              >
-                Post a Job
-              </Button> */}
+              {isLoading ? (
+                <>
+                  <Skeleton variant="rectangular" width={80} height={36} />
+                  <Skeleton variant="rectangular" width={80} height={36} />
+                  {token && <Skeleton variant="rectangular" width={120} height={36} />}
+                </>
+              ) : (
+                <>
+                  <Link href="/login" style={{ textDecoration: 'none' }}>
+                    {!token && <Button
+                      color="inherit"
+                      sx={{ textTransform: 'none', fontWeight: 500 }}
+                    >
+                      Login
+                    </Button>}
+                  </Link>
+                  <Link href="/register" style={{ textDecoration: 'none' }}>
+                    <Button
+                      color="inherit"
+                      sx={{ textTransform: 'none', fontWeight: 500 }}
+                    >
+                      Signup
+                    </Button>
+                  </Link>
+                  {token && (
+                    <Link href={dashboardPath} style={{ textDecoration: 'none' }}>
+                      <Button
+                        color="inherit"
+                        sx={{ textTransform: 'none', fontWeight: 500 }}
+                      >
+                        My Dashboard
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              )}
             </Box>
           ) : (
             <IconButton
@@ -149,7 +169,6 @@ const Navbar = () => {
         </Toolbar>
       </Container>
 
-      {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box
           sx={{ width: 250 }}
@@ -165,16 +184,41 @@ const Navbar = () => {
                 </ListItem>
               </Link>
             ))}
-            <Link href="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <ListItem button>
-                <ListItemText primary="Login" />
-              </ListItem>
-            </Link>
-            <Link href="/signup" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <ListItem button>
-                <ListItemText primary="Signup" />
-              </ListItem>
-            </Link>
+            {isLoading ? (
+              <>
+                <ListItem>
+                  <Skeleton variant="text" width={80} />
+                </ListItem>
+                <ListItem>
+                  <Skeleton variant="text" width={80} />
+                </ListItem>
+                {token && (
+                  <ListItem>
+                    <Skeleton variant="text" width={120} />
+                  </ListItem>
+                )}
+              </>
+            ) : (
+              <>
+                <Link href="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <ListItem button>
+                    <ListItemText primary="Login" />
+                  </ListItem>
+                </Link>
+                <Link href="/signup" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <ListItem button>
+                    <ListItemText primary="Signup" />
+                  </ListItem>
+                </Link>
+                {token && (
+                  <Link href={dashboardPath} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <ListItem button>
+                      <ListItemText primary="My Dashboard" />
+                    </ListItem>
+                  </Link>
+                )}
+              </>
+            )}
             <ListItem>
               <Button
                 variant="contained"
