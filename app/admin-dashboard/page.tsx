@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -174,7 +173,6 @@ const AdminDashboard = () => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -182,7 +180,7 @@ const AdminDashboard = () => {
         setStatsData(response.data.data);
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        setStatsData([]); 
+        setStatsData([]);
       }
     };
     fetchStats();
@@ -312,6 +310,42 @@ const AdminDashboard = () => {
             </Grid>
 
             <Grid container spacing={4} sx={{ width: "100%", mx: 0 }}>
+              <Grid sx={{ width: "100%" }} item xs={12} lg={4}>
+                <Card sx={{ mb: 4, height: "100%" }}>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 2,
+                      }}
+                    >
+                      <Typography variant="h6" color="text.primary">
+                        Recent Applications
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleTabChange("jobsApp")}
+                        sx={{
+                          width: { xs: "100%", sm: "auto" },
+                          padding: "12px 16px",
+                          fontSize: { xs: "1rem", sm: "1.1rem" },
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                          "&:hover": {
+                            boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+                          },
+                        }}
+                      >
+                        View All
+                      </Button>
+                    </Box>
+                    <JobApplication getStatusColor={getStatusColor} />
+                  </CardContent>
+                </Card>
+              </Grid>
               <Grid sx={{ width: "100%" }} item xs={12} lg={8}>
                 <Card sx={{ mb: 4, overflow: "hidden" }}>
                   <CardContent>
@@ -402,9 +436,23 @@ const AdminDashboard = () => {
                       <Typography variant="h6" color="text.primary">
                         Recent Candidates
                       </Typography>
-                      <Typography variant="subtitle2" color="primary">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleTabChange("candidates")}
+                        sx={{
+                          width: { xs: "100%", sm: "auto" },
+                          padding: "12px 16px",
+                          fontSize: { xs: "1rem", sm: "1.1rem" },
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                          "&:hover": {
+                            boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+                          },
+                        }}
+                      >
                         View All
-                      </Typography>
+                      </Button>
                     </Box>
                     <CandidateList
                       candidates={candidates}
@@ -439,7 +487,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
-        case "jobsApp":
+      case "jobsApp":
         return (
           <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
             <Box
@@ -476,7 +524,7 @@ const AdminDashboard = () => {
                 Candidate Management
               </Typography>
               <Typography variant="body2">
-                Review and manage candidate applications. {candidates.length}{" "}
+                Review and manage candidate applications.
                 recent candidates displayed.
               </Typography>
             </Box>
@@ -515,7 +563,10 @@ const AdminDashboard = () => {
                     <thead>
                       <tr
                         style={{
-                          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                          backgroundColor: alpha(
+                            theme.palette.primary.main,
+                            0.05
+                          ),
                         }}
                       >
                         <th
@@ -562,7 +613,10 @@ const AdminDashboard = () => {
                           key={employer.id}
                           style={{
                             "&:hover": {
-                              backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                              backgroundColor: alpha(
+                                theme.palette.primary.main,
+                                0.05
+                              ),
                             },
                           }}
                         >
@@ -658,19 +712,27 @@ const AdminDashboard = () => {
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               {activeTab === "dashboard" && (
-                <DashboardIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <DashboardIcon
+                  sx={{ mr: 1, color: theme.palette.primary.main }}
+                />
               )}
               {activeTab === "jobs" && (
                 <JobsIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
               )}
               {activeTab === "jobsApp" && (
-                <CandidatesIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <CandidatesIcon
+                  sx={{ mr: 1, color: theme.palette.primary.main }}
+                />
               )}
               {activeTab === "candidates" && (
-                <CandidatesIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <CandidatesIcon
+                  sx={{ mr: 1, color: theme.palette.primary.main }}
+                />
               )}
               {activeTab === "employers" && (
-                <EmployersIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <EmployersIcon
+                  sx={{ mr: 1, color: theme.palette.primary.main }}
+                />
               )}
               <Typography variant="h5" color="text.primary">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
@@ -681,7 +743,7 @@ const AdminDashboard = () => {
                 "Overview of platform performance and recent activities"}
               {activeTab === "jobs" &&
                 "View and manage all job postings across the platform"}
-                {activeTab === "jobsApp" &&
+              {activeTab === "jobsApp" &&
                 "View and manage all job Applications across the platform"}
               {activeTab === "candidates" &&
                 "Track and manage candidate applications"}

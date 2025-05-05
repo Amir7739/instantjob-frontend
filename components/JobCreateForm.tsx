@@ -171,7 +171,6 @@ const JobCreateForm = ({
   initialJobData,
   jobId,
 }: JobCreateFormProps) => {
-  console.log("Received initialJobData:", initialJobData);
   const router = useRouter();
   const [tempInput, setTempInput] = useState({
     skill: "",
@@ -244,9 +243,7 @@ const JobCreateForm = ({
 
   const initialValues = getInitialValues();
 
-  useEffect(() => {
-    console.log("initialValues updated:", initialValues);
-  }, [initialValues]);
+  useEffect(() => {}, [initialValues]);
 
   const handleArrayAdd = (
     field: string,
@@ -298,7 +295,10 @@ const JobCreateForm = ({
     }
   };
 
-  const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+  const handleSubmit = async (
+    values: any,
+    { setSubmitting, resetForm }: any
+  ) => {
     if (isEditing && (!jobId || jobId === "undefined")) {
       setSnackbar({
         open: true,
@@ -309,7 +309,7 @@ const JobCreateForm = ({
       console.error("Invalid jobId:", jobId);
       return;
     }
-  
+
     const data = { ...values };
     delete data.companyLogo;
     if (data.applyBy) {
@@ -318,9 +318,7 @@ const JobCreateForm = ({
     data.minExp = Number(data.minExp);
     data.maxExp = Number(data.maxExp);
     data.openings = Number(data.openings);
-  
-    console.log("Submitting payload:", data);
-  
+
     try {
       const url = isEditing ? `/jobs/update/${jobId}` : "/jobs/create";
       let res;
@@ -352,13 +350,11 @@ const JobCreateForm = ({
           headers: { "Content-Type": "application/json" },
         });
       }
-  
-      console.log("API response:", res.data);
-  
+
       if (!res.data.success) {
         throw new Error(res.data.message || "Failed to update job");
       }
-  
+
       setSnackbar({
         open: true,
         message: isEditing
@@ -366,12 +362,12 @@ const JobCreateForm = ({
           : "Job created successfully!",
         severity: "success",
       });
-  
+
       if (!isEditing) {
         resetForm();
         setLogoPreview(null);
       }
-  
+
       setTimeout(() => {
         router.push("/admin-dashboard");
       }, 1000);

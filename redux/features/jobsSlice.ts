@@ -44,7 +44,7 @@ const initialState: JobState = {
   error: null,
   totalJobs: 0,
   currentPage: 1,
-  jobById: null
+  jobById: null,
 };
 
 // Async thunk with search & pagination
@@ -54,11 +54,23 @@ export const fetchAllJobs = createAsyncThunk<{
 }>(
   "jobs/fetchAll",
   async (
-    { page, limit, searchTitle, searchLocation, jobType, department, industryType }, 
+    {
+      page,
+      limit,
+      searchTitle,
+      searchLocation,
+      jobType,
+      department,
+      industryType,
+    },
     { dispatch }
   ) => {
     // Update the query string to remove `workMode` and use `jobType`
-    const query = `?page=${page}&limit=${limit}&title=${searchTitle || ''}&location=${searchLocation || ''}&jobType=${jobType ||''}&department=${department || ''}&industryType=${industryType || ''}`;
+    const query = `?page=${page}&limit=${limit}&title=${
+      searchTitle || ""
+    }&location=${searchLocation || ""}&jobType=${jobType || ""}&department=${
+      department || ""
+    }&industryType=${industryType || ""}`;
 
     const response = await axiosInstance.get(`/jobs/get-all-jobs${query}`);
     dispatch(setCurrentPage(page)); // Update the current page
@@ -74,17 +86,13 @@ export const fetchJobById = createAsyncThunk<Job, string>(
   async (jobId: string, thunkAPI) => {
     try {
       const response = await axiosInstance.get(`/jobs/get/${jobId}`);
-      console.log("✅ [Thunk] API Success:", response.data.job);
+
       return response.data.job;
     } catch (err: any) {
-      console.log("❌ [Thunk] API Error:", err.message);
       return thunkAPI.rejectWithValue(err.message);
     }
   }
 );
-
-
-
 
 const jobsSlice = createSlice({
   name: "jobs",
@@ -102,9 +110,10 @@ const jobsSlice = createSlice({
       })
       .addCase(fetchAllJobs.fulfilled, (state, action) => {
         state.loading = false;
-        state.jobs = state.currentPage === 1
-          ? action.payload.jobs
-          : [...state.jobs, ...action.payload.jobs];
+        state.jobs =
+          state.currentPage === 1
+            ? action.payload.jobs
+            : [...state.jobs, ...action.payload.jobs];
         state.totalJobs = action.payload.totalJobs;
       })
       .addCase(fetchAllJobs.rejected, (state, action) => {
@@ -117,11 +126,10 @@ const jobsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchJobById.fulfilled, (state, action) => {
-        console.log("✅ [Reducer] Setting jobById", action.payload);
         state.loading = false;
         state.jobById = action.payload;
       })
-      
+
       .addCase(fetchJobById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch job details";
