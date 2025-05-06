@@ -181,7 +181,7 @@ const CandidateList = ({
   const openConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
     setDialogConfig({ title, message, onConfirm });
     setDialogOpen(true);
-  };
+  };  
 
   // Function to close dialog
   const closeConfirmDialog = () => {

@@ -1,4 +1,3 @@
-// components/JobTable.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   DataGrid,
@@ -9,6 +8,7 @@ import {
 import {
   Alert,
   Box,
+  Button,
   Chip,
   IconButton,
   Snackbar,
@@ -22,14 +22,21 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 
+import WorkIcon from '@mui/icons-material/Work';
+import WorkOffIcon from '@mui/icons-material/WorkOff';
+
 import { useRouter } from "next/navigation";
 import {
   deleteJob,
+  fetchInitiaInActivelJobs,
   fetchInitialJobs,
+  fetchMoreInActiveJobs,
   fetchMoreJobs,
+  updateJobStatus,
 } from "@/services/fetchJobForAdmin";
 import DeleteConfirmationSnackbar from "../DeleteConfirmationSnackbar";
 import { formatSalaryToLPA } from "../JobCard";
+import ConfirmDialog from "../ActivateDeactivateConfirmation";
 
 const JobTable = ({
   getStatusColor = (status) => (status === "Active" ? "success" : "error"),
@@ -44,6 +51,13 @@ const JobTable = ({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -54,16 +68,19 @@ const JobTable = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Fetch initial jobs on mount
+  // Fetch initial jobs on mount or when showInactive changes
   useEffect(() => {
     const loadInitialJobs = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchInitialJobs(); // Fetch first 10 jobs
+        const response = showInactive
+          ? await fetchInitiaInActivelJobs()
+          : await fetchInitialJobs();
+        console.log("Initial jobs response:", response);
         setVisibleJobs(response.data);
         setTotalJobs(response.totalJobs);
-      } catch (error) {
+      } catch (error: any) {
         setError(error.message || "Error fetching initial jobs");
       } finally {
         setIsLoading(false);
@@ -78,91 +95,63 @@ const JobTable = ({
     if (gridElement) {
       gridElement.scrollTop = 0;
     }
-  }, []); // Run only on mount
+  }, [showInactive]);
 
-  // Scroll handler for infinite scrolling with retry mechanism
+  // Scroll handler for infinite scrolling
   useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 20;
-    const retryInterval = 200; // Retry every 200ms
-
-    const attachScrollListener = () => {
-      const gridElement = gridRef.current?.querySelector(
-        ".MuiDataGrid-virtualScroller"
-      );
-      if (gridElement) {
-        gridElement.addEventListener("scroll", handleScroll);
-        return true;
-      }
-      return false;
-    };
-
-    const tryAttachListener = () => {
-      if (retryCount < maxRetries) {
-        if (!attachScrollListener()) {
-          retryCount++;
-          setTimeout(tryAttachListener, retryInterval);
-        }
-      } else {
-        console.error("Failed to attach scroll listener after max retries");
-      }
-    };
-
     const handleScroll = () => {
-      if (!gridRef.current || isLoading) {
-        return;
-      }
+      if (!gridRef.current || isLoading) return;
       const gridElement = gridRef.current.querySelector(
         ".MuiDataGrid-virtualScroller"
       );
-      if (!gridElement) {
-        console.error("Virtual scroller not found during scroll");
-        return;
-      }
+      if (!gridElement) return;
 
       const { scrollTop, scrollHeight, clientHeight } = gridElement;
-
       if (
         scrollTop + clientHeight >= scrollHeight - 200 &&
         visibleJobs.length < totalJobs
       ) {
+        console.log("Fetching more jobs...");
         setIsLoading(true);
         fetchMoreJobsHandler();
       }
     };
 
-    const fetchMoreJobsHandler = async () => {
-      try {
-        const response = await fetchMoreJobs(visibleJobs.length); // Fetch next 10 jobs
-        if (response.data.length > 0) {
-          setVisibleJobs((prev) => {
-            const newJobs = [...prev, ...response.data];
+    const gridElement = gridRef.current?.querySelector(
+      ".MuiDataGrid-virtualScroller"
+    );
+    if (gridElement) {
+      gridElement.addEventListener("scroll", handleScroll);
+      console.log("Scroll listener attached");
+    } else {
+      console.error("Virtual scroller not found");
+    }
 
-            return newJobs;
-          });
-        } else {
-          console.log("No more jobs to load");
-        }
-      } catch (error) {
-        setError(error.message || "Error fetching more jobs");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Initial attempt to attach listener
-    tryAttachListener();
-
-    // Cleanup
     return () => {
-      const gridElement = gridRef.current?.querySelector(
-        ".MuiDataGrid-virtualScroller"
-      );
       if (gridElement) {
         gridElement.removeEventListener("scroll", handleScroll);
       }
     };
   }, [visibleJobs.length, isLoading, totalJobs]);
+
+  const fetchMoreJobsHandler = async () => {
+    try {
+      const offset = visibleJobs.length; // Correct offset
+      const response = showInactive
+        ? await fetchMoreInActiveJobs(offset)
+        : await fetchMoreJobs(offset);
+      console.log("Fetch more jobs response:", response);
+      if (response.data.length > 0) {
+        setVisibleJobs((prev) => [...prev, ...response.data]);
+      } else {
+        console.log("No more jobs to load");
+      }
+    } catch (error: any) {
+      setError(error.message || "Error fetching more jobs");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle edit button click
   const handleEdit = (jobId: string) => {
@@ -179,16 +168,12 @@ const JobTable = ({
     if (!jobToDelete) return;
 
     try {
-      const response = await deleteJob(jobToDelete); // Call the new deleteJob API
-
+      const response = await deleteJob(jobToDelete);
       if (response.success) {
-        // Remove the deleted job from the visibleJobs state
-        setVisibleJobs((prev) => {
-          const updatedJobs = prev.filter((job) => job.id !== jobToDelete);
-
-          return updatedJobs;
-        });
-        setTotalJobs((prev) => prev - 1); // Update total job count
+        setVisibleJobs((prev) =>
+          prev.filter((job) => job.id !== jobToDelete)
+        );
+        setTotalJobs((prev) => prev - 1);
         setSuccessMessage("Job deleted successfully!");
       } else {
         throw new Error(response.message || "Failed to delete job");
@@ -209,6 +194,16 @@ const JobTable = ({
 
   const handleViewDetails = (jobId: string) => {
     window.open(`/jobs-desc/${jobId}`, "_blank");
+  };
+
+  const openConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+    setDialogConfig({ title, message, onConfirm });
+    setDialogOpen(true);
+  };
+
+  const closeConfirmDialog = () => {
+    setDialogOpen(false);
+    setDialogConfig(null);
   };
 
   // Responsive column config
@@ -255,7 +250,7 @@ const JobTable = ({
         minWidth: isMobile ? 60 : 80,
         renderCell: (params: GridRenderCellParams) => (
           <Chip
-            label={params.value || "Active"} // Fallback if status is missing
+            label={params.value || "Active"}
             size="small"
             color={getStatusColor(params.value || "Active")}
             sx={{ maxWidth: "100%" }}
@@ -304,14 +299,69 @@ const JobTable = ({
                 <VisibilityIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
             </Tooltip>
-            <IconButton
+            {/* <IconButton
               size="small"
               color="error"
               sx={{ padding: isMobile ? "1px" : "2px" }}
               onClick={() => handleDeleteClick(params.row.id)}
             >
               <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
-            </IconButton>
+            </IconButton> */}
+             {showInactive ? (
+              <Tooltip title="Activate Job" arrow>
+                <IconButton
+                  size="small"
+                  color="success"
+                  sx={{ padding: isMobile ? "1px" : "2px" }}
+                  onClick={() => {
+                    openConfirmDialog(
+                      'Activate Job',
+                      'Are you sure you want to activate this job?',
+                      async () => {
+                        try {
+                          await updateJobStatus(params.row.id, 'Active');
+                          setSuccessMessage("Job activated successfully");
+                          const response = await fetchInitiaInActivelJobs();
+                          setVisibleJobs(response.data);
+                          setTotalJobs(response.totalJobs);
+                        } catch (error: any) {
+                          setError(error.message || "Error activating Job");
+                        }
+                      }
+                    );
+                  }}
+                >
+                  <WorkIcon fontSize={isMobile ? "small" : "medium"} />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Deactivate Job" arrow>
+                <IconButton
+                  size="small"
+                  color="error"
+                  sx={{ padding: isMobile ? "1px" : "2px" }}
+                  onClick={() => {
+                    openConfirmDialog(
+                      'Deactivate Job',
+                      'Are you sure you want to deactivate this Job?',
+                      async () => {
+                        try {
+                          await updateJobStatus(params.row.id, 'In-Active');
+                          setSuccessMessage("Job deactivated successfully");
+                          const response = await fetchInitialJobs();
+                          setVisibleJobs(response.data);
+                          setTotalJobs(response.totalJobs);
+                        } catch (error: any) {
+                          setError(error.message || "Error deactivating Job");
+                        }
+                      }
+                    );
+                  }}
+                >
+                  <WorkOffIcon fontSize={isMobile ? "small" : "medium"} />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         ),
       },
@@ -324,60 +374,80 @@ const JobTable = ({
   const rows: GridRowsProp = visibleJobs;
 
   return (
-    <div style={{ height: 700, width: "100%" }} ref={gridRef}>
-      {error && (
-        <div style={{ color: "red", textAlign: "center", padding: "8px" }}>
-          {error}
-        </div>
-      )}
-      <DataGrid
-        showToolbar
-        rows={rows}
-        columns={columns}
-        rowHeight={isMobile ? 50 : 60}
-        autoHeight={false}
-        disableSelectionOnClick
-        loading={isLoading}
-        rowCount={totalJobs} // Total jobs from API
-        sx={{
-          "& .MuiDataGrid-cell": {
-            fontSize: isMobile ? "14px" : "16px",
-            padding: isMobile ? "4px" : "8px",
-          },
-          "& .MuiDataGrid-columnHeader": {
-            fontSize: isMobile ? "14px" : "16px",
-            padding: isMobile ? "8px 4px" : "12px 16px",
-            backgroundColor: "#5e35b1",
-            color: "white",
-          },
-        }}
-      />
-      {isLoading && (
-        <div style={{ textAlign: "center", padding: "8px" }}>
-          Loading more jobs...
-        </div>
-      )}
-      <DeleteConfirmationSnackbar
-        open={deleteConfirmOpen}
-        onClose={handleDeleteCancel}
-        onConfirm={handleDeleteConfirm}
-        itemName="job"
-      />
-      <Snackbar
-        open={!!successMessage}
-        autoHideDuration={3000}
-        onClose={() => setSuccessMessage(null)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity="success"
-          variant="filled"
-          onClose={() => setSuccessMessage(null)}
+    <>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+        <Button
+          variant="contained"
+          onClick={() => setShowInactive(!showInactive)}
+          sx={{ backgroundColor: showInactive ? "#f44336" : "#5e35b1" }}
         >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-    </div>
+          {showInactive ? "Show Active Jobs" : "Show Inactive Jobs"}
+        </Button>
+      </Box>
+      <div style={{ height: 700, width: "100%", overflow: "auto" }} ref={gridRef}>
+        {error && (
+          <div style={{ color: "red", textAlign: "center", padding: "8px" }}>
+            {error}
+          </div>
+        )}
+        <DataGrid
+          key={visibleJobs.length}
+          showToolbar
+          rows={rows}
+          columns={columns}
+          rowHeight={isMobile ? 50 : 60}
+          autoHeight={false}
+          disableSelectionOnClick
+          loading={isLoading}
+          rowCount={totalJobs}
+          sx={{
+            "& .MuiDataGrid-cell": {
+              fontSize: isMobile ? "14px" : "16px",
+              padding: isMobile ? "4px" : "8px",
+            },
+            "& .MuiDataGrid-columnHeader": {
+              fontSize: isMobile ? "14px" : "16px",
+              padding: isMobile ? "8px 4px" : "12px 16px",
+              backgroundColor: "#5e35b1",
+              color: "white",
+            },
+          }}
+        />
+        {isLoading && (
+          <div style={{ textAlign: "center", padding: "8px" }}>
+            Loading more jobs...
+          </div>
+        )}
+        <DeleteConfirmationSnackbar
+          open={deleteConfirmOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          itemName="job"
+        />
+        <Snackbar
+          open={!!successMessage}
+          autoHideDuration={3000}
+          onClose={() => setSuccessMessage(null)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            severity="success"
+            variant="filled"
+            onClose={() => setSuccessMessage(null)}
+          >
+            {successMessage}
+          </Alert>
+        </Snackbar>
+
+        <ConfirmDialog
+        open={dialogOpen}
+        onClose={closeConfirmDialog}
+        onConfirm={() => dialogConfig?.onConfirm()}
+        title={dialogConfig?.title || ''}
+        message={dialogConfig?.message || ''}
+      />
+      </div>
+    </>
   );
 };
 
