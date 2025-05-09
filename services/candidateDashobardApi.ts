@@ -1,4 +1,6 @@
 import axiosInstance from "@/utils/axios"
+import { AxiosResponse } from "axios"
+import { Education, Experience } from "./candidates"
 
 export interface CandidateJob {
     id: number
@@ -25,6 +27,31 @@ export interface CandidateJob {
     profileStrength: number;
     jobsAppliedPercentageChange: string;
     savedJobsPercentageChange: string;
+  }
+
+
+  export interface Candidate {
+    _id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    city: string;
+    state: string;
+    about?: string;
+    profileImage?: string;
+    skills: string[];
+    resumeUrl?: string | null;
+  dob?: string;
+  education?: Education[];
+  expectedSalary?: string;
+  experience: Experience[];
+  gender?: string;
+  noticePeriod?: string;
+  pincode?: string;
+  preferredJobType?: string;
+  preferredLocation?: string;
+  totalExperience?: string;
+  status?: string;
   }
 
   export const getSavedJobsByCandidateId = async (candidateId: string, page: number = 1, limit: number = 9): Promise<SavedJobResponse> =>{
@@ -64,4 +91,132 @@ export interface CandidateJob {
   };
 
 
+  export const updateCandidateProfile = async (
+    candidateId: string,
+    profileData: {
+      full_name: string;
+      email: string;
+      phone: string;
+      city: string;
+      about: string;
+      skills: string[];
+      profileImage?: File | null;
+    }
+  ): Promise<Candidate> => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("full_name", profileData.full_name);
+      formDataToSend.append("email", profileData.email);
+      formDataToSend.append("phone", profileData.phone);
+      formDataToSend.append("city", profileData.city);
+      formDataToSend.append("about", profileData.about);
+      profileData.skills.forEach((skill, index) => {
+        if (skill.trim()) formDataToSend.append(`skills[${index}]`, skill);
+      });
+      if (profileData.profileImage) {
+        formDataToSend.append("profileImage", profileData.profileImage);
+      }
   
+      const response: AxiosResponse<{ candidate: Candidate }> = await axiosInstance.put(
+        `/candidates/update/${candidateId}`,
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+  
+      return response.data.candidate;
+    } catch (error: any) {
+      console.error("Error updating candidate profile:", error);
+      throw new Error(error.response?.data?.error || "Failed to update profile");
+    }
+  };
+
+
+
+  export const updateCandidateExperience = async (
+    candidateId: string,
+    experiences: Experience[]
+  ): Promise<Candidate> => {
+    try {
+      const formDataToSend = new FormData();
+      experiences.forEach((exp, index) => {
+        formDataToSend.append(`experience[${index}][companyName]`, exp.companyName);
+        formDataToSend.append(`experience[${index}][jobTitle]`, exp.jobTitle);
+        formDataToSend.append(`experience[${index}][startDate]`, exp.startDate);
+        if (exp.location) {
+          formDataToSend.append(`experience[${index}][location]`, exp.location);
+        }
+        if (exp.endDate) {
+          formDataToSend.append(`experience[${index}][endDate]`, exp.endDate);
+        }
+        formDataToSend.append(`experience[${index}][currentlyWorking]`, String(exp.currentlyWorking));
+        formDataToSend.append(`experience[${index}][description]`, exp.description);
+        if (exp._id) {
+          formDataToSend.append(`experience[${index}][_id]`, exp._id);
+        }
+      });
+  
+      const response: AxiosResponse<{ candidate: Candidate }> = await axiosInstance.put(
+        `/candidates/update/${candidateId}`,
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+  
+      return response.data.candidate;
+    } catch (error: any) {
+      console.error("Error updating candidate experience:", error);
+      throw new Error(error.response?.data?.error || "Failed to update experience");
+    }
+  };
+
+
+  export const updateCandidateEducation = async (
+    candidateId: string,
+    educations: Education[]
+  ): Promise<Candidate> => {
+    try {
+      const formDataToSend = new FormData();
+      educations.forEach((edu, index) => {
+        formDataToSend.append(`education[${index}][degree]`, edu.degree);
+        formDataToSend.append(`education[${index}][stream]`, edu.stream);
+        formDataToSend.append(`education[${index}][institute]`, edu.institute);
+        formDataToSend.append(`education[${index}][passingYear]`, edu.passingYear.toString());
+        formDataToSend.append(`education[${index}][score]`, edu.score);
+        if (edu._id) {
+          formDataToSend.append(`education[${index}][_id]`, edu._id);
+        }
+      });
+  
+      const response: AxiosResponse<{ candidate: Candidate }> = await axiosInstance.put(
+        `/candidates/update/${candidateId}`,
+        formDataToSend,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+  
+      return response.data.candidate;
+    } catch (error: any) {
+      console.error("Error updating candidate education:", error);
+      throw new Error(error.response?.data?.error || "Failed to update education");
+    }
+  };
+
+  export const updateCandidatePassword = async (
+    candidateId: string,
+    passwordData: {
+      newPassword: string;
+      confirmNewPassword: string;
+    }
+  ): Promise<{ message: string }> => {
+    try {
+      const response = await axiosInstance.put(`/auth/update-pass/${candidateId}`, passwordData);
+      return response.data;
+    } catch (error: any) {
+      console.error("Error updating password:", error);
+      throw new Error(error.response?.data?.message || "Failed to update password");
+    }
+  };

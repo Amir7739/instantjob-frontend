@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
   Typography,
-  Paper,
+  Card,
+  CardContent,
   Tabs,
   Tab,
   TextField,
-  Button,
   FormControlLabel,
   Checkbox,
   FormControl,
@@ -17,30 +17,27 @@ import {
   Select,
   MenuItem,
   Avatar,
-  IconButton,
-  Divider,
-  Alert,
-  Tooltip,
   useTheme,
   Stack,
-  Card,
-  CardContent,
   Fade,
-  alpha
+  alpha,
+  Button,
+  IconButton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-
-// Import Material UI icons
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
-import SaveIcon from '@mui/icons-material/Save';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { fetchCandidateById } from '@/services/candidates';
+import { useRouter } from 'next/navigation';
+import { updateCandidatePassword } from '@/services/candidateDashobardApi';
 
-// Styled components with enhanced visuals
+// Styled components
 const StyledContainer = styled(Container)(({ theme }) => ({
   paddingTop: theme.spacing(6),
   paddingBottom: theme.spacing(6),
@@ -102,32 +99,11 @@ const ProfileHeader = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
 }));
 
-const AvatarWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  marginBottom: theme.spacing(2),
-}));
-
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
   width: 120,
   height: 120,
   boxShadow: theme.shadows[3],
   border: `4px solid ${theme.palette.background.paper}`,
-  transition: 'transform 0.2s',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-}));
-
-const AvatarEditButton = styled(IconButton)(({ theme }) => ({
-  position: 'absolute',
-  right: 0,
-  bottom: 0,
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  padding: theme.spacing(1),
-  '&:hover': {
-    backgroundColor: theme.palette.primary.dark,
-  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
@@ -144,18 +120,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
         borderWidth: 2,
       },
     },
-  },
-}));
-
-const SaveButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 1.5,
-  padding: theme.spacing(1.2, 3),
-  boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.1)',
-  fontWeight: 600,
-  transition: 'all 0.2s',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 20px 0 rgba(0, 0, 0, 0.15)',
   },
 }));
 
@@ -178,10 +142,9 @@ interface Settings {
     name: string;
     email: string;
     phone: string;
-    avatar: string; // URL for avatar
+    avatar: string;
   };
   password: {
-    currentPassword: string;
     newPassword: string;
     confirmPassword: string;
   };
@@ -197,32 +160,6 @@ interface Settings {
     searchable: boolean;
   };
 }
-
-// Sample initial settings data
-const initialSettings: Settings = {
-  profile: {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '(123) 456-7890',
-    avatar: 'https://mui.com/static/images/avatar/1.jpg', // Sample avatar URL
-  },
-  password: {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  },
-  notifications: {
-    emailNotifications: true,
-    inAppNotifications: true,
-    marketingEmails: false,
-    securityAlerts: true,
-  },
-  privacy: {
-    profileVisibility: 'public',
-    activityStatus: true,
-    searchable: true,
-  },
-};
 
 // Tab panel component with fade animation
 interface TabPanelProps {
@@ -246,28 +183,74 @@ const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => {
 // Main component
 const SettingsPage: React.FC = () => {
   const theme = useTheme();
-  const [settings, setSettings] = useState<Settings>(initialSettings);
+  const router = useRouter();
+  const [settings, setSettings] = useState<Settings>({
+    profile: {
+      name: '',
+      email: '',
+      phone: '',
+      avatar: '',
+    },
+    password: {
+      newPassword: '',
+      confirmPassword: '',
+    },
+    notifications: {
+      emailNotifications: true,
+      inAppNotifications: true,
+      marketingEmails: false,
+      securityAlerts: true,
+    },
+    privacy: {
+      profileVisibility: 'public',
+      activityStatus: true,
+      searchable: true,
+    },
+  });
   const [tabValue, setTabValue] = useState(0);
   const [showPassword, setShowPassword] = useState({
-    current: false,
     new: false,
     confirm: false,
   });
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Check role and redirect if not candidate
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    if (role !== 'candidate') {
+      router.push('/unauthorized'); // Redirect to an unauthorized page
+    }
+  }, [router]);
+
+  // Fetch candidate data on mount
+  useEffect(() => {
+    const candidateId = localStorage.getItem('id');
+    if (candidateId) {
+      fetchCandidateById(candidateId)
+        .then((data) => {
+          setSettings((prev) => ({
+            ...prev,
+            profile: {
+              name: data.full_name || '',
+              email: data.email || '',
+              phone: data.phone || '',
+              avatar: data.profileImage || '/placeholder-user.jpg',
+            },
+          }));
+        })
+        .catch((err) => {
+          setProfileError(err.message || 'Failed to fetch candidate details');
+        });
+    } else {
+      setProfileError('No candidate ID found in localStorage');
+    }
+  }, []);
 
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    setSaveSuccess(false);
-  };
-
-  // Handle profile input changes
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSettings((prev) => ({
-      ...prev,
-      profile: { ...prev.profile, [name]: value },
-    }));
   };
 
   // Handle password input changes
@@ -289,9 +272,8 @@ const SettingsPage: React.FC = () => {
   };
 
   // Handle privacy changes
-  const handlePrivacyChange = (e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>) => {
+  const handlePrivacyChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
-    
     if (name === 'profileVisibility') {
       setSettings((prev) => ({
         ...prev,
@@ -306,28 +288,33 @@ const SettingsPage: React.FC = () => {
   };
 
   // Toggle password visibility
-  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
+  const togglePasswordVisibility = (field: 'new' | 'confirm') => {
     setShowPassword((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
   };
 
-  // Handle save settings
-  const handleSave = () => {
-    // In production, send updated settings to an API
-    setSaveSuccess(true);
-    
-    // Reset password fields after save
-    setSettings((prev) => ({
-      ...prev,
-      password: { currentPassword: '', newPassword: '', confirmPassword: '' },
-    }));
-    
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 3000);
+  // Handle password update
+  const handleSavePassword = async () => {
+    try {
+      setPasswordError(null);
+      const candidateId = localStorage.getItem('id');
+      if (!candidateId) {
+        throw new Error('No candidate ID found in localStorage');
+      }
+      await updateCandidatePassword(candidateId, {
+        newPassword: settings.password.newPassword,
+        confirmNewPassword: settings.password.confirmPassword,
+      });
+      setSettings((prev) => ({
+        ...prev,
+        password: { newPassword: '', confirmPassword: '' },
+      }));
+      setPasswordSuccess('Password updated successfully!');
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to update password');
+    }
   };
 
   return (
@@ -351,12 +338,7 @@ const SettingsPage: React.FC = () => {
       </PageHeader>
 
       <SettingsCard>
-        <StyledTabs 
-          value={tabValue} 
-          onChange={handleTabChange} 
-          aria-label="settings tabs"
-          variant="fullWidth"
-        >
+        <StyledTabs value={tabValue} onChange={handleTabChange} aria-label="settings tabs" variant="fullWidth">
           <Tab icon={<PersonIcon />} label="Profile" iconPosition="start" />
           <Tab icon={<LockIcon />} label="Password" iconPosition="start" />
           <Tab icon={<NotificationsIcon />} label="Notifications" iconPosition="start" />
@@ -365,13 +347,15 @@ const SettingsPage: React.FC = () => {
 
         {/* Profile Tab */}
         <TabPanel value={tabValue} index={0}>
+          {profileError && (
+            <Fade in={!!profileError}>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {profileError}
+              </Alert>
+            </Fade>
+          )}
           <ProfileHeader>
-            <AvatarWrapper>
-              <StyledAvatar src={settings.profile.avatar} alt={settings.profile.name} />
-              <AvatarEditButton size="small">
-                <PhotoCameraIcon fontSize="small" />
-              </AvatarEditButton>
-            </AvatarWrapper>
+            <StyledAvatar src={settings.profile.avatar} alt={settings.profile.name} />
             <Typography variant="h6" fontWeight="bold">
               {settings.profile.name}
             </Typography>
@@ -385,9 +369,8 @@ const SettingsPage: React.FC = () => {
             label="Full Name"
             name="name"
             value={settings.profile.name}
-            onChange={handleProfileChange}
             fullWidth
-            required
+            disabled
             variant="outlined"
           />
           <StyledTextField
@@ -395,17 +378,16 @@ const SettingsPage: React.FC = () => {
             name="email"
             type="email"
             value={settings.profile.email}
-            onChange={handleProfileChange}
             fullWidth
-            required
+            disabled
             variant="outlined"
           />
           <StyledTextField
             label="Phone Number"
             name="phone"
             value={settings.profile.phone}
-            onChange={handleProfileChange}
             fullWidth
+            disabled
             variant="outlined"
           />
         </TabPanel>
@@ -415,28 +397,9 @@ const SettingsPage: React.FC = () => {
           <SectionTitle variant="h6">Change Password</SectionTitle>
           <Box sx={{ mb: 2 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              To update your password, please enter your current password and then choose a new one.
+              Enter your new password and confirm it to update your account.
             </Typography>
           </Box>
-          
-          <StyledTextField
-            label="Current Password"
-            name="currentPassword"
-            type={showPassword.current ? "text" : "password"}
-            value={settings.password.currentPassword}
-            onChange={handlePasswordChange}
-            fullWidth
-            required
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <IconButton onClick={() => togglePasswordVisibility('current')}>
-                  {showPassword.current ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                </IconButton>
-              ),
-            }}
-          />
-          
           <StyledTextField
             label="New Password"
             name="newPassword"
@@ -454,7 +417,6 @@ const SettingsPage: React.FC = () => {
               ),
             }}
           />
-          
           <StyledTextField
             label="Confirm New Password"
             name="confirmPassword"
@@ -482,12 +444,24 @@ const SettingsPage: React.FC = () => {
                 : ""
             }
           />
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSavePassword}
+              disabled={
+                !settings.password.newPassword ||
+                settings.password.newPassword !== settings.password.confirmPassword
+              }
+            >
+              Save Password
+            </Button>
+          </Box>
         </TabPanel>
 
         {/* Notifications Tab */}
         <TabPanel value={tabValue} index={2}>
           <SectionTitle variant="h6">Notification Preferences</SectionTitle>
-          
           <Card variant="outlined" sx={{ mb: 2, borderRadius: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
@@ -530,7 +504,6 @@ const SettingsPage: React.FC = () => {
               </Stack>
             </CardContent>
           </Card>
-          
           <Card variant="outlined" sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
@@ -554,7 +527,6 @@ const SettingsPage: React.FC = () => {
         {/* Privacy Tab */}
         <TabPanel value={tabValue} index={3}>
           <SectionTitle variant="h6">Privacy Settings</SectionTitle>
-          
           <Card variant="outlined" sx={{ mb: 3, borderRadius: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
@@ -565,7 +537,7 @@ const SettingsPage: React.FC = () => {
                 <Select
                   name="profileVisibility"
                   value={settings.privacy.profileVisibility}
-                  onChange={handlePrivacyChange as any}
+                  onChange={handlePrivacyChange}
                   label="Who can see your profile"
                 >
                   <MenuItem value="public">Everyone (Public)</MenuItem>
@@ -575,7 +547,6 @@ const SettingsPage: React.FC = () => {
               </FormControl>
             </CardContent>
           </Card>
-          
           <Card variant="outlined" sx={{ borderRadius: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
@@ -587,7 +558,7 @@ const SettingsPage: React.FC = () => {
                     <Checkbox
                       name="activityStatus"
                       checked={settings.privacy.activityStatus}
-                      onChange={handlePrivacyChange as any}
+                      onChange={handlePrivacyChange}
                       color="primary"
                     />
                   }
@@ -598,7 +569,7 @@ const SettingsPage: React.FC = () => {
                     <Checkbox
                       name="searchable"
                       checked={settings.privacy.searchable}
-                      onChange={handlePrivacyChange as any}
+                      onChange={handlePrivacyChange}
                       color="primary"
                     />
                   }
@@ -608,28 +579,28 @@ const SettingsPage: React.FC = () => {
             </CardContent>
           </Card>
         </TabPanel>
-
-        <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {saveSuccess && (
-            <Fade in={saveSuccess}>
-              <Alert severity="success" sx={{ flexGrow: 1, mr: 2 }}>
-                Your settings have been saved successfully!
-              </Alert>
-            </Fade>
-          )}
-          <Box sx={{ marginLeft: saveSuccess ? 0 : 'auto' }}>
-            <SaveButton
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              startIcon={<SaveIcon />}
-              size="large"
-            >
-              Save Changes
-            </SaveButton>
-          </Box>
-        </Box>
       </SettingsCard>
+
+      <Snackbar
+        open={!!passwordSuccess}
+        autoHideDuration={4000}
+        onClose={() => setPasswordSuccess(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setPasswordSuccess(null)}>
+          {passwordSuccess}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={!!passwordError}
+        autoHideDuration={4000}
+        onClose={() => setPasswordError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setPasswordError(null)}>
+          {passwordError}
+        </Alert>
+      </Snackbar>
     </StyledContainer>
   );
 };
