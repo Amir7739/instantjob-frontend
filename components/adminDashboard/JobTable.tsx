@@ -77,7 +77,6 @@ const JobTable = ({
         const response = showInactive
           ? await fetchInitiaInActivelJobs()
           : await fetchInitialJobs();
-        console.log("Initial jobs response:", response);
         setVisibleJobs(response.data);
         setTotalJobs(response.totalJobs);
       } catch (error: any) {
@@ -111,7 +110,6 @@ const JobTable = ({
         scrollTop + clientHeight >= scrollHeight - 200 &&
         visibleJobs.length < totalJobs
       ) {
-        console.log("Fetching more jobs...");
         setIsLoading(true);
         fetchMoreJobsHandler();
       }
@@ -122,7 +120,6 @@ const JobTable = ({
     );
     if (gridElement) {
       gridElement.addEventListener("scroll", handleScroll);
-      console.log("Scroll listener attached");
     } else {
       console.error("Virtual scroller not found");
     }
@@ -140,7 +137,6 @@ const JobTable = ({
       const response = showInactive
         ? await fetchMoreInActiveJobs(offset)
         : await fetchMoreJobs(offset);
-      console.log("Fetch more jobs response:", response);
       if (response.data.length > 0) {
         setVisibleJobs((prev) => [...prev, ...response.data]);
       } else {

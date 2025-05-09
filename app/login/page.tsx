@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
 
   // Wrap useSearchParams() inside Suspense for client-side rendering (CSR)
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/emp-dashboard"; // Get redirect URL from query params or default to home
+  const redirectUrl = searchParams.get("redirect") || "/cand-dash"; // Get redirect URL from query params or default to home
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
