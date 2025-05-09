@@ -85,6 +85,58 @@ export const fetchMoreJobs = async (
   }
 };
 
+
+export const fetchInitiaInActivelJobs = async (): Promise<JobsResponse> => {
+  try {
+    const response: AxiosResponse<JobsResponse> = await axiosInstance.get(
+      "/jobs/in-active",
+      {
+        params: { offset: 0, limit: 10 },
+      }
+    );
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to fetch initial jobs");
+    }
+    return {
+      ...response.data,
+      data: response.data.data.map((job) => ({
+        ...job,
+        id: job._id || job.id, // Ensure id is set
+        category: job.category || "", // Default to empty string
+        companyLogo: job.companyLogo || null, // Set to null if missing
+        applyBy: job.applyBy
+          ? new Date(job.applyBy).toISOString().split("T")[0]
+          : "",
+      })),
+    };
+  } catch (error: any) {
+    console.error("Error in fetchInitialJobs:", error);
+    throw new Error(error.message || "Error fetching initial jobs");
+  }
+};
+
+
+export const fetchMoreInActiveJobs = async (
+  offset: number,
+  title: string = ""
+): Promise<JobsResponse> => {
+  try {
+    const response: AxiosResponse<JobsResponse> = await axiosInstance.get(
+      "/jobs/in-active",
+      {
+        params: { offset, limit: 10, title },
+      }
+    );
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to fetch more jobs");
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error in fetchMoreJobs:", error);
+    throw new Error(error.message || "Error fetching more jobs");
+  }
+};
+
 export const fetchJobById = async (id: string): Promise<Job> => {
   try {
     const response: AxiosResponse<JobsResponse> = await axiosInstance.get(
@@ -143,3 +195,16 @@ export const deleteJob = async (
     throw new Error(error.message || "Error deleting job");
   }
 };
+
+
+export const updateJobStatus = async (jobId: string, status: 'Active' | 'In-Active'): Promise<void> => {
+  try {
+    await axiosInstance.patch(`/jobs/update-status/${jobId}`, { status });
+  } catch (error: any) {
+    console.error(`Error updating job status to ${status}:`, error);
+    throw new Error(
+      error.response?.data?.message || `Error updating job status to ${status}`
+    );
+  }
+};
+

@@ -62,7 +62,7 @@ const Navbar = () => {
     setDrawerOpen(open);
   };
 
-  const dashboardPath = role === 'candidate' ? '/emp-dashboard' : role === 'admin' ? '/admin-dashboard' : '/';
+  const dashboardPath = role === 'candidate' ? '/cand-dash' : role === 'admin' ? '/admin-dashboard' : '/';
 
   return (
     <AppBar

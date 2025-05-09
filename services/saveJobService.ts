@@ -44,3 +44,15 @@ export const checkSavedJob = async (candidateId: string, jobId: string): Promise
       throw error;
     }
 }
+
+
+// Function to unsave a job by candidateId and jobId
+export const unsaveJob = async (candidateId: string, jobId: string): Promise<{ message: string }> => {
+  try {
+    const response = await axiosInstance.delete(`/save-jobs/unsave/${candidateId}/${jobId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error unsaving job:", error.message);
+    throw error;
+  }
+};
