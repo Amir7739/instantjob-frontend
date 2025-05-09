@@ -2,7 +2,7 @@ import axiosInstance from "@/utils/axios";
 import { AxiosResponse } from "axios";
 
 // Define interfaces based on the API response
-interface Education {
+export interface Education {
   degree: string;
   stream: string;
   institute: string;
@@ -11,11 +11,12 @@ interface Education {
   _id: string;
 }
 
-interface Experience {
+export interface Experience {
   companyName: string;
   jobTitle: string;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
+  location?: string;
   currentlyWorking: boolean;
   description: string;
   _id: string;
