@@ -14,6 +14,17 @@ export interface CandidateJob {
     savedAt?: string
   }
 
+  export interface Project {
+  _id?: string;
+  projectName: string;
+  description: string;
+  startDate: string;
+  endDate?: string | null;
+  currentlyWorking: boolean;
+  technologies: string[];
+  link?: string;
+}
+
   interface SavedJobResponse {
     jobs: CandidateJob[];
     totalJobs: number;
@@ -52,6 +63,7 @@ export interface CandidateJob {
   preferredLocation?: string;
   totalExperience?: string;
   status?: string;
+  projects?: Project[];
   }
 
   export const getSavedJobsByCandidateId = async (candidateId: string, page: number = 1, limit: number = 9): Promise<SavedJobResponse> =>{
@@ -205,6 +217,49 @@ export interface CandidateJob {
     }
   };
 
+  export const updateCandidateProjects = async (
+  candidateId: string,
+  projects: Project[]
+): Promise<Candidate> => {
+  try {
+    const formDataToSend = new FormData();
+    projects.forEach((project, index) => {
+      formDataToSend.append(`projects[${index}][projectName]`, project.projectName);
+      formDataToSend.append(`projects[${index}][description]`, project.description);
+      formDataToSend.append(`projects[${index}][startDate]`, project.startDate);
+      if (project.endDate) {
+        formDataToSend.append(`projects[${index}][endDate]`, project.endDate);
+      }
+      formDataToSend.append(
+        `projects[${index}][currentlyWorking]`,
+        String(project.currentlyWorking)
+      );
+      project.technologies.forEach((tech, techIndex) => {
+        formDataToSend.append(`projects[${index}][technologies][${techIndex}]`, tech);
+      });
+      if (project.link) {
+        formDataToSend.append(`projects[${index}][link]`, project.link);
+      }
+      if (project._id) {
+        formDataToSend.append(`projects[${index}][_id]`, project._id);
+      }
+    });
+
+    const response: AxiosResponse<{ candidate: Candidate }> = await axiosInstance.put(
+      `/candidates/update/${candidateId}`,
+      formDataToSend,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    return response.data.candidate;
+  } catch (error: any) {
+    console.error("Error updating candidate projects:", error);
+    throw new Error(error.response?.data?.error || "Failed to update projects");
+  }
+};
+
   export const updateCandidatePassword = async (
     candidateId: string,
     passwordData: {
@@ -220,3 +275,27 @@ export interface CandidateJob {
       throw new Error(error.response?.data?.message || "Failed to update password");
     }
   };
+
+
+  interface ProfileTasksResponse {
+  profileTasks: { id: number; task: string; completed: boolean }[];
+  completedTasks: number;
+  totalTasks: number;
+  completionPercentage: number;
+}
+
+export const getProfileTasks = async (
+  candidateId: string
+): Promise<ProfileTasksResponse> => {
+  try {
+    const response: AxiosResponse<ProfileTasksResponse> = await axiosInstance.get(
+      `/candidate-dashboard/profile-tasks/${candidateId}`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching profile tasks:", error.message);
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch profile tasks"
+    );
+  }
+};
