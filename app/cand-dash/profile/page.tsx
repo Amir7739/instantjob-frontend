@@ -13,6 +13,7 @@ import axiosInstance from "@/utils/axios";
 import axios from "axios";
 import { Alert, Button, Snackbar } from "@mui/material";
 import { fetchCandidateById } from "@/services/candidates";
+import { ProfileProjects } from "@/components/candidateDashboard/profile/profile-projects";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -261,7 +262,8 @@ export default function ProfilePage() {
             <Tab label="Basic Info" {...a11yProps(0)} />
             <Tab label="Experience" {...a11yProps(1)} />
             <Tab label="Education" {...a11yProps(2)} />
-            <Tab label="Upload Resume" {...a11yProps(3)} />{" "}
+            <Tab label="Project" {...a11yProps(3)} />
+            <Tab label="Upload Resume" {...a11yProps(4)} />{" "}
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -273,7 +275,11 @@ export default function ProfilePage() {
         <TabPanel value={value} index={2}>
           <ProfileEducation />
         </TabPanel>
+
         <TabPanel value={value} index={3}>
+          <ProfileProjects />
+        </TabPanel>
+        <TabPanel value={value} index={4}>
           <ResumeUpload />
         </TabPanel>
       </Box>
