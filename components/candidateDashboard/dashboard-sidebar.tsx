@@ -55,16 +55,16 @@ const sidebarLinks = [
       },
     ],
   },
-  {
-    title: 'Resume',
-    href: '/cand-dash/resume',
-    icon: DescriptionIcon,
-  },
-  {
-    title: 'Interviews',
-    href: '/cand-dash/interviews',
-    icon: CalendarMonthIcon,
-  },
+  // {
+  //   title: 'Resume',
+  //   href: '/cand-dash/resume',
+  //   icon: DescriptionIcon,
+  // },
+  // {
+  //   title: 'Interviews',
+  //   href: '/cand-dash/interviews',
+  //   icon: CalendarMonthIcon,
+  // },
   {
     title: 'Settings',
     href: '/cand-dash/settings',
