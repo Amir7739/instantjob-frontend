@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   DataGrid,
   GridColDef,
@@ -8,22 +8,21 @@ import {
 import {
   Alert,
   Box,
-  Chip,
   IconButton,
   Snackbar,
   Tooltip,
   useMediaQuery,
   useTheme,
   Button,
-  
+  Input,
 } from "@mui/material";
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
   Visibility as VisibilityIcon,
   Download as DownloadIcon,
 } from "@mui/icons-material";
-
 import PreviewIcon from '@mui/icons-material/Preview';
 import {
   fetchInitialCandidates,
@@ -34,6 +33,9 @@ import {
 } from "@/services/candidates";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "../ActivateDeactivateConfirmation";
+import { handleExcelUpload } from "@/utils/excelUpload";
+import { debounce } from "lodash";
+import CandidateListSkeleton from "../CandidateListSkeleton";
 
 const CandidateList = ({
   getStatusColor = (status) => (status === "Active" ? "success" : "error"),
@@ -47,7 +49,6 @@ const CandidateList = ({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showInactive, setShowInactive] = useState(false);
-
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogConfig, setDialogConfig] = useState<{
     title: string;
@@ -56,7 +57,6 @@ const CandidateList = ({
   } | null>(null);
 
   const gridRef = useRef<HTMLDivElement>(null);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -75,6 +75,8 @@ const CandidateList = ({
         const response = showInactive
           ? await fetchInitialInActiveCandidates()
           : await fetchInitialCandidates();
+        console.log("Initial candidates response:", response);
+        console.log("Total candidates set to:", response.pagination.totalCandidates);
         setCandidates(response.candidates);
         setTotalCandidates(response.pagination.totalCandidates);
       } catch (error) {
@@ -94,38 +96,35 @@ const CandidateList = ({
     }
   }, [showInactive]);
 
-  // Scroll handler for infinite scrolling with retry mechanism
-  useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 20;
-    const retryInterval = 200;
-
-    const attachScrollListener = () => {
-      const gridElement = gridRef.current?.querySelector(
-        ".MuiDataGrid-virtualScroller"
-      );
-      if (gridElement) {
-        gridElement.addEventListener("scroll", handleScroll);
-        return true;
-      }
-      return false;
-    };
-
-    const tryAttachListener = () => {
-      if (retryCount < maxRetries) {
-        if (!attachScrollListener()) {
-          retryCount++;
-          setTimeout(tryAttachListener, retryInterval);
-        }
+  // Debounced scroll handler for smooth infinite scrolling
+  const fetchMoreCandidatesHandler = useCallback(async () => {
+    if (isLoading || candidates.length >= totalCandidates) return;
+    try {
+      setIsLoading(true);
+      const page = Math.floor(candidates.length / 10) + 1; // Calculate page number
+      console.log("Fetching more candidates, page:", page);
+      const response = showInactive
+        ? await fetchMoreInActiveCandidates(page)
+        : await fetchMoreCandidates(page);
+      console.log("More candidates response:", response);
+      if (response.candidates.length > 0) {
+        setCandidates((prev) => [...prev, ...response.candidates]);
       } else {
-        console.error("Failed to attach scroll listener after max retries");
+        console.log("No more candidates to load");
+        if (candidates.length < totalCandidates) {
+          console.warn(`Expected more candidates but received none. Current: ${candidates.length}, Total: ${totalCandidates}`);
+        }
       }
-    };
+    } catch (error) {
+      setError(error.message || "Error fetching more candidates");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [candidates.length, isLoading, totalCandidates, showInactive]);
 
-    const handleScroll = () => {
-      if (!gridRef.current || isLoading) {
-        return;
-      }
+  const handleScroll = useCallback(
+    debounce(() => {
+      if (!gridRef.current || isLoading) return;
       const gridElement = gridRef.current.querySelector(
         ".MuiDataGrid-virtualScroller"
       );
@@ -135,58 +134,58 @@ const CandidateList = ({
       }
 
       const { scrollTop, scrollHeight, clientHeight } = gridElement;
-
       if (
-        scrollTop + clientHeight >= scrollHeight - 200 &&
+        scrollTop + clientHeight >= scrollHeight - 50 &&
         candidates.length < totalCandidates
       ) {
-        setIsLoading(true);
         fetchMoreCandidatesHandler();
       }
-    };
+    }, 200),
+    [fetchMoreCandidatesHandler, isLoading, candidates.length, totalCandidates]
+  );
 
-    const fetchMoreCandidatesHandler = async () => {
-      try {
-        const nextPage = Math.floor(candidates.length / 10) + 2;
-        const response = showInactive
-          ? await fetchMoreInActiveCandidates(nextPage)
-          : await fetchMoreCandidates(nextPage);
-        if (response.candidates.length > 0) {
-          setCandidates((prev) => {
-            const newCandidates = [...prev, ...response.candidates];
-            return newCandidates;
-          });
-        } else {
-          console.log("No more candidates to load");
-        }
-      } catch (error) {
-        setError(error.message || "Error fetching more candidates");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    tryAttachListener();
+  // Scroll handler for infinite scrolling
+  useEffect(() => {
+    const gridElement = gridRef.current?.querySelector(
+      ".MuiDataGrid-virtualScroller"
+    );
+    if (gridElement) {
+      gridElement.addEventListener("scroll", handleScroll);
+    } else {
+      console.error("Virtual scroller not found");
+    }
 
     return () => {
-      const gridElement = gridRef.current?.querySelector(
-        ".MuiDataGrid-virtualScroller"
-      );
       if (gridElement) {
         gridElement.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [candidates.length, isLoading, totalCandidates, showInactive]);
+  }, [handleScroll]);
 
   const openConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
     setDialogConfig({ title, message, onConfirm });
     setDialogOpen(true);
-  };  
+  };
 
-  // Function to close dialog
   const closeConfirmDialog = () => {
     setDialogOpen(false);
     setDialogConfig(null);
+  };
+
+  const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleExcelUpload({
+        file,
+        setIsLoading,
+        setError,
+        setSuccessMessage,
+        setCandidates,
+        setTotalCandidates,
+        showInactive,
+      });
+      event.target.value = ''; // Reset file input
+    }
   };
 
   // Responsive column config
@@ -391,7 +390,7 @@ const CandidateList = ({
 
   return (
     <>
-     <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1, gap: 1 }}>
         <Button
           variant="contained"
           onClick={() => setShowInactive(!showInactive)}
@@ -399,54 +398,66 @@ const CandidateList = ({
         >
           {showInactive ? "Show Active Candidates" : "Show Inactive Candidates"}
         </Button>
+        <Tooltip title="Upload Excel File" arrow>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<UploadFileIcon />}
+            sx={{ backgroundColor: "#1976d2" }}
+          >
+            Add Candidate
+            <Input
+              type="file"
+              inputProps={{ accept: ".xlsx, .xls" }}
+              onChange={onFileChange}
+              sx={{ display: "none" }}
+            />
+          </Button>
+        </Tooltip>
       </Box>
-    <div style={{ height: 700, width: "100%" }} ref={gridRef}>
-      {error && (
-        <div style={{ color: "red", textAlign: "center", padding: "8px" }}>
-          {error}
-        </div>
-      )}
-     
-      <DataGrid
-      
-        showToolbar
-        rows={rows}
-        columns={columns}
-        rowHeight={isMobile ? 50 : 60}
-        autoHeight={false}
-        disableSelectionOnClick
-        loading={isLoading}
-        rowCount={totalCandidates}
-        // slots={{
-        //   toolbar: (props) => (
-        //     <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1, alignItems: "center" }}>
-        //       <Button
-        //         variant="contained"
-        //         onClick={() => setShowInactive(!showInactive)}
-        //         sx={{ backgroundColor: showInactive ? "#f44336" : "#5e35b1", ml: 1 }}
-        //       >
-        //         {showInactive ? "Show Active Candidates" : "Show Inactive Candidates"}
-        //       </Button>
-        //     </Box>
-        //   ),
-        // }}
-        sx={{
-          "& .MuiDataGrid-cell": {
-            fontSize: isMobile ? "14px" : "16px",
-            padding: isMobile ? "4px" : "8px",
-          },
-          "& .MuiDataGrid-columnHeader": {
-            fontSize: isMobile ? "14px" : "16px",
-            padding: isMobile ? "8px 4px" : "12px 16px",
-            backgroundColor: "#5e35b1",
-            color: "white",
-          },
-        }}
-      />
-      {isLoading && (
-        <div style={{ textAlign: "center", padding: "8px" }}>
-          Loading more candidates...
-        </div>
+      <div style={{ height: 700, width: "100%", overflow: "auto" }} ref={gridRef}>
+        {error && (
+          <div style={{ color: "red", textAlign: "center", padding: "8px" }}>
+            {error}
+          </div>
+        )}
+        {isLoading ? (
+        <CandidateListSkeleton />
+      ) : (
+        <>
+          <DataGrid
+            showToolbar
+            key={candidates.length}
+            rows={rows}
+            columns={columns}
+            rowHeight={isMobile ? 50 : 60}
+            autoHeight={false}
+            disableSelectionOnClick
+            loading={false} // Controlled by skeleton
+            rowCount={totalCandidates}
+            paginationMode="server"
+            sx={{
+              "& .MuiDataGrid-cell": {
+                fontSize: isMobile ? "14px" : "16px",
+                padding: isMobile ? "4px" : "8px",
+              },
+              "& .MuiDataGrid-columnHeader": {
+                fontSize: isMobile ? "14px" : "16px",
+                padding: isMobile ? "8px 4px" : "12px 16px",
+                backgroundColor: "#5e35b1",
+                color: "white",
+              },
+              "& .MuiDataGrid-virtualScroller": {
+                overflow: "auto",
+              },
+            }}
+          />
+          {isLoading && (
+            <Box sx={{ mt: 1 }}>
+              <CandidateListSkeleton />
+            </Box>
+          )}
+        </>
       )}
       <Snackbar
         open={!!successMessage}
@@ -462,17 +473,16 @@ const CandidateList = ({
           {successMessage}
         </Alert>
       </Snackbar>
-
       <ConfirmDialog
         open={dialogOpen}
         onClose={closeConfirmDialog}
         onConfirm={() => dialogConfig?.onConfirm()}
-        title={dialogConfig?.title || ''}
-        message={dialogConfig?.message || ''}
+        title={dialogConfig?.title || ""}
+        message={dialogConfig?.message || ""}
       />
     </div>
-    </>
-  );
+  </>
+);
 };
 
 export default CandidateList;

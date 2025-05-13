@@ -31,9 +31,11 @@
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "swr": "^2.3.3",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.16",
     "@types/node": "^22.15.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
