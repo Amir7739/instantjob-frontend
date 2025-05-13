@@ -44,6 +44,7 @@ interface Candidate {
   skills: string[];
   state?: string;
   totalExperience?: string;
+  profileImage?: string;
 }
 
 interface CandidatesResponse {
@@ -266,6 +267,7 @@ export const fetchCandidateById = async (candidateId: string): Promise<Candidate
         ...candidate,
         id: candidate._id || candidate.id,
         full_name: candidate.full_name || "",
+        profileImage: candidate.profileImage || "",
         email: candidate.email || "",
         phone: candidate.phone || "",
         role: candidate.role || "candidate",

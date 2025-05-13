@@ -20,6 +20,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useRouter } from "next/navigation";
+import { fetchCandidateById } from "@/services/candidates";
 
 // Custom hook for debouncing
 function useDebounce<T>(value: T, delay: number): T {
@@ -86,17 +87,35 @@ export function DashboardHeader({ handleDrawerToggle }: DashboardHeaderProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [profileImage, setProfileImage] = useState<string>("/placeholder-user.jpg"); // Default placeholder
   const router = useRouter();
 
   // Debounce the search query with 500ms delay
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Fetch candidate data on component mount
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const candidateId = localStorage.getItem("id"); // Assuming candidate ID is stored in localStorage
+        if (candidateId) {
+          const candidate = await fetchCandidateById(candidateId);
+          setProfileImage(candidate.profileImage || "/placeholder-user.jpg"); // Fallback to placeholder if no image
+        }
+      } catch (error) {
+        console.error("Failed to fetch candidate profile image:", error);
+        setProfileImage("/placeholder-user.jpg"); // Fallback to placeholder on error
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
 
   // Handle search navigation
   const handleSearch = useCallback(() => {
     if (debouncedSearchQuery.trim()) {
       router.push(`/cand-dash/search?search=${encodeURIComponent(debouncedSearchQuery)}&type=recommended`);
     } else {
-      // If search query is empty, navigate to default recommended jobs
       router.push(`/cand-dash/search?search=&type=recommended`);
     }
   }, [debouncedSearchQuery, router]);
@@ -122,8 +141,8 @@ export function DashboardHeader({ handleDrawerToggle }: DashboardHeaderProps) {
       color="default"
       elevation={1}
       sx={{
-        zIndex: 1100, // Above sidebar (1000), below footer (1300)
-        height: "64px", // Fixed height
+        zIndex: 1100,
+        height: "64px",
       }}
     >
       <Toolbar>
@@ -168,16 +187,16 @@ export function DashboardHeader({ handleDrawerToggle }: DashboardHeaderProps) {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        <IconButton size="large" color="inherit" sx={{ mr: 2 }}>
+        {/* <IconButton size="large" color="inherit" sx={{ mr: 2 }}>
           <Badge badgeContent={5} color="error">
             <NotificationsIcon />
           </Badge>
-        </IconButton>
+        </IconButton> */}
 
         <IconButton edge="end" onClick={handleProfileMenuOpen} color="inherit">
           <Avatar
             alt="User"
-            src="/placeholder-user.jpg"
+            src={profileImage} // Use fetched profile image
             sx={{ width: 32, height: 32 }}
           />
         </IconButton>
