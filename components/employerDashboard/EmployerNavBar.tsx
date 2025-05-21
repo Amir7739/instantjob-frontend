@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Add useEffect
 import { useRouter } from "next/navigation";
 import {
   AppBar,
@@ -25,6 +25,14 @@ const EmployerNavBar: React.FC = () => {
   const [anchorElOfferings, setAnchorElOfferings] = useState<null | HTMLElement>(null);
   const [anchorElMobile, setAnchorElMobile] = useState<null | HTMLElement>(null);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
+  const [userInitial, setUserInitial] = useState("?"); // State to store user initial
+
+  // Run localStorage access only on client side after mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserInitial(localStorage.getItem("token") ? "E" : "?");
+    }
+  }, []);
 
   const handleOfferingsOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElOfferings(event.currentTarget);
@@ -51,7 +59,9 @@ const EmployerNavBar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+    }
     router.push("/employer-dash/login");
     handleProfileMenuClose();
   };
@@ -144,9 +154,7 @@ const EmployerNavBar: React.FC = () => {
               </Typography>
             </Box>
             <IconButton onClick={handleProfileMenuOpen}>
-              <Avatar sx={{ bgcolor: "#4B5EAA" }}>
-                {localStorage.getItem("token") ? "E" : "?"}
-              </Avatar>
+              <Avatar sx={{ bgcolor: "#4B5EAA" }}>{userInitial}</Avatar>
             </IconButton>
             <Menu
               anchorEl={anchorElProfile}
