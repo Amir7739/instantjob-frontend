@@ -30,6 +30,7 @@ import Sidebar from "@/components/adminDashboard/Sidebar";
 import axiosInstance from "@/utils/axios";
 import JobApplication from "@/components/adminDashboard/jobApplicationList";
 import withAdminAuth from "@/components/withAdminProtection";
+import EmployerList from "@/components/adminDashboard/EmployerList";
 
 // Dummy data for jobs and candidates
 const candidates = [
@@ -537,9 +538,9 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
-      case "employers":
+     case "employers":
         return (
-          <Card sx={{ width: "150%", mb: 5, overflow: "hidden" }}>
+          <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
             <Box
               sx={{
                 p: 3,
@@ -551,113 +552,12 @@ const AdminDashboard = () => {
                 Employer Management
               </Typography>
               <Typography variant="body2">
-                Monitor and manage registered employers. Currently showing{" "}
-                {employers.length} companies.
+                Monitor and manage registered employers.
               </Typography>
             </Box>
             <Divider />
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Paper elevation={0} sx={{ overflow: "auto" }}>
-                <Box sx={{ width: "100%", overflow: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr
-                        style={{
-                          backgroundColor: alpha(
-                            theme.palette.primary.main,
-                            0.05
-                          ),
-                        }}
-                      >
-                        <th
-                          style={{
-                            padding: "16px",
-                            textAlign: "left",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          }}
-                        >
-                          Company Name
-                        </th>
-                        <th
-                          style={{
-                            padding: "16px",
-                            textAlign: "left",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          }}
-                        >
-                          Industry
-                        </th>
-                        <th
-                          style={{
-                            padding: "16px",
-                            textAlign: "left",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          }}
-                        >
-                          Active Jobs
-                        </th>
-                        <th
-                          style={{
-                            padding: "16px",
-                            textAlign: "left",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          }}
-                        >
-                          Location
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {employers.map((employer) => (
-                        <tr
-                          key={employer.id}
-                          style={{
-                            "&:hover": {
-                              backgroundColor: alpha(
-                                theme.palette.primary.main,
-                                0.05
-                              ),
-                            },
-                          }}
-                        >
-                          <td
-                            style={{
-                              padding: "16px",
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                            }}
-                          >
-                            {employer.name}
-                          </td>
-                          <td
-                            style={{
-                              padding: "16px",
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                            }}
-                          >
-                            {employer.industry}
-                          </td>
-                          <td
-                            style={{
-                              padding: "16px",
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                            }}
-                          >
-                            {employer.activeJobs}
-                          </td>
-                          <td
-                            style={{
-                              padding: "16px",
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                            }}
-                          >
-                            {employer.location}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Box>
-              </Paper>
+              <EmployerList getStatusColor={getStatusColor} />
             </CardContent>
           </Card>
         );
@@ -665,7 +565,6 @@ const AdminDashboard = () => {
         return null;
     }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Box

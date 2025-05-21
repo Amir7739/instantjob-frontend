@@ -22,6 +22,7 @@ import {
   ThemeProvider,
   createTheme,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
@@ -93,30 +94,187 @@ const jobTypes = [
   "Remote",
 ];
 const industryTypes = [
-  "Technology",
-  "Healthcare",
-  "Finance",
-  "Education",
-  "Manufacturing",
+  "Information Technology (IT)",
+  "Software & SaaS",
+  "Banking & Financial Services",
+  "Accounting & Auditing",
+  "E-commerce & Internet",
   "Retail",
-  "Transportation",
-  "Construction",
-  "Entertainment",
-  "Agriculture",
-  "Other",
+  "Manufacturing",
+  "Automobile / Auto Ancillary",
+  "Education & E-Learning",
+  "Healthcare & Hospitals",
+  "Pharmaceuticals & Biotechnology",
+  "Media & Entertainment",
+  "Advertising & Marketing",
+  "Real Estate & Construction",
+  "Travel & Tourism",
+  "Hotel & Hospitality",
+  "Legal / Law",
+  "Logistics & Supply Chain",
+  "Transportation & Shipping",
+  "Insurance",
+  "Oil & Gas / Energy / Power",
+  "Telecommunications",
+  "Aerospace / Aviation",
+  "Government / Public Sector / Defense",
+  "Agriculture / Dairy / Farming",
+  "BPO / Call Center / ITES",
+  "NGO / Social Services",
+  "Electronics / Electricals",
+  "Chemicals / Petrochemicals / Plastic / Rubber",
+  "Textile / Garments / Accessories",
+  "Printing / Packaging",
+  "Mining & Metals",
+  "Architecture / Interior Design",
+  "Food & Beverages",
+  "Environmental Services",
+  "Sports / Fitness / Wellness",
+  "Event Management",
+  "Animation / VFX / Gaming",
+  "Recruitment / Staffing",
+  "Market Research / Analytics",
+  "Cybersecurity",
+  "Blockchain & Web3",
+  "Semiconductor / Chip Design",
+  "Robotics / Automation",
+  "Marine / Shipping",
+  "Courier / Logistics",
+  "Consulting / Strategy",
+  "Others",
 ];
+
 const jobCategories = [
-  "Software Development",
-  "Data Science",
-  "UI/UX Design",
-  "Product Management",
-  "Marketing",
-  "Sales",
-  "Customer Support",
-  "Human Resources",
-  "Finance",
-  "Operations",
+  // Development & Engineering (Detailed) - Alphabetical
+  "AI Researcher",
+  "Angular Developer",
+  "Automation Tester",
+  "Backend Developer",
+  "Business Intelligence Analyst",
+  "C# Developer",
+  "Cloud Engineer",
+  "Cybersecurity Specialist",
+  "Data Analyst",
+  "Data Scientist",
+  "DevOps Engineer",
+  "Embedded Systems Developer",
+  "Flutter Developer",
+  "Full Stack Developer",
+  "Game Developer",
+  "Golang Developer",
+  "Java Developer",
+  "Kotlin Developer",
+  "Machine Learning Engineer",
+  "Mobile App Developer",
+  "Network Engineer",
+  "Node.js Developer",
+  "PHP Developer",
+  "Python Developer",
+  "Quality Assurance Engineer",
+  "React Developer",
+  "Ruby on Rails Developer",
+  "Site Reliability Engineer",
+  "Swift Developer",
+  "System Administrator",
+  "Vue.js Developer",
+  "Web Developer",
+
+  // Design & Creative - Alphabetical
+  "Content Writer",
+  "Copywriter",
+  "Graphic Designer",
+  "Multimedia Artist / Animator",
+  "Photographer",
+  "Product Designer",
+  "Technical Writer",
+  "UI/UX Designer",
+  "Video Editor",
+  "Visual Designer",
+
+  // Product & Project Management - Alphabetical
+  "Agile Coach",
+  "Business Analyst",
+  "Product Manager",
+  "Project Manager",
+  "Scrum Master",
+
+  // Marketing & Sales - Alphabetical
+  "Account Manager",
+  "Business Development Manager",
+  "Content Marketing Specialist",
+  "Customer Support Specialist",
+  "Digital Marketer",
+  "Email Marketing Specialist",
+  "Marketing Manager",
+  "Sales Executive",
+  "SEO Specialist",
+  "Social Media Manager",
+  "Technical Support Specialist",
+
+  // HR, Finance & Legal - Alphabetical
+  "Accountant",
+  "Compliance Officer",
+  "Financial Analyst",
+  "Finance Manager",
+  "Human Resources Manager",
+  "Legal Advisor",
+  "Auditor",
+  "Recruiter / Talent Acquisition Specialist",
+  "Training & Development Specialist",
+
+  // Operations & Administration - Alphabetical
+  "Administrative Assistant",
+  "Logistics Manager",
+  "Office Manager",
+  "Operations Manager",
+  "Procurement Specialist",
+  "Supply Chain Analyst",
+
+  // Education & Training - Alphabetical
+  "Education Consultant",
+  "Instructional Designer",
+  "Teacher",
+  "Trainer",
+
+  // Healthcare & Medical - Alphabetical
+  "Doctor / Physician",
+  "Healthcare Administrator",
+  "Lab Technician",
+  "Medical Assistant",
+  "Nurse",
+  "Pharmacist",
+  "Physiotherapist",
+
+  // Engineering & Technical - Alphabetical
+  "Architect",
+  "Civil Engineer",
+  "Construction Manager",
+  "Electrical Engineer",
+  "Environmental Engineer",
+  "Industrial Engineer",
+  "Mechanical Engineer",
+
+  // Hospitality & Travel - Alphabetical
+  "Chef",
+  "Event Planner",
+  "Hotel Manager",
+  "Restaurant Manager",
+  "Travel Agent",
+
+  // Retail & Customer Service - Alphabetical
+  "Cashier",
+  "Customer Service Representative",
+  "Retail Manager",
+  "Store Manager",
+
+  // Specialized & Other - Alphabetical
+  "Consultant",
+  "Entrepreneur / Founder",
+  "Freelancer",
+  "Government Employee",
+  "Nonprofit / NGO Worker",
   "Other",
+  "Researcher",
 ];
 
 // Validation schema (unchanged)
@@ -322,6 +480,8 @@ const JobCreateForm = ({
     try {
       const url = isEditing ? `/jobs/update/${jobId}` : "/jobs/create";
       let res;
+
+      const token = localStorage.getItem("token");
       if (values.companyLogo) {
         const formData = new FormData();
         // Append non-array fields and arrays correctly
@@ -340,14 +500,20 @@ const JobCreateForm = ({
           method: isEditing ? "put" : "post",
           url,
           data: formData,
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // Pass the token in headers
+          },
         });
       } else {
         res = await axiosInstance({
           method: isEditing ? "put" : "post",
           url,
           data,
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Pass the token in headers
+          },
         });
       }
 
@@ -715,6 +881,13 @@ const JobCreateForm = ({
                           <TextField
                             {...field}
                             fullWidth
+                            sx={{
+                              minHeight: "80px",
+                              width: {
+                                xs: "100%", // full width on mobile
+                                sm: "20rem", // fixed width on small screens and up
+                              },
+                            }}
                             type="number"
                             label="Minimum Experience (Years)"
                             variant="outlined"
@@ -731,6 +904,13 @@ const JobCreateForm = ({
                           <TextField
                             {...field}
                             fullWidth
+                            sx={{
+                              minHeight: "80px",
+                              width: {
+                                xs: "100%", // full width on mobile
+                                sm: "20rem", // fixed width on small screens and up
+                              },
+                            }}
                             type="number"
                             label="Maximum Experience (Years)"
                             variant="outlined"
@@ -743,66 +923,96 @@ const JobCreateForm = ({
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Field name="industryType">
-                        {({ field, meta }: FieldProps) => (
+                        {({ field, form, meta }: FieldProps) => (
                           <FormControl
                             fullWidth
-                            variant="outlined"
                             error={meta.touched && Boolean(meta.error)}
+                            sx={{
+                              minHeight: "80px",
+                              width: {
+                                xs: "130%", // full width on mobile
+                                sm: "20rem", // fixed width on small screens and up
+                              },
+                            }}
                           >
-                            <InputLabel id="industry-type-label">
-                              Industry Type
-                            </InputLabel>
-                            <Select
-                              {...field}
-                              labelId="industry-type-label"
-                              label="Industry Type"
-                            >
-                              {industryTypes.map((type) => (
-                                <MenuItem key={type} value={type}>
-                                  {type}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                            {meta.touched && meta.error && (
-                              <FormHelperText error>
-                                {meta.error}
-                              </FormHelperText>
-                            )}
+                            <Autocomplete
+                              fullWidth
+                              disablePortal
+                              options={industryTypes}
+                              value={field.value || ""}
+                              onChange={(_, value) =>
+                                form.setFieldValue(field.name, value)
+                              }
+                              onBlur={() =>
+                                form.setFieldTouched(field.name, true)
+                              }
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Industry Type"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{
+                                    "& .MuiInputBase-root": {
+                                      minHeight: "56px", // Ensure tall enough box
+                                    },
+                                  }}
+                                  error={meta.touched && Boolean(meta.error)}
+                                  helperText={meta.touched && meta.error}
+                                />
+                              )}
+                            />
                           </FormControl>
                         )}
                       </Field>
                     </Grid>
+
                     <Grid item xs={12} sm={6}>
                       <Field name="category">
-                        {({ field, meta }: FieldProps) => (
+                        {({ field, form, meta }: FieldProps) => (
                           <FormControl
                             fullWidth
-                            variant="outlined"
                             error={meta.touched && Boolean(meta.error)}
+                            sx={{
+                              minHeight: "80px",
+                              width: {
+                                xs: "130%", // full width on mobile
+                                sm: "20rem", // fixed width on small screens and up
+                              },
+                            }}
                           >
-                            <InputLabel id="category-label">
-                              Job Category
-                            </InputLabel>
-                            <Select
-                              {...field}
-                              labelId="category-label"
-                              label="Job Category"
-                            >
-                              {jobCategories.map((category) => (
-                                <MenuItem key={category} value={category}>
-                                  {category}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                            {meta.touched && meta.error && (
-                              <FormHelperText error>
-                                {meta.error}
-                              </FormHelperText>
-                            )}
+                            <Autocomplete
+                              fullWidth
+                              disablePortal
+                              options={jobCategories}
+                              value={field.value || ""}
+                              onChange={(_, value) =>
+                                form.setFieldValue(field.name, value)
+                              }
+                              onBlur={() =>
+                                form.setFieldTouched(field.name, true)
+                              }
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Job Category"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{
+                                    "& .MuiInputBase-root": {
+                                      minHeight: "56px", // match standard MUI field height
+                                    },
+                                  }}
+                                  error={meta.touched && Boolean(meta.error)}
+                                  helperText={meta.touched && meta.error}
+                                />
+                              )}
+                            />
                           </FormControl>
                         )}
                       </Field>
                     </Grid>
+
                     <Grid item xs={12} sm={6}>
                       <Field name="applyBy">
                         {({ field, meta }: FieldProps) => (
@@ -810,6 +1020,13 @@ const JobCreateForm = ({
                             {...field}
                             fullWidth
                             label="Apply By"
+                            sx={{
+                              minHeight: "80px",
+                              width: {
+                                xs: "110%", // full width on mobile
+                                sm: "20rem", // fixed width on small screens and up
+                              },
+                            }}
                             type="date"
                             variant="outlined"
                             error={meta.touched && Boolean(meta.error)}

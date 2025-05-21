@@ -9,6 +9,16 @@ const theme = createTheme({
       default: "#f5f5f5",
     },
   },
+  components: {
+    MuiInputLabel: {
+      styleOverrides: {
+        asterisk: {
+          color: "red",
+          fontSize: "1.2rem",
+        },
+      },
+    },
+  },
 });
 
 export default theme;
