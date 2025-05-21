@@ -152,6 +152,14 @@ const Navbar = () => {
                       </Button>
                     </Link>
                   )}
+                  <Link href='/employer-dash/login' style={{ textDecoration: 'none' }}>
+                      <Button
+                        // color="inherit"
+                        sx={{ textTransform: 'none', fontWeight: 500 }}
+                      >
+                        For employers
+                      </Button>
+                    </Link>
                 </>
               )}
             </Box>

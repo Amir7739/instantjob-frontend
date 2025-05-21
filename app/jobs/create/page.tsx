@@ -3,7 +3,7 @@
 
 import React from "react";
 import JobCreateForm from "@/components/JobCreateForm";
-import withAdminAuth from "@/components/withAdminProtection";
+import withAdminAndEmployerAuth from "@/components/withAdminAndEmployerProtection";
 
 
 const JobCreatePage = () => {
@@ -14,4 +14,4 @@ const JobCreatePage = () => {
   );
 };
 
-export default withAdminAuth(JobCreatePage);
+export default withAdminAndEmployerAuth(JobCreatePage);
