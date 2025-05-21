@@ -53,15 +53,24 @@ const EmployerLoginPage: React.FC = () => {
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const isEmail = values.identifier.includes("@");
-              await loginEmployer({
+              const response = await loginEmployer({
                 ...(isEmail
                   ? { email: values.identifier }
                   : { contactNumber: values.identifier }),
                 password: values.password,
               });
+
+              // Save token, id, and role to localStorage
+              if (response.status === "success" && response.auth) {
+                localStorage.setItem("token", response.auth.token);
+                localStorage.setItem("id", response.auth.id);
+                localStorage.setItem("role", response.auth.role);
+              }
+
+              // Redirect to employer dashboard
               router.push("/employer-dash");
             } catch (err: any) {
-              setError(err.message);
+              setError(err.message || "An error occurred during login");
             } finally {
               setSubmitting(false);
             }
