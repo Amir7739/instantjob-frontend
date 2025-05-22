@@ -12,6 +12,9 @@ const Messages = dynamic(() => import("@/components/employerDashboard/Messages")
 const TopNav = dynamic(() => import("@/components/employerDashboard/TopNav"), { ssr: false });
 const Settings = dynamic(() => import("@/components/employerDashboard/Settings"), { ssr: false });
 const Sidebar = dynamic(() => import("@/components/employerDashboard/Sidebar"), { ssr: false });
+const RecentApplicants = dynamic(() => import("@/components/employerDashboard/Applicants"), { ssr: false });
+const CandidateSearch = dynamic(() => import("@/components/employerDashboard/CandidateSearch"), { ssr: false });
+const SubscriptionHistory = dynamic(() => import("@/components/employerDashboard/SubscriptionHistory"), { ssr: false });
 
 // Error boundary component to catch runtime errors
 const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -82,6 +85,22 @@ const EmployerDashboard: React.FC = () => {
           {activeTab === "applicants" && (
             <ErrorBoundary>
               <Applicants />
+            
+            </ErrorBoundary>
+          )}
+          {activeTab === "recent-applicants" && (
+            <ErrorBoundary>
+              <RecentApplicants />
+            </ErrorBoundary>
+          )}
+          {activeTab === "candidate-search" && (
+            <ErrorBoundary>
+              <CandidateSearch />
+            </ErrorBoundary>
+          )}
+          {activeTab === "subscription-history" && (
+            <ErrorBoundary>
+              <SubscriptionHistory />
             </ErrorBoundary>
           )}
           {activeTab === "messages" && (

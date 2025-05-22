@@ -32,6 +32,26 @@ interface EmployerResponse {
   employer: Employer;
 }
 
+interface StatIcon {
+  name: string;
+  color: string;
+  size: number;
+}
+
+ export interface Stat {
+  title: string;
+  value: number;
+  icon: StatIcon;
+  color: string;
+  trend: string;
+  trendColor: string;
+}
+
+interface StatsResponse {
+  status: string;
+  stats: Stat[];
+}
+
 import axiosInstance from "@/utils/axios";
 import { AxiosResponse } from "axios";
 
@@ -160,3 +180,35 @@ export const fetchEmployerById = async (id: string): Promise<Employer> => {
     );
   }
 };
+
+export const fetchEmployerStats = async (id: string): Promise<Stat[]> => {
+  try {
+    const response: AxiosResponse<StatsResponse> = await axiosInstance.get(
+      `/employers/dashboard-stats/${id}`
+    );
+
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to fetch stats");
+    }
+
+    return response.data.stats.map((stat) => ({
+      title: stat.title || "",
+      value: stat.value || 0,
+      icon: {
+        name: stat.icon?.name || "",
+        color: stat.icon?.color || "#000000",
+        size: stat.icon?.size || 24,
+      },
+      color: stat.color || "#000000",
+      trend: stat.trend || "",
+      trendColor: stat.trendColor || "#000000",
+    }));
+  } catch (error: any) {
+    console.error("Error in fetchEmployerStats:", error);
+    throw new Error(
+      error.response?.data?.message || "Error fetching employer stats"
+    );
+  }
+};
+
+
