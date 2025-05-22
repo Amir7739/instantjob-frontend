@@ -15,7 +15,9 @@ import {
   Work as WorkIcon,
   Description as DescriptionIcon,
   People as PeopleIcon,
-  Message as MessageIcon,
+  Search as SearchIcon,
+  History as HistoryIcon,
+  Message as MessageSquareIcon,
   Settings as SettingsIcon,
   Logout as LogOutIcon,
 } from "@mui/icons-material";
@@ -38,8 +40,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <Drawer
       variant={isMobile ? "temporary" : "permanent"}
-      open={sidebarOpen}
-      onClose={toggleSidebar}
+      open={isMobile ? sidebarOpen : true}
+      onClose={isMobile ? toggleSidebar : undefined}
       sx={{
         width: sidebarOpen ? 240 : 80,
         flexShrink: 0,
@@ -78,8 +80,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           {[
             { tab: "dashboard", icon: <WorkIcon />, label: "Dashboard" },
             { tab: "jobs", icon: <DescriptionIcon />, label: "Job Listings" },
-            { tab: "applicants", icon: <PeopleIcon />, label: "Applicants" },
-            { tab: "messages", icon: <MessageIcon />, label: "Messages" },
+            {
+              tab: "recent-applicants",
+              icon: <PeopleIcon />,
+              label: "Recent Applicants",
+            },
+            {
+              tab: "candidate-search",
+              icon: <SearchIcon />,
+              label: "Candidate Search",
+            },
+            // {
+            //   tab: "subscription-history",
+            //   icon: <HistoryIcon />,
+            //   label: "Subscription History",
+            // },
             { tab: "settings", icon: <SettingsIcon />, label: "Settings" },
           ].map(({ tab, icon, label }) => (
             <ListItem key={tab} disablePadding>

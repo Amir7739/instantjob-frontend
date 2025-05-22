@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react"; // Add useEffect
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   AppBar,
@@ -25,12 +23,13 @@ const EmployerNavBar: React.FC = () => {
   const [anchorElOfferings, setAnchorElOfferings] = useState<null | HTMLElement>(null);
   const [anchorElMobile, setAnchorElMobile] = useState<null | HTMLElement>(null);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
-  const [userInitial, setUserInitial] = useState("?"); // State to store user initial
+  const [userInitial, setUserInitial] = useState("?");
+  const [isEmployer, setIsEmployer] = useState(false);
 
-  // Run localStorage access only on client side after mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       setUserInitial(localStorage.getItem("token") ? "E" : "?");
+      setIsEmployer(localStorage.getItem("role") === "employer");
     }
   }, []);
 
@@ -83,8 +82,7 @@ const EmployerNavBar: React.FC = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        {/* Left: Logo */}
-        <Link href="/employer/dashboard" passHref style={{ textDecoration: "none" }}>
+        <Link href="/employer-dash" passHref style={{ textDecoration: "none" }}>
           <Typography
             variant="h6"
             sx={{
@@ -97,7 +95,6 @@ const EmployerNavBar: React.FC = () => {
           </Typography>
         </Link>
 
-        {/* Center: Navigation Links (Desktop) */}
         {!isMobile && (
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
@@ -111,6 +108,19 @@ const EmployerNavBar: React.FC = () => {
             >
               Our Offerings
             </Button>
+            {isEmployer && (
+              <Button
+                color="inherit"
+                onClick={() => router.push("/employer-dash")}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&:hover": { color: "#4B5EAA" },
+                }}
+              >
+                My Dashboard
+              </Button>
+            )}
             <Menu
               anchorEl={anchorElOfferings}
               open={Boolean(anchorElOfferings)}
@@ -144,7 +154,6 @@ const EmployerNavBar: React.FC = () => {
           </Box>
         )}
 
-        {/* Right: Contact Number, Profile (Desktop) */}
         {!isMobile && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -167,6 +176,16 @@ const EmployerNavBar: React.FC = () => {
                 },
               }}
             >
+              {isEmployer && (
+                <MenuItem
+                  onClick={() => {
+                    router.push("/employer-dash");
+                    handleProfileMenuClose();
+                  }}
+                >
+                  My Dashboard
+                </MenuItem>
+              )}
               <MenuItem onClick={handleLogout}>
                 <LogoutIcon sx={{ mr: 1, color: "#1F2937" }} />
                 Logout
@@ -175,7 +194,6 @@ const EmployerNavBar: React.FC = () => {
           </Box>
         )}
 
-        {/* Mobile: Hamburger Menu */}
         {isMobile && (
           <IconButton onClick={handleMobileMenuOpen}>
             <MenuIcon sx={{ color: "#1F2937" }} />
@@ -210,6 +228,17 @@ const EmployerNavBar: React.FC = () => {
             ))
           ) : (
             <>
+              {isEmployer && (
+                <MenuItem
+                  onClick={() => {
+                    router.push("/employer-dash");
+                    handleMobileMenuClose();
+                  }}
+                  sx={{ color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
+                >
+                  My Dashboard
+                </MenuItem>
+              )}
               <MenuItem sx={{ color: "#1F2937" }}>
                 <PhoneIcon sx={{ mr: 1, color: "#4B5EAA" }} />
                 0120-4461787
