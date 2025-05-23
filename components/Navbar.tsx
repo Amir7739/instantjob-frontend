@@ -23,177 +23,168 @@ import Link from "next/link";
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [token, setToken] = useState(null);
+  const [role, setRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Services", path: "/jobs" },
+    // { name: "Services", path: "/jobs" },
   ];
 
   useEffect(() => {
     setIsLoading(true);
-    const storedToken = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
-    setToken(storedToken);
-    setRole(storedRole);
+    setToken(localStorage.getItem("token"));
+    setRole(localStorage.getItem("role"));
     setIsLoading(false);
 
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
+      if (isScrolled !== scrolled) setScrolled(isScrolled);
     };
+    
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [scrolled]);
 
-  const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
-      setDrawerOpen(open);
-    };
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) return;
+    setDrawerOpen(open);
+  };
 
-  const dashboardPath =
-    role === "candidate"
-      ? "/cand-dash"
-      : role === "admin"
-      ? "/admin-dashboard"
-      : "/";
+  const dashboardPath = role === "candidate" ? "/cand-dash" : role === "admin" ? "/admin-dashboard" : "/";
+  const isLoggedIn = role === "admin" || role === "candidate";
+
+  const navButtonStyle = {
+    fontSize: "0.95rem",
+    fontWeight: 600,
+    textTransform: "none",
+    borderRadius: "12px",
+    px: 3,
+    py: 1,
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    position: "relative",
+    overflow: "hidden",
+    "&:hover": {
+      transform: "translateY(-2px)",
+      boxShadow: "0 8px 25px rgba(50, 82, 168, 0.2)",
+    },
+    "&:before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: "-100%",
+      width: "100%",
+      height: "100%",
+      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+      transition: "left 0.5s",
+    },
+    "&:hover:before": {
+      left: "100%",
+    },
+  };
+
+  const primaryButtonStyle = {
+    ...navButtonStyle,
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "white",
+    fontWeight: 700,
+    "&:hover": {
+      ...navButtonStyle["&:hover"],
+      background: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+    },
+  };
 
   return (
     <AppBar
       position="fixed"
-      elevation={scrolled ? 4 : 0}
+      elevation={0}
       sx={{
-        backgroundColor: scrolled ? "white" : "white",
-        transition: "all 0.3s ease-in-out",
-        height: scrolled ? 70 : 70,
-        boxShadow: scrolled ? "rgba(0, 0, 0, 0.1) 0px 4px 12px" : "none",
-        color: scrolled ? "#3252a8" : "#3252a8",
+        background: scrolled 
+          ? "rgba(255, 255, 255, 0.95)"
+          : "rgba(255, 255, 255, 0.9)",
+        backdropFilter: "blur(20px)",
+        borderBottom: scrolled ? "1px solid rgba(50, 82, 168, 0.1)" : "none",
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        height: 80,
       }}
     >
       <Container maxWidth="lg">
-        <Toolbar
-          disableGutters
-          sx={{ height: "100%", justifyContent: "space-between" }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{
-                fontWeight: 700,
-                fontSize: scrolled ? "1.5rem" : "1.75rem",
-                transition: "all 0.3s ease-in-out",
-                mr: 4,
-              }}
-            >
-              InstantJob
-            </Typography>
-            {!isMobile && (
-              <Box sx={{ display: "flex", gap: 2 }}>
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.path}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Button
-                      color="inherit"
-                      sx={{
-                        fontSize: "0.9rem",
-                        fontWeight: 500,
-                        textTransform: "none",
-                        opacity: 0.85,
-                        "&:hover": {
-                          opacity: 1,
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        },
-                      }}
-                    >
-                      {item.name}
-                    </Button>
-                  </Link>
-                ))}
-              </Box>
-            )}
-          </Box>
+        <Toolbar disableGutters sx={{ height: "100%" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontSize: "1.8rem",
+              letterSpacing: "-0.5px",
+              mr: 4,
+            }}
+          >
+            InstantJob
+          </Typography>
+          
+          <Box sx={{ flexGrow: 1 }} />
 
-          {!isMobile ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {navItems.map((item) => (
+                <Link key={item.name} href={item.path} style={{ textDecoration: "none" }}>
+                  <Button sx={{ ...navButtonStyle, color: "#4a5568" }}>
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
+              
               {isLoading ? (
-                <>
-                  <Skeleton variant="rectangular" width={80} height={36} />
-                  <Skeleton variant="rectangular" width={80} height={36} />
-                  {token && (
-                    <Skeleton variant="rectangular" width={120} height={36} />
-                  )}
-                </>
+                <Box sx={{ display: "flex", gap: 1, ml: 2 }}>
+                  <Skeleton variant="rounded" width={80} height={40} sx={{ borderRadius: "12px" }} />
+                  <Skeleton variant="rounded" width={80} height={40} sx={{ borderRadius: "12px" }} />
+                  {token && <Skeleton variant="rounded" width={120} height={40} sx={{ borderRadius: "12px" }} />}
+                </Box>
               ) : (
-                <>
-                  <Link href="/login" style={{ textDecoration: "none" }}>
-                    {!(role === "admin" || role === "candidate") && (
-                      <Button
-                        color="inherit"
-                        sx={{ textTransform: "none", fontWeight: 500 }}
-                      >
-                        Login
-                      </Button>
-                    )}
-                  </Link>
-                  <Link href="/register" style={{ textDecoration: "none" }}>
-                    <Button
-                      color="inherit"
-                      sx={{ textTransform: "none", fontWeight: 500 }}
-                    >
-                      Signup
-                    </Button>
-                  </Link>
-                  {(role === "admin" || role === "candidate") && (
-                    <Link
-                      href={dashboardPath}
-                      style={{ textDecoration: "none" }}
-                    >
-                      <Button
-                        color="inherit"
-                        sx={{ textTransform: "none", fontWeight: 500 }}
-                      >
-                        My Dashboard
-                      </Button>
+                <Box sx={{ display: "flex", gap: 1, ml: 2 }}>
+                  {!isLoggedIn && (
+                    <Link href="/login" style={{ textDecoration: "none" }}>
+                      <Button sx={{ ...navButtonStyle, color: "#4a5568" }}>Login</Button>
                     </Link>
                   )}
-                  <Link
-                    href="/employer-dash/login"
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Button
-                      // color="inherit"
-                      sx={{ textTransform: "none", fontWeight: 500 }}
-                    >
-                      For employers
-                    </Button>
+                  
+                  <Link href="/register" style={{ textDecoration: "none" }}>
+                    <Button sx={{ ...navButtonStyle, color: "#4a5568" }}>Signup</Button>
                   </Link>
-                </>
+                  
+                  {isLoggedIn && (
+                    <Link href={dashboardPath} style={{ textDecoration: "none" }}>
+                      <Button sx={primaryButtonStyle}>My Dashboard</Button>
+                    </Link>
+                  )}
+                  
+                  <Link href="/employer-dash/login" style={{ textDecoration: "none" }}>
+                    <Button sx={primaryButtonStyle}>For Employers</Button>
+                  </Link>
+                </Box>
               )}
             </Box>
-          ) : (
+          )}
+
+          {isMobile && (
             <IconButton
               size="large"
-              edge="end"
-              color="inherit"
-              aria-label="menu"
               onClick={toggleDrawer(true)}
+              sx={{
+                color: "#4a5568",
+                "&:hover": {
+                  backgroundColor: "rgba(50, 82, 168, 0.1)",
+                  transform: "scale(1.1)",
+                },
+                transition: "all 0.3s ease",
+              }}
             >
               <MenuIcon />
             </IconButton>
@@ -201,83 +192,118 @@ const Navbar = () => {
         </Toolbar>
       </Container>
 
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={toggleDrawer(false)}
-          onKeyDown={toggleDrawer(false)}
-        >
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        PaperProps={{
+          sx: {
+            width: 280,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+          },
+        }}
+      >
+        <Box sx={{ width: 280, pt: 3 }}>
+          <Typography variant="h6" sx={{ px: 3, pb: 2, fontWeight: 700, opacity: 0.9 }}>
+            Menu
+          </Typography>
           <List>
             {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.path}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <ListItem button>
-                  <ListItemText primary={item.name} />
+              <Link key={item.name} href={item.path} style={{ textDecoration: "none", color: "inherit" }}>
+                <ListItem
+                  button
+                  sx={{
+                    mx: 2,
+                    mb: 1,
+                    borderRadius: "12px",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      transform: "translateX(8px)",
+                    },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <ListItemText primary={item.name} sx={{ "& .MuiTypography-root": { fontWeight: 500 } }} />
                 </ListItem>
               </Link>
             ))}
+            
             {isLoading ? (
-              <>
-                <ListItem>
-                  <Skeleton variant="text" width={80} />
-                </ListItem>
-                <ListItem>
-                  <Skeleton variant="text" width={80} />
-                </ListItem>
-                {token && (
-                  <ListItem>
-                    <Skeleton variant="text" width={120} />
-                  </ListItem>
-                )}
-              </>
+              <Box sx={{ px: 3, py: 2 }}>
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} variant="text" height={40} sx={{ mb: 1, bgcolor: "rgba(255,255,255,0.2)" }} />
+                ))}
+              </Box>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <ListItem button>
-                    <ListItemText primary="Login" />
-                  </ListItem>
-                </Link>
-                <Link
-                  href="/signup"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <ListItem button>
-                    <ListItemText primary="Signup" />
-                  </ListItem>
-                </Link>
-                {token && (
-                  <Link
-                    href={dashboardPath}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <ListItem button>
-                      <ListItemText primary="My Dashboard" />
+                {!isLoggedIn && (
+                  <Link href="/login" style={{ textDecoration: "none", color: "inherit" }}>
+                    <ListItem
+                      button
+                      sx={{
+                        mx: 2,
+                        mb: 1,
+                        borderRadius: "12px",
+                        "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)", transform: "translateX(8px)" },
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <ListItemText primary="Login" sx={{ "& .MuiTypography-root": { fontWeight: 500 } }} />
                     </ListItem>
                   </Link>
                 )}
+                
+                <Link href="/register" style={{ textDecoration: "none", color: "inherit" }}>
+                  <ListItem
+                    button
+                    sx={{
+                      mx: 2,
+                      mb: 1,
+                      borderRadius: "12px",
+                      "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)", transform: "translateX(8px)" },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    <ListItemText primary="Signup" sx={{ "& .MuiTypography-root": { fontWeight: 500 } }} />
+                  </ListItem>
+                </Link>
+                
+                {isLoggedIn && (
+                  <Link href={dashboardPath} style={{ textDecoration: "none", color: "inherit" }}>
+                    <ListItem
+                      button
+                      sx={{
+                        mx: 2,
+                        mb: 1,
+                        borderRadius: "12px",
+                        backgroundColor: "rgba(255, 255, 255, 0.15)",
+                        "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.25)", transform: "translateX(8px)" },
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <ListItemText primary="My Dashboard" sx={{ "& .MuiTypography-root": { fontWeight: 600 } }} />
+                    </ListItem>
+                  </Link>
+                )}
+                
+                <Link href="/employer-dash/login" style={{ textDecoration: "none", color: "inherit" }}>
+                  <ListItem
+                    button
+                    sx={{
+                      mx: 2,
+                      mb: 1,
+                      borderRadius: "12px",
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.25)", transform: "translateX(8px)" },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    <ListItemText primary="For Employers" sx={{ "& .MuiTypography-root": { fontWeight: 600 } }} />
+                  </ListItem>
+                </Link>
               </>
             )}
-            <ListItem>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  mt: 1,
-                }}
-              >
-                Post a Job
-              </Button>
-            </ListItem>
           </List>
         </Box>
       </Drawer>
