@@ -59,7 +59,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           display: "flex",
           flexDirection: "column",
           height: { xs: "auto", sm: "280px", md: "280px" }, // Increased height slightly to accommodate new content
-          width: { xs: "100%", sm: "500px", md: "440px" }, // Width adjusts based on screen size
+          width: { xs: "100%", sm: "700px", md: "450px" }, // Width adjusts based on screen size
           overflow: "hidden",
           margin: "0 auto", // Center the cards horizontally
         }}
