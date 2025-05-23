@@ -242,7 +242,7 @@ export default function HomePage() {
     pb: { xs: 6, md: 12 },
     position: "relative",
     overflow: "hidden",
-    minHeight: { xs: "90vh", md: "75vh" }, // Added minHeight for better breathing space
+    minHeight: { xs: "40vh", md: "60vh" }, // Added minHeight for better breathing space
   }}
 >
   {/* Background Image */}
@@ -287,6 +287,7 @@ export default function HomePage() {
             mb: 2,
             color: "white",
             fontSize: { xs: "2.5rem", md: "3.5rem" }, // Slightly bigger on mobile
+            mt: { xs: 4, sm: 6, md: 8, lg: 10 },
           }}
         >
           Find Your Dream Job Instantly
@@ -304,16 +305,32 @@ export default function HomePage() {
         </Typography>
 
         {/* Search Form */}
-       <Paper
+<Paper
   elevation={3}
   sx={{
-    p: { xs: 2, md: 3 },   // More breathing space
+    p: { xs: 2, md: 3 },
     borderRadius: 2,
     backgroundColor: "rgba(255, 255, 255, 0.95)",
+    width: {
+      xs: "80%",
+      sm: "100%",
+      md: "100%",
+      lg: "100%",
+      xl: "100%",
+    },
+    mx: "auto",
   }}
 >
   <Grid container spacing={2}>
-    <Grid item xs={12} sm={6} md={5} sx={{ mb: { xs: 2, md: 0 } }}>
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={5}
+      sx={{
+        mb: { xs: 2, md: 0 },
+      }}
+    >
       <TextField
         fullWidth
         placeholder="Title, company, skills, or job type"
@@ -328,10 +345,21 @@ export default function HomePage() {
             </InputAdornment>
           ),
         }}
+        sx={{
+          minWidth: { xs: "100%", sm: "100%" },
+        }}
       />
     </Grid>
 
-    <Grid item xs={12} sm={6} md={4} sx={{ mb: { xs: 2, md: 0 } }}>
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={4}
+      sx={{
+        mb: { xs: 2, md: 0 },
+      }}
+    >
       <TextField
         fullWidth
         placeholder="Location"
@@ -346,6 +374,9 @@ export default function HomePage() {
             </InputAdornment>
           ),
         }}
+        sx={{
+          minWidth: { xs: "100%", sm: "100%" },
+        }}
       />
     </Grid>
 
@@ -355,11 +386,11 @@ export default function HomePage() {
         variant="contained"
         color="primary"
         sx={{
-          minHeight: 54,   // min height for flexibility
+          minHeight: 54,
           borderRadius: 2,
           fontSize: "1rem",
           fontWeight: 600,
-          py: { xs: 1.5, md: 0 }, // padding vertical for mobile
+          py: { xs: 1.5, md: 0 },
         }}
         onClick={handleSearch}
         endIcon={<ArrowForwardIcon />}
@@ -369,6 +400,7 @@ export default function HomePage() {
     </Grid>
   </Grid>
 </Paper>
+
 
 
         {/* Popular Searches */}

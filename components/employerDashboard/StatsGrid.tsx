@@ -1,7 +1,14 @@
-'use client'
+"use client";
 
 import { useEffect, useState } from "react";
-import { Grid, Card, Box, Typography, LinearProgress, Alert } from "@mui/material";
+import {
+  Grid,
+  Card,
+  Box,
+  Typography,
+  LinearProgress,
+  Alert,
+} from "@mui/material";
 import { Stat, fetchEmployerStats } from "@/services/eployersApi";
 import {
   Work as WorkIcon,
@@ -71,7 +78,14 @@ const StatsGrid: React.FC = () => {
                     borderRadius: 2,
                     boxShadow: 3,
                     display: "flex",
-                    width: { xs: "22rem", sm: "14.6rem" },
+                    width: {
+                      xs: "22rem", // extra-small: phones
+                      sm: "14.6rem", // small: tablets
+                      md: "22rem", // medium: small laptops
+                      lg: "18rem", // large: desktops
+                      xl: "24rem", // extra-large: large screens
+                    },
+
                     flexDirection: "column",
                     justifyContent: "space-between",
                   }}
