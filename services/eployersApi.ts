@@ -52,6 +52,38 @@ interface StatsResponse {
   stats: Stat[];
 }
 
+interface ApplicationTrendsResponse {
+  status: string;
+  message: string;
+  data: number[];
+}
+
+interface Applicant {
+  id: string;
+  applicantId: string;
+  name: string;
+  resumeUrl? : string,
+  email: string,
+  position: string;
+  experience: string;
+  skills: string[];
+  applied: string;
+  status: string;
+}
+
+interface RecentApplicantsResponse {
+  status: string;
+  message: string;
+  applicants: Applicant[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalApplicants: number;
+    applicantsPerPage: number;
+  };
+}
+
+
 import axiosInstance from "@/utils/axios";
 import { AxiosResponse } from "axios";
 
@@ -211,4 +243,70 @@ export const fetchEmployerStats = async (id: string): Promise<Stat[]> => {
   }
 };
 
+export const fetchApplicationTrends = async (id: string): Promise<number[]> => {
+  try {
+    const response: AxiosResponse<ApplicationTrendsResponse> = await axiosInstance.get(
+      `/employers/dashboard-applications-trends/${id}`
+    );
 
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to fetch application trends");
+    }
+
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error in fetchApplicationTrends:", error);
+    throw new Error(
+      error.response?.data?.message || "Error fetching application trends"
+    );
+  }
+};
+
+export const fetchRecentApplicants = async (id: string, page: number): Promise<RecentApplicantsResponse> => {
+  try {
+    const response: AxiosResponse<RecentApplicantsResponse> = await axiosInstance.get(
+      `/employers/dashboard/applicants/${id}`,
+      { params: { page } }
+    );
+
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to fetch recent applicants");
+    }
+
+    return {
+      ...response.data,
+      applicants: response.data.applicants.map((applicant) => ({
+        id: applicant.id || "",
+        applicantId: applicant.applicantId || "",
+        name: applicant.name || "",
+        email: applicant.email || "",
+        resumeUrl: applicant.resumeUrl || "",
+        position: applicant.position || "",
+        experience: applicant.experience || "",
+        skills: applicant.skills || [],
+        applied: applicant.applied || "",
+        status: applicant.status || "",
+      })),
+    };
+  } catch (error: any) {
+    console.error("Error in fetchRecentApplicants:", error);
+    throw new Error(
+      error.response?.data?.message || "Error fetching recent applicants"
+    );
+  }
+};
+
+
+
+export const updateApplicantStatus = async (id: string, status: string): Promise<{ status: string; message: string }> => {
+  try {
+    const response: AxiosResponse = await axiosInstance.patch(`/employers/update/job-app/status/${id}`, { status });
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to update applicant status");
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Error in updateApplicantStatus:", error);
+    throw new Error(error.response?.data?.message || "Error updating applicant status");
+  }
+};
