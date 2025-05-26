@@ -1,9 +1,31 @@
-'use client'
+'use client';
 
+import { fetchApplicationTrends } from "@/services/eployersApi";
 import { Paper, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
+import { useState, useEffect } from "react";
 
-const ApplicationTrendsChart: React.FC = () => {
+const ApplicationTrendsChart = () => {
+  const [chartData, setChartData] = useState(Array(12).fill(0));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const employerId = localStorage.getItem('id'); // Retrieve employerId from localStorage
+        if (employerId) {
+          const data = await fetchApplicationTrends(employerId);
+          setChartData(data);
+        } else {
+          console.error("No employerId found in localStorage");
+        }
+      } catch (error) {
+        console.error("Error fetching application trends:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Paper elevation={3} sx={{ padding: 2 }}>
       <Typography variant="h6" gutterBottom>
@@ -12,7 +34,7 @@ const ApplicationTrendsChart: React.FC = () => {
       <BarChart
         series={[
           {
-            data: [35, 51, 15, 60, 35, 51, 12, 60, 60, 45, 30, 20],
+            data: chartData,
             label: "Applications",
             color: "#4F46E5",
           },
