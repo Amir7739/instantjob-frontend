@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   DataGrid,
   GridColDef,
@@ -14,12 +14,23 @@ import {
   Tooltip,
   useMediaQuery,
   useTheme,
+  Typography,
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon, Visibility as VisibilityIcon, Download as DownloadIcon } from '@mui/icons-material';
+import { Visibility as VisibilityIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import DeleteConfirmationSnackbar from '../DeleteConfirmationSnackbar';
+import { debounce } from 'lodash';
 import { formatSalaryToLPA } from '../JobCard';
 import { fetchInitialJobApplications, fetchMoreJobApplications } from '@/services/fetchJobApplications';
+import DeleteConfirmationSnackbar from '../DeleteConfirmationSnackbar';
+import CandidateListSkeleton from '../CandidateListSkeleton';
+
+// Basic skeleton loader component (replace with actual implementation if available)
+const JobApplicationSkeleton = () => (
+  <Box sx={{ p: 2 }}>
+    <Typography>Loading job applications...</Typography>
+    <CandidateListSkeleton/>
+  </Box>
+);
 
 const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 'success' : 'error') }) => {
   const theme = useTheme();
@@ -48,11 +59,12 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetchInitialJobApplications(); // Fetch first 10 job applications
+        const response = await fetchInitialJobApplications();
+        console.log('Initial job applications response:', response);
+        console.log('Total job applications set to:', response.totalJobApplications);
         setJobApplications(response.data);
-        setTotalJobs(response.totalJobApplications); // Use totalDocuments from response
-       
-      } catch (error) {
+        setTotalJobs(response.totalJobApplications);
+      } catch (error: any) {
         setError(error.message || 'Error fetching initial job applications');
       } finally {
         setIsLoading(false);
@@ -64,40 +76,45 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
     const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
     if (gridElement) {
       gridElement.scrollTop = 0;
-    
     }
   }, []);
 
-  // Scroll handler for infinite scrolling with retry mechanism
-  useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 20;
-    const retryInterval = 200;
-
-    const attachScrollListener = () => {
-      const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
-      if (gridElement) {
-        gridElement.addEventListener('scroll', handleScroll);
-        return true;
-      }
-      return false;
-    };
-
-    const tryAttachListener = () => {
-      if (retryCount < maxRetries) {
-        if (!attachScrollListener()) {
-          retryCount++;
-          setTimeout(tryAttachListener, retryInterval);
+  // Debounced fetch more jobs handler
+  const fetchMoreJobsHandler = useCallback(
+    debounce(async () => {
+      if (isLoading || jobApplications.length >= totalJobs) return;
+      try {
+        setIsLoading(true);
+        const page = Math.floor(jobApplications.length / 10) + 1;
+        console.log('Fetching more job applications, page:', page);
+        const response = await fetchMoreJobApplications(page);
+        console.log('More job applications response:', response);
+        if (response.data.length > 0) {
+          setJobApplications((prev) => {
+            const newApplications = response.data.filter(
+              (newApp) => !prev.some((existingApp) => existingApp.applicationId === newApp.applicationId)
+            );
+            return [...prev, ...newApplications];
+          });
+        } else {
+          console.log('No more job applications to load');
+          if (jobApplications.length < totalJobs) {
+            console.warn(`Expected more applications but received none. Current: ${jobApplications.length}, Total: ${totalJobs}`);
+          }
         }
-      } else {
-        console.error('Failed to attach scroll listener after max retries');
+      } catch (error: any) {
+        setError(error.message || 'Error fetching more job applications');
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }, 200),
+    [jobApplications.length, isLoading, totalJobs]
+  );
 
+  // Scroll handler for infinite scrolling
+  useEffect(() => {
     const handleScroll = () => {
-      if (!gridRef.current || isLoading) {
-        return;
-      }
+      if (!gridRef.current || isLoading) return;
       const gridElement = gridRef.current.querySelector('.MuiDataGrid-virtualScroller');
       if (!gridElement) {
         console.error('Virtual scroller not found during scroll');
@@ -105,264 +122,200 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       }
 
       const { scrollTop, scrollHeight, clientHeight } = gridElement;
-     
-      if (scrollTop + clientHeight >= scrollHeight - 200 && jobApplications.length < totalJobs) {
-       
-        setIsLoading(true);
+      if (scrollTop + clientHeight >= scrollHeight - 50 && jobApplications.length < totalJobs) {
         fetchMoreJobsHandler();
       }
     };
 
-    const fetchMoreJobsHandler = async () => {
-      try {
-        const nextPage = Math.floor(jobApplications.length / 10) + 2; // Calculate next page
-        const response = await fetchMoreJobApplications(nextPage); // Fetch next 10 job applications
-        if (response.data.length > 0) {
-
-          setJobApplications((prev) => {
-            const newJobs = [...prev, ...response.data];
-            
-            return newJobs;
-          });
-        } else {
-          console.log('No more job applications to load');
-        }
-      } catch (error) {
-        setError(error.message || 'Error fetching more job applications');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    tryAttachListener();
+    const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
+    if (gridElement) {
+      gridElement.addEventListener('scroll', handleScroll);
+    } else {
+      console.error('Virtual scroller not found');
+    }
 
     return () => {
-      const gridElement = gridRef.current?.querySelector('.MuiDataGrid-virtualScroller');
       if (gridElement) {
         gridElement.removeEventListener('scroll', handleScroll);
-       
       }
     };
-  }, [jobApplications.length, isLoading, totalJobs]);
+  }, [fetchMoreJobsHandler, isLoading, jobApplications.length, totalJobs]);
 
   // Responsive column config
   const getColumns = (): GridColDef[] => {
     const baseColumns: GridColDef[] = [
-          {
-            field: 'fullName',
-            headerName: 'Candidate Name',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'phone',
-            headerName: 'Phone',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'email',
-            headerName: 'Email',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'resumeUrl',
-            headerName: 'Resume',
-            flex: 0.15,
-            minWidth: 100,
-            renderCell: (params: GridRenderCellParams) => (
-              params.value ? (
-                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', justifyContent: 'center', height: '100%', mt: 1}}>
-                  <Tooltip title="View Resume" arrow>
-                    <IconButton
-                      size="small"
-                      color="info"
-                      component="a"
-                      href={params.value}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{ padding: isMobile ? '1px' : '2px' }}
-                    >
-                      <VisibilityIcon fontSize={isMobile ? 'small' : 'medium'} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Download Resume" arrow>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      component="a"
-                      href={params.value}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{ padding: isMobile ? '1px' : '2px' }}
-                    >
-                      <DownloadIcon fontSize={isMobile ? 'small' : 'medium'} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                  <span>No Resume</span>
-                </Box>
-              )
-            ),
-          },
-          {
-            field: 'totalExperience',
-            headerName: 'Experience',
-            flex: 0.1,
-            minWidth: 100,
-          },
-          {
-            field: 'city',
-            headerName: 'City',
-            flex: 0.1,
-            minWidth: 100,
-          },
-          
-          {
-            field: 'companyName',
-            headerName: 'Company',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'jobTitle',
-            headerName: 'Job Title',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'location',
-            headerName: 'Job Location',
-            flex: 0.1,
-            minWidth: 100,
-          },
-          {
-            field: 'salaryRange',
-            headerName: 'Salary',
-            flex: 0.15,
-            minWidth: 100,
-            renderCell: (params) => formatSalaryToLPA(params.value),
-          },
-          {
-            field: 'jobType',
-            headerName: 'Job Type',
-            flex: 0.1,
-            minWidth: 100,
-          },
-          {
-            field: 'minExperience',
-            headerName: 'Min Exp',
-            flex: 0.1,
-            minWidth: 80,
-          },
-          {
-            field: 'maxExperience',
-            headerName: 'Max Exp',
-            flex: 0.1,
-            minWidth: 80,
-          },
-          {
-            field: 'keySkills',
-            headerName: 'Key Skills',
-            flex: 0.2,
-            minWidth: 150,
-            renderCell: (params) => (Array.isArray(params.value) ? params.value.join(', ') : 'N/A'),
-          },
-          {
-            field: 'industryType',
-            headerName: 'Industry',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'category',
-            headerName: 'Category',
-            flex: 0.15,
-            minWidth: 120,
-          },
-          {
-            field: 'openings',
-            headerName: 'Openings',
-            flex: 0.1,
-            minWidth: 80,
-          },
-          {
-            field: 'status',
-            headerName: 'Status',
-            flex: 0.1,
-            minWidth: 80,
-            renderCell: (params: GridRenderCellParams) => (
-              <Chip
-                label={params.value || 'Active'}
-                size="small"
-                color={getStatusColor(params.value || 'Active')}
-                sx={{ maxWidth: '100%' }}
-              />
-            ),
-          },
-          {
-            field: 'postedAt',
-            headerName: 'Posted',
-            flex: 0.15,
-            minWidth: 100,
-          //  renderCell: (params) => new Date(params.value).toLocaleDateString(),
-          },
-          {
-            field: 'appliedAt',
-            headerName: 'Applied',
-            flex: 0.15,
-            minWidth: 100,
-           // renderCell: (params) => new Date(params.value).toLocaleDateString(),
-          },
-          {
-            field: 'updatedAt',
-            headerName: 'Updated',
-            flex: 0.15,
-            minWidth: 100,
-           // renderCell: (params) => new Date(params.value).toLocaleDateString(),
-          },
-          // {
-          //   field: 'actions',
-          //   headerName: 'Actions',
-          //   flex: 0.15,
-          //   minWidth: 120,
-          //   sortable: false,
-          //   filterable: false,
-          //   disableColumnMenu: true,
-          //   renderCell: (params: GridRenderCellParams) => (
-          //     <Box sx={{ display: 'flex', gap: isMobile ? 0.5 : 1, alignItems: 'center', mt: 1 }}>
-          //       <IconButton
-          //         size="small"
-          //         color="primary"
-          //         sx={{ padding: isMobile ? '1px' : '2px' }}
-          //         onClick={() => handleEdit(params.row.id)}
-          //       >
-          //         <EditIcon fontSize={isMobile ? 'small' : 'medium'} />
-          //       </IconButton>
-          //       <Tooltip title="View full job description" arrow>
-          //         <IconButton
-          //           size="small"
-          //           color="info"
-          //           sx={{ padding: isMobile ? '1px' : '2px' }}
-          //           onClick={() => handleViewDetails(params.row.id)}
-          //         >
-          //           <VisibilityIcon fontSize={isMobile ? 'small' : 'medium'} />
-          //         </IconButton>
-          //       </Tooltip>
-          //       <IconButton
-          //         size="small"
-          //         color="error"
-          //         sx={{ padding: isMobile ? '1px' : '2px' }}
-          //         onClick={() => handleDeleteClick(params.row.id)}
-          //       >
-          //         <DeleteIcon fontSize={isMobile ? 'small' : 'medium'} />
-          //       </IconButton>
-          //     </Box>
-          //   ),
-          // },
+      {
+        field: 'fullName',
+        headerName: 'Candidate Name',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'phone',
+        headerName: 'Phone',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'email',
+        headerName: 'Email',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'resumeUrl',
+        headerName: 'Resume',
+        flex: 0.15,
+        minWidth: 100,
+        renderCell: (params: GridRenderCellParams) => (
+          params.value ? (
+            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', justifyContent: 'center', height: '100%', mt: 1 }}>
+              <Tooltip title="View Resume" arrow>
+                <IconButton
+                  size="small"
+                  color="info"
+                  component="a"
+                  href={params.value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ padding: isMobile ? '1px' : '2px' }}
+                >
+                  <VisibilityIcon fontSize={isMobile ? 'small' : 'medium'} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Download Resume" arrow>
+                <IconButton
+                  size="small"
+                  color="primary"
+                  component="a"
+                  href={params.value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ padding: isMobile ? '1px' : '2px' }}
+                >
+                  <DownloadIcon fontSize={isMobile ? 'small' : 'medium'} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <span>No Resume</span>
+            </Box>
+          )
+        ),
+      },
+      {
+        field: 'totalExperience',
+        headerName: 'Experience',
+        flex: 0.1,
+        minWidth: 100,
+      },
+      {
+        field: 'city',
+        headerName: 'City',
+        flex: 0.1,
+        minWidth: 100,
+      },
+      {
+        field: 'companyName',
+        headerName: 'Company',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'jobTitle',
+        headerName: 'Job Title',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'location',
+        headerName: 'Job Location',
+        flex: 0.1,
+        minWidth: 100,
+      },
+      {
+        field: 'salaryRange',
+        headerName: 'Salary',
+        flex: 0.15,
+        minWidth: 100,
+        renderCell: (params) => formatSalaryToLPA(params.value),
+      },
+      {
+        field: 'jobType',
+        headerName: 'Job Type',
+        flex: 0.1,
+        minWidth: 100,
+      },
+      {
+        field: 'minExperience',
+        headerName: 'Min Exp',
+        flex: 0.1,
+        minWidth: 80,
+      },
+      {
+        field: 'maxExperience',
+        headerName: 'Max Exp',
+        flex: 0.1,
+        minWidth: 80,
+      },
+      {
+        field: 'keySkills',
+        headerName: 'Key Skills',
+        flex: 0.2,
+        minWidth: 150,
+        renderCell: (params) => (Array.isArray(params.value) ? params.value.join(', ') : 'N/A'),
+      },
+      {
+        field: 'industryType',
+        headerName: 'Industry',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'category',
+        headerName: 'Category',
+        flex: 0.15,
+        minWidth: 120,
+      },
+      {
+        field: 'openings',
+        headerName: 'Openings',
+        flex: 0.1,
+        minWidth: 80,
+      },
+      {
+        field: 'status',
+        headerName: 'Status',
+        flex: 0.1,
+        minWidth: 80,
+        renderCell: (params: GridRenderCellParams) => (
+          <Chip
+            label={params.value || 'Active'}
+            size="small"
+            color={getStatusColor(params.value || 'Active')}
+            sx={{ maxWidth: '100%' }}
+          />
+        ),
+      },
+      {
+        field: 'postedAt',
+        headerName: 'Posted',
+        flex: 0.15,
+        minWidth: 100,
+      },
+      {
+        field: 'appliedAt',
+        headerName: 'Applied',
+        flex: 0.15,
+        minWidth: 100,
+      },
+      {
+        field: 'updatedAt',
+        headerName: 'Updated',
+        flex: 0.15,
+        minWidth: 100,
+      },
     ];
 
     return baseColumns;
@@ -371,70 +324,83 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
   const columns = getColumns();
   const rows: GridRowsProp = jobApplications.map((app) => ({
     id: app.applicationId,
-  applicationId: app.applicationId,
-  fullName: app.candidate.fullName,
-  phone: app.candidate.phone,
-  email: app.candidate.email,
-  resumeUrl: app.candidate.resumeUrl,
-  totalExperience: app.candidate.totalExperience,
-  city: app.candidate.city,
-  jobId: app.job.jobId,
-  companyName: app.job.companyName,
-  jobTitle: app.job.title,
-  location: app.job.location,
-  salaryRange: app.job.salaryRange,
-  jobType: app.job.jobType,
-  minExperience: app.job.minExperience,
-  maxExperience: app.job.maxExperience,
-  keySkills: app.job.keySkills,
-  industryType: app.job.industryType,
-  category: app.job.category,
-  openings: app.job.openings,
-  status: app.job.status,
-  postedAt: app.job.postedAt,
-  appliedAt: app.appliedAt,
-  updatedAt: app.updatedAt,
+    applicationId: app.applicationId,
+    fullName: app.candidate.fullName,
+    phone: app.candidate.phone,
+    email: app.candidate.email,
+    resumeUrl: app.candidate.resumeUrl,
+    totalExperience: app.candidate.totalExperience,
+    city: app.candidate.city,
+    jobId: app.job.jobId,
+    companyName: app.job.companyName,
+    jobTitle: app.job.title,
+    location: app.job.location,
+    salaryRange: app.job.salaryRange,
+    jobType: app.job.jobType,
+    minExperience: app.job.minExperience,
+    maxExperience: app.job.maxExperience,
+    keySkills: app.job.keySkills,
+    industryType: app.job.industryType,
+    category: app.job.category,
+    openings: app.job.openings,
+    status: app.job.status,
+    postedAt: app.job.postedAt,
+    appliedAt: app.appliedAt,
+    updatedAt: app.updatedAt,
   }));
 
   return (
-    <div style={{ height: 700, width: '100%' }} ref={gridRef}>
+    <div style={{ height: 750, width: '100%', overflow: 'auto' }} ref={gridRef}>
+      <Box sx={{ p: 1 }}>
+        <Typography variant="h6">
+          Total Job Applications: {totalJobs}
+        </Typography>
+      </Box>
       {error && (
         <div style={{ color: 'red', textAlign: 'center', padding: '8px' }}>
           {error}
         </div>
       )}
-      <DataGrid
-      showToolbar
-        rows={rows}
-        columns={columns}
-        rowHeight={isMobile ? 50 : 60}
-        autoHeight={false}
-        disableSelectionOnClick
-        loading={isLoading}
-        rowCount={totalJobs}
-        sx={{
-          '& .MuiDataGrid-cell': {
-            fontSize: isMobile ? '14px' : '16px',
-            padding: isMobile ? '4px' : '8px',
-          },
-          '& .MuiDataGrid-columnHeader': {
-            fontSize: isMobile ? '14px' : '16px',
-            padding: isMobile ? '8px 4px' : '12px 16px',
-            backgroundColor: '#5e35b1',
-            color: 'white',
-          },
-        //minWidth: '100%'
-        }}
-      />
-      {isLoading && (
-        <div style={{ textAlign: 'center', padding: '8px' }}>
-          Loading more job applications...
-        </div>
+      {isLoading ? (
+        <JobApplicationSkeleton />
+      ) : (
+        <>
+          <DataGrid
+            showToolbar
+            key={jobApplications.length}
+            rows={rows}
+            columns={columns}
+            rowHeight={isMobile ? 50 : 60}
+            autoHeight={false}
+            disableSelectionOnClick
+            loading={false} // Controlled by skeleton
+            rowCount={totalJobs}
+            paginationMode="server"
+            sx={{
+              '& .MuiDataGrid-cell': {
+                fontSize: isMobile ? '14px' : '16px',
+                padding: isMobile ? '4px' : '8px',
+              },
+              '& .MuiDataGrid-columnHeader': {
+                fontSize: isMobile ? '14px' : '16px',
+                padding: isMobile ? '8px 4px' : '12px 16px',
+                backgroundColor: '#5e35b1',
+                color: 'white',
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                overflow: 'auto',
+              },
+            }}
+          />
+          {isLoading && (
+            <Box sx={{ mt: 1 }}>
+              <JobApplicationSkeleton />
+            </Box>
+          )}
+        </>
       )}
       <DeleteConfirmationSnackbar
         open={deleteConfirmOpen}
-        // onClose={handleDeleteCancel}
-        // onConfirm={handleDeleteConfirm}
         itemName="job application"
       />
       <Snackbar

@@ -31,6 +31,7 @@ import axiosInstance from "@/utils/axios";
 import JobApplication from "@/components/adminDashboard/jobApplicationList";
 import withAdminAuth from "@/components/withAdminProtection";
 import EmployerList from "@/components/adminDashboard/EmployerList";
+import RecruitersPage from "@/components/adminDashboard/RecruitersPage";
 
 // Dummy data for jobs and candidates
 const candidates = [
@@ -561,6 +562,29 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
+        case "recruiters":
+      return (
+        <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+          {/* <Box
+            sx={{
+              p: 3,
+              background: `linear-gradient(45deg, ${theme.palette.info.main} 30%, ${theme.palette.info.light} 90%)`,
+              color: "white",
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Recruiter Management
+            </Typography>
+            <Typography variant="body2">
+              Manage all recruiters on the platform.
+            </Typography>
+          </Box>
+          <Divider /> */}
+          <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+            <RecruitersPage />
+          </CardContent>
+        </Card>
+      );
       default:
         return null;
     }
