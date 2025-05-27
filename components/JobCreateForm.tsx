@@ -482,6 +482,7 @@ const JobCreateForm = ({
       let res;
 
       const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
       if (values.companyLogo) {
         const formData = new FormData();
         // Append non-array fields and arrays correctly
@@ -535,8 +536,14 @@ const JobCreateForm = ({
       }
 
       setTimeout(() => {
+        if (role === "admin") {
         router.push("/admin-dashboard");
-      }, 1000);
+      } else if (role === "employer") {
+        router.push("/employer-dash");
+      } else {
+        router.push("/"); // Fallback redirect if role is not found
+      }
+    }, 1000);
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || err.message || "Error updating job";
