@@ -173,12 +173,12 @@ const EmployerList = ({
   // Responsive column config
   const getColumns = (): GridColDef[] => {
     const baseColumns: GridColDef[] = [
-      {
-        field: "name",
-        headerName: "Employer Name",
-        flex: 0.15,
-        minWidth: 120,
-      },
+      // {
+      //   field: "name",
+      //   headerName: "Employer Name",
+      //   flex: 0.15,
+      //   minWidth: 120,
+      // },
       {
         field: "email",
         headerName: "Email",

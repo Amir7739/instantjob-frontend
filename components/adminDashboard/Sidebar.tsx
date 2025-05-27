@@ -26,6 +26,17 @@ import {
   Menu as MenuIcon,
   Assignment as AssignmentIcon
 } from '@mui/icons-material';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+
+const menuItems = [
+  { id: 'dashboard', text: 'Dashboard', icon: <DashboardIcon /> },
+  { id: 'jobs', text: 'Jobs', icon: <WorkIcon /> },
+  { id: 'jobsApp', text: 'Job Applications', icon: <AssignmentIcon /> },
+  { id: 'candidates', text: 'Candidates', icon: <PeopleIcon /> },
+  { id: 'employers', text: 'Employers', icon: <BusinessIcon /> },
+  { id: 'recruiters', text: 'Our Recruiters', icon: <PersonSearchIcon /> },
+];
+
 import { styled } from '@mui/material/styles';
 
 // Fix for TypeScript props
@@ -118,6 +129,7 @@ const Sidebar = ({
     { id: 'jobsApp', text: 'Job Applications', icon: <AssignmentIcon /> },
     { id: 'candidates', text: 'Candidates', icon: <PeopleIcon /> },
     { id: 'employers', text: 'Employers', icon: <BusinessIcon /> },
+    { id: 'recruiters', text: 'Our Recruiters', icon: <PersonSearchIcon /> },
   ];
 
   const sidebarContent = (
