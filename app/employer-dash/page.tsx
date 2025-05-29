@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
 // Dynamically import all components with SSR disabled
 const Applicants = dynamic(() => import("@/components/employerDashboard/Applicants"), { ssr: false });
@@ -24,6 +25,7 @@ const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 };
 
 const EmployerDashboard: React.FC = () => {
+    const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(!isMobile);
@@ -41,6 +43,14 @@ const EmployerDashboard: React.FC = () => {
   useEffect(() => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
+
+   useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role !== "employer") {
+      router.push("/employer-dash/login");
+    }
+  }, [router]);
+
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#F3F4F6" }}>
