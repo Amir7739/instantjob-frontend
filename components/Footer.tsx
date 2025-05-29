@@ -70,8 +70,6 @@ const Footer = () => {
               {[
                 "Browse Jobs",
                 "Company Reviews",
-                "Salary Guide",
-                "Career Tips",
               ].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
@@ -98,7 +96,6 @@ const Footer = () => {
               {[
                 "Post Jobs",
                 "Search Resumes",
-                "Hiring Solutions",
                 "Pricing",
               ].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
@@ -123,7 +120,7 @@ const Footer = () => {
               InstantJob
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {["About Us", "Contact", "Careers", "Press"].map((item) => (
+              {["About Us", "Contact", "Policy"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
                    href={item === "About Us" ? "/about" : item === "Contact" ? "/contact" : "#"}

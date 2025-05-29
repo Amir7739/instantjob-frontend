@@ -21,6 +21,7 @@ import {
   Settings as SettingsIcon,
   Logout as LogOutIcon,
 } from "@mui/icons-material";
+import { handleLogout } from "@/utils/clearLocalStrogat";
 
 interface SidebarProps {
   isMobile: boolean;
@@ -126,6 +127,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       <Box sx={{ p: 2, borderTop: "1px solid #6B7280" }}>
         <Button
           startIcon={<LogOutIcon />}
+          onClick={() => {
+            handleLogout();
+            window.location.href = "/employer-dash/login";
+          }}
           sx={{
             color: "#D1D5DB",
             "&:hover": { color: "#FFF" },

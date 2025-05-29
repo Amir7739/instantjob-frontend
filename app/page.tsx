@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Container,
@@ -53,6 +53,8 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [isLoadingAllJobs, setIsLoadingAllJobs] = useState(false);
+    const jobSectionRef = useRef<HTMLDivElement>(null);
+
 
   const jobsPerPage = 9;
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -74,6 +76,9 @@ export default function HomePage() {
         searchLocation: debouncedSearchLocation,
       })
     );
+    // if (jobSectionRef.current && (debouncedSearchTerm || debouncedSearchLocation)) {
+    //   jobSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    // }
   }, [dispatch, currentPage, debouncedSearchTerm, debouncedSearchLocation]);
 
   const handleSearch = () => {
@@ -86,6 +91,9 @@ export default function HomePage() {
         searchLocation: debouncedSearchLocation,
       })
     );
+    if (jobSectionRef.current) {
+      jobSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handlePageChange = (event, value) => {
@@ -537,6 +545,7 @@ export default function HomePage() {
       <Box
   id="job-listings"
   component={motion.div}
+  ref={jobSectionRef}
   initial={{ opacity: 0 }}
   whileInView={{ opacity: 1 }}
   viewport={{ once: true }}
@@ -572,22 +581,39 @@ export default function HomePage() {
     </Box>
 
     {isLoadingAllJobs ? (
-      <Grid container spacing={2}>
-        {[...Array(9)].map((_, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <FormSkeleton />
-          </Grid>
-        ))}
-      </Grid>
-    ) : (
-      <Grid container spacing={2}>
-        {jobs.map((job) => (
-          <Grid item xs={12} sm={6} md={4} key={job._id}>
-            <JobCard job={job} />
-          </Grid>
-        ))}
-      </Grid>
-    )}
+            <Grid container spacing={2}>
+              {[...Array(9)].map((_, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <FormSkeleton />
+                </Grid>
+              ))}
+            </Grid>
+          ) : jobs.length === 0 ? (
+            <Box
+              textAlign="center"
+              py={{ xs: 4, sm: 6, md: 8 }}
+              sx={{
+                backgroundColor: "rgba(245, 247, 250, 0.7)",
+                borderRadius: { xs: 2, md: 4 },
+                border: "1px dashed rgba(0, 0, 0, 0.12)",
+              }}
+            >
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No jobs found matching your criteria
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Try adjusting your search terms or location
+              </Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              {jobs.map((job) => (
+                <Grid item xs={12} sm={6} md={4} key={job._id}>
+                  <JobCard job={job} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
 
     <Box
       display="flex"
