@@ -71,6 +71,32 @@ const CandidateList: React.FC<CandidateListProps> = ({
       ),
     },
     {
+      field: "jobRole",
+      headerName: "Job Role",
+      flex: 0.8,
+      minWidth: 160,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            {params.value}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      field: "exp",
+      headerName: "Exp",
+      flex: 0.8,
+      minWidth: 100,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            {params.value}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
       field: "resumeUrl",
       headerName: "Resume",
       flex: 0.7,
@@ -96,7 +122,7 @@ const CandidateList: React.FC<CandidateListProps> = ({
 
     {
       field: "createdAt",
-      headerName: "Created At",
+      headerName: "Added On",
       flex: 1,
       minWidth: 180,
       renderCell: (params) => {

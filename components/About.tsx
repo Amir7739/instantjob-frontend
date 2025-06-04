@@ -27,6 +27,7 @@ const TeamCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     maxWidth: '100%',
   },
+  borderRadius: '0.5rem'
 }));
 
 const Footer = styled(Box)(({ theme }) => ({
@@ -40,37 +41,33 @@ const Footer = styled(Box)(({ theme }) => ({
 // Team data (replace with your actual team data)
 const teamMembers = [
   {
-    name: 'Aaditya',
+    name: 'Aaditya Kumar',
     role: 'Founder & CEO',
-    image: 'https://via.placeholder.com/150',
+    image: '/images/Aaditya Founder.png',
   },
 
   {
-    name: 'Kiran',
-    role: 'Founder & CEO',
-    image: 'https://via.placeholder.com/150',
+    name: 'Kiran Chaudhary',
+    role: 'Co & Founder',
+    image: '/images/Kiran Co-Founder.png',
   },
+  
   {
-    name: 'Pramod',
-    role: 'Co-Founder',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Pratibha',
+    name: 'Pratibha Singh',
     role: 'Head of Operations',
-    image: 'https://via.placeholder.com/150',
+    image: '/images/df.jpg',
   },
 
-  {
-    name: 'Jyoti',
-    role: 'Hr Manager',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    name: 'Amir',
-    role: 'Full Stack Developer',
-    image: 'https://via.placeholder.com/150',
-  },
+  // {
+  //   name: 'Jyoti Kumari',
+  //   role: 'Hr Manager',
+  //   image: 'https://via.placeholder.com/150',
+  // },
+  // {
+  //   name: 'Md Amir Alam',
+  //   role: 'Full Stack Developer',
+  //   image: '/images/amir.jpeg',
+  // },
 
 
 ];
@@ -114,7 +111,7 @@ const AboutPage: React.FC = () => {
               <TeamCard>
                 <CardMedia
                   component="img"
-                  height="150"
+                  height="200"
                   image={member.image}
                   alt={member.name}
                   sx={{ objectFit: 'cover' }}
