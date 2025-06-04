@@ -32,6 +32,8 @@ import JobApplication from "@/components/adminDashboard/jobApplicationList";
 import withAdminAuth from "@/components/withAdminProtection";
 import EmployerList from "@/components/adminDashboard/EmployerList";
 import RecruitersPage from "@/components/adminDashboard/RecruitersPage";
+import BulkCandidatesPage from "@/components/adminDashboard/BulkCandidatesPage";
+import CandidateAddedByRecruitersList from "@/components/adminDashboard/CandidateAddedByRecruitersList";
 
 // Dummy data for jobs and candidates
 const candidates = [
@@ -585,8 +587,59 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       );
+      case "bulkCandidate":
+        return (
+          // <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+          //   <Box
+          //     sx={{
+          //       p: 3,
+          //       background: `linear-gradient(45deg, ${theme.palette.info.main} 30%, ${theme.palette.info.light} 90%)`,
+          //       color: "white",
+          //     }}
+          //   >
+          //     <Typography variant="h6" gutterBottom>
+          //       Bulk candidate Management
+          //     </Typography>
+          //     <Typography variant="body2">
+          //       Monitor and manage registerered bulk candidates.
+          //     </Typography>
+          //   </Box>
+          //   <Divider />
+          //   <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+
+          //   </CardContent>
+          // </Card>
+                        <BulkCandidatesPage />
+        );
+
+        case "candAddedByRecruiters":
+        return (
+          // <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+          //   <Box
+          //     sx={{
+          //       p: 3,
+          //       background: `linear-gradient(45deg, ${theme.palette.info.main} 30%, ${theme.palette.info.light} 90%)`,
+          //       color: "white",
+          //     }}
+          //   >
+          //     <Typography variant="h6" gutterBottom>
+          //       Bulk candidate Management
+          //     </Typography>
+          //     <Typography variant="body2">
+          //       Monitor and manage registerered bulk candidates.
+          //     </Typography>
+          //   </Box>
+          //   <Divider />
+          //   <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+
+          //   </CardContent>
+          // </Card>
+                        <CandidateAddedByRecruitersList />
+        );
+      
       default:
         return null;
+
     }
   };
   return (

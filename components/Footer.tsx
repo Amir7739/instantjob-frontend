@@ -127,9 +127,10 @@ const Footer = () => {
                     style={{
                       textDecoration: "none",
                       color: "#e4e8ed",
-                      "&:hover": { color: "primary.main" },
+                      "&:hover": { color: "primary.main",textDecorationLine: "underline" },
                       display: "block",
                       cursor: "pointer",
+                      
                     }}
                   >
                     <Typography variant="body2">{item}</Typography>

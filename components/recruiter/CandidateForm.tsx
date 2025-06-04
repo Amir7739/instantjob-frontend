@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { Add as AddIcon, Edit as EditIcon, Person as PersonIcon, Email as EmailIcon, Phone as PhoneIcon, Upload as UploadIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Person as PersonIcon, Email as EmailIcon, Phone as PhoneIcon, Upload as UploadIcon, Work as WorkIcon, Timer as TimerIcon } from '@mui/icons-material';
 import { addRecruiterCandidate, updateRecruiterCandidate } from '@/services/recruiter';
 import { Candidate, FormValues } from '@/types/candidate';
 
@@ -26,6 +26,8 @@ const getValidationSchema = (editingCandidate: Candidate | null) => {
     full_name: Yup.string().required('Full name is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
     phone: Yup.string().required('Phone number is required'),
+    jobRole: Yup.string().required('Job role is required'), // Required field
+    exp: Yup.string().required('Experience is required'), // Required field
     resume: editingCandidate
       ? Yup.mixed().nullable().optional() // Optional for update
       : Yup.mixed().required('Resume is required'), // Required for create
@@ -40,11 +42,12 @@ const CandidateForm: React.FC<CandidateFormProps> = ({
   onSuccess,
   setSnackbar,
 }) => {
-
   const initialValues: FormValues = {
     full_name: editingCandidate?.full_name || '',
     email: editingCandidate?.email || '',
     phone: editingCandidate?.phone || '',
+    jobRole: editingCandidate?.jobRole || '',
+    exp: editingCandidate?.exp || '',
     resume: null,
   };
 
@@ -58,6 +61,8 @@ const CandidateForm: React.FC<CandidateFormProps> = ({
     formData.append('full_name', values.full_name);
     formData.append('email', values.email);
     formData.append('phone', values.phone);
+    formData.append('jobRole', values.jobRole); // Always include, as required
+    formData.append('exp', values.exp); // Always include, as required
     if (values.resume) formData.append('resume', values.resume);
 
     try {
@@ -164,6 +169,42 @@ const CandidateForm: React.FC<CandidateFormProps> = ({
                       startAdornment: (
                         <InputAdornment position="start">
                           <PhoneIcon color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    fullWidth
+                    label="Job Role"
+                    name="jobRole"
+                    error={touched.jobRole && !!errors.jobRole}
+                    helperText={touched.jobRole && errors.jobRole}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <WorkIcon color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    fullWidth
+                    label="Experience"
+                    name="exp"
+                    error={touched.exp && !!errors.exp}
+                    helperText={touched.exp && errors.exp}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <TimerIcon color="action" />
                         </InputAdornment>
                       ),
                     }}

@@ -82,7 +82,7 @@ const EmployerNavBar: React.FC = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Link href="/employer-dash" passHref style={{ textDecoration: "none" }}>
+        <Link href="/" passHref style={{ textDecoration: "none" }}>
           <Typography
             variant="h6"
             sx={{

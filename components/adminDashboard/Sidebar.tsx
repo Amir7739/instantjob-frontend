@@ -27,6 +27,9 @@ import {
   Assignment as AssignmentIcon
 } from '@mui/icons-material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+
 
 const menuItems = [
   { id: 'dashboard', text: 'Dashboard', icon: <DashboardIcon /> },
@@ -130,6 +133,8 @@ const Sidebar = ({
     { id: 'candidates', text: 'Candidates', icon: <PeopleIcon /> },
     { id: 'employers', text: 'Employers', icon: <BusinessIcon /> },
     { id: 'recruiters', text: 'Our Recruiters', icon: <PersonSearchIcon /> },
+    { id: 'bulkCandidate', text: 'Bulk Candidate Upload', icon: <UploadFileIcon /> },
+  { id: 'candAddedByRecruiters', text: 'Candidates by Recruiters', icon: <GroupAddIcon /> },
   ];
 
   const sidebarContent = (
