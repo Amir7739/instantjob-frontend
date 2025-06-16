@@ -24,7 +24,7 @@ export const signupEmployer = async (
     const response = await axiosInstance.post<AuthResponse>("/employers/signup", data, {
       headers: { "Content-Type": "application/json" },
     });
-    localStorage.setItem("token", response.data.token);
+    // localStorage.setItem("token", response.data.token);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError<ErrorResponse>;

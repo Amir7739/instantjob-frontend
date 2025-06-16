@@ -51,12 +51,7 @@ const teamMembers = [
     role: 'Co & Founder',
     image: '/images/Kiran Co-Founder.png',
   },
-  
-  {
-    name: 'Pratibha Singh',
-    role: 'Head of Operations',
-    image: '/images/df.jpg',
-  },
+
 
   // {
   //   name: 'Jyoti Kumari',
