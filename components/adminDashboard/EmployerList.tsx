@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import AddIcon from "@mui/icons-material/Add";
 
 import PreviewIcon from '@mui/icons-material/Preview';
 
@@ -27,6 +28,8 @@ import { handleExcelUpload } from "@/utils/excelUpload";
 import { debounce } from "lodash";
 import { fetchInitialEmployers, fetchMoreEmployers, updateEmployerStatus } from "@/services/eployersApi";
 import CandidateListSkeleton from "../CandidateListSkeleton";
+import AddEmployerModal from "./AddEmployerModal";
+import CustomSnackbar from "../CustomSnackbar";
 
 const EmployerList = ({
   getStatusColor = (status) => (status === "Verified" ? "success" : "error"),
@@ -46,6 +49,12 @@ const EmployerList = ({
     message: string;
     onConfirm: () => void;
   } | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -169,6 +178,33 @@ const EmployerList = ({
     setDialogOpen(false);
     setDialogConfig(null);
   };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleAddEmployerSuccess = async () => {
+    try {
+      const response = await fetchInitialEmployers();
+      const filteredEmployers = response.employers.filter(
+        (employer) => employer.verified === !showInactive
+      );
+      setEmployers(filteredEmployers);
+      setTotalEmployers(filteredEmployers.length);
+      setSnackbar({
+        open: true,
+        message: "Employer added successfully",
+        severity: "success",
+      });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.message || "Error refreshing employer list",
+        severity: "error",
+      });
+    }
+  };
+
 
   // Responsive column config
   const getColumns = (): GridColDef[] => {
@@ -357,6 +393,14 @@ const EmployerList = ({
         >
           {showInactive ? "Show Verified Employers" : "Show non-verfied Employers"}
         </Button>
+         <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setModalOpen(true)}
+          sx={{ backgroundColor: "#1976d2" }}
+        >
+          Add Employer
+        </Button>
 
       </Box>
       <div style={{ height: 700, width: "100%", overflow: "auto" }} ref={gridRef}>
@@ -403,7 +447,7 @@ const EmployerList = ({
             )}
           </>
         )}
-        <Snackbar
+       <Snackbar
           open={!!successMessage}
           autoHideDuration={3000}
           onClose={() => setSuccessMessage(null)}
@@ -423,6 +467,17 @@ const EmployerList = ({
           onConfirm={() => dialogConfig?.onConfirm()}
           title={dialogConfig?.title || ""}
           message={dialogConfig?.message || ""}
+        />
+        <AddEmployerModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSuccess={handleAddEmployerSuccess}
+        />
+        <CustomSnackbar
+          open={snackbar.open}
+          onClose={handleCloseSnackbar}
+          message={snackbar.message}
+          severity={snackbar.severity}
         />
       </div>
     </>

@@ -20,8 +20,6 @@ import {
   CardContent,
   useTheme,
   alpha,
-  Skeleton,
-  useMediaQuery,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -47,6 +45,7 @@ interface Candidate {
     full_name: string;
   };
   createdAt: string;
+  createdByFullName?: string; // New field for search
 }
 
 const CandidateAddedByRecruitersList = () => {
@@ -130,7 +129,7 @@ const CandidateAddedByRecruitersList = () => {
                 textDecoration: "none",
                 fontSize: "0.75rem",
                 maxWidth: 140,
-                wordBreak: "break-all", // Add this line
+                wordBreak: "break-all",
                 whiteSpace: "normal",
               }}
               component="a"
@@ -210,7 +209,7 @@ const CandidateAddedByRecruitersList = () => {
       ),
     },
     {
-      field: "createdBy",
+      field: "createdByFullName", // Use new field for search
       headerName: "Added By",
       width: 180,
       renderCell: (params) => (
@@ -224,7 +223,7 @@ const CandidateAddedByRecruitersList = () => {
                 fontSize: "0.75rem",
               }}
             >
-              {params.value?.full_name?.charAt(0)?.toUpperCase() || "R"}
+              {params.value?.charAt(0)?.toUpperCase() || "R"}
             </Avatar>
             <Box>
               <Typography
@@ -234,7 +233,7 @@ const CandidateAddedByRecruitersList = () => {
                   color: theme.palette.text.primary,
                 }}
               >
-                {params.value?.full_name || "Unknown"}
+                {params.value || "Unknown"}
               </Typography>
               <Typography
                 variant="caption"
@@ -287,7 +286,12 @@ const CandidateAddedByRecruitersList = () => {
         `/recruiter/candidates/get-all?page=${pageNum}&limit=10`
       );
 
-      const newCandidates: Candidate[] = res.data.candidates;
+      const newCandidates: Candidate[] = res.data.candidates.map(
+        (candidate: Candidate) => ({
+          ...candidate,
+          createdByFullName: candidate.createdBy?.full_name || "Unknown", // Flatten createdBy for search
+        })
+      );
 
       setData((prev) => {
         const existingIds = new Set(prev.map((c) => c._id));
@@ -408,7 +412,6 @@ const CandidateAddedByRecruitersList = () => {
           <CandidateListSkeleton />
         </Paper>
       ) : (
-        /* Data Grid */
         <Paper
           elevation={2}
           sx={{
@@ -441,7 +444,7 @@ const CandidateAddedByRecruitersList = () => {
           <DataGrid
             showToolbar
             rows={data}
-            getRowId={(row) => row._id}
+            getRowId={(row) => row?._id || Math.random().toString()} // Fallback ID
             columns={columns}
             pageSize={data.length}
             rowsPerPageOptions={[data.length]}

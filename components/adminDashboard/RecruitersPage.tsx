@@ -456,6 +456,7 @@ const RecruitersPage = () => {
           }}
         >
           <DataGrid
+          showToolbar
             rows={recruiters}
             columns={columns}
             getRowId={(row) =>

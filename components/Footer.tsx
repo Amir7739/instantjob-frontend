@@ -14,7 +14,6 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        
         bgcolor: "#A87B7E",
         color: "grey.400",
         mt: "0.5rem",
@@ -67,13 +66,10 @@ const Footer = () => {
               For Job Seekers
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {[
-                "Browse Jobs",
-                "Company Reviews",
-              ].map((item) => (
+              {["Browse Jobs", "Company Reviews"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
-                    href="#"
+                    href={item === "Browse Jobs" ? "/all-jobs" : "#"}
                     style={{
                       textDecoration: "none",
                       color: "#e4e8ed",
@@ -93,14 +89,16 @@ const Footer = () => {
               For Employers
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {[
-                "Post Jobs",
-                "Search Resumes",
-                "Pricing",
-              ].map((item) => (
+              {["Post Jobs", "Search Resumes", "Pricing"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
-                    href="#"
+                    href={
+                      item === "Post Jobs"
+                        ? "/jobs/create"
+                        : item === "Search Resumes"
+                        ? "/employer-dash"
+                        : "#"
+                    }
                     style={{
                       textDecoration: "none",
                       color: "#e4e8ed",
@@ -123,14 +121,22 @@ const Footer = () => {
               {["About Us", "Contact", "Policy"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
-                   href={item === "About Us" ? "/about" : item === "Contact" ? "/contact" : "#"}
+                    href={
+                      item === "About Us"
+                        ? "/about"
+                        : item === "Contact"
+                        ? "/contact"
+                        : "#"
+                    }
                     style={{
                       textDecoration: "none",
                       color: "#e4e8ed",
-                      "&:hover": { color: "primary.main",textDecorationLine: "underline" },
+                      "&:hover": {
+                        color: "primary.main",
+                        textDecorationLine: "underline",
+                      },
                       display: "block",
                       cursor: "pointer",
-                      
                     }}
                   >
                     <Typography variant="body2">{item}</Typography>
@@ -147,15 +153,15 @@ const Footer = () => {
               Email: support@instantjob.com
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2" paragraph>
-              Phone:  0120-4461787
+              Phone: 0120-4461787
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2">
-            911,9th Floor, Tower-B, Advant IT Park
+              911,9th Floor, Tower-B, Advant IT Park
             </Typography>
           </Grid>
         </Grid>
         <Divider sx={{ my: 3, borderColor: "grey.800" }} />
-        <Typography style={{color: 'white'}} variant="body2" align="center">
+        <Typography style={{ color: "white" }} variant="body2" align="center">
           © {new Date().getFullYear()} InstantJob. All rights reserved.
         </Typography>
       </Container>
