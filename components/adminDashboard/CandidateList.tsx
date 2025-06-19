@@ -15,15 +15,18 @@ import {
   useTheme,
   Button,
   Input,
+  Menu,
+  MenuItem,
 } from "@mui/material";
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import AddIcon from "@mui/icons-material/Add";
 import {
   Visibility as VisibilityIcon,
   Download as DownloadIcon,
 } from "@mui/icons-material";
-import PreviewIcon from '@mui/icons-material/Preview';
+import PreviewIcon from "@mui/icons-material/Preview";
 import {
   fetchInitialCandidates,
   fetchMoreCandidates,
@@ -36,6 +39,7 @@ import ConfirmDialog from "../ActivateDeactivateConfirmation";
 import { handleExcelUpload } from "@/utils/excelUpload";
 import { debounce } from "lodash";
 import CandidateListSkeleton from "../CandidateListSkeleton";
+import AddCandidateModal from "./AddCandidateModal";
 
 const CandidateList = ({
   getStatusColor = (status) => (status === "Active" ? "success" : "error"),
@@ -55,6 +59,9 @@ const CandidateList = ({
     message: string;
     onConfirm: () => void;
   } | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -66,7 +73,6 @@ const CandidateList = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Fetch initial candidates on mount or when showInactive changes
   useEffect(() => {
     const loadInitialCandidates = async () => {
       setIsLoading(true);
@@ -76,7 +82,10 @@ const CandidateList = ({
           ? await fetchInitialInActiveCandidates()
           : await fetchInitialCandidates();
         console.log("Initial candidates response:", response);
-        console.log("Total candidates set to:", response.pagination.totalCandidates);
+        console.log(
+          "Total candidates set to:",
+          response.pagination.totalCandidates
+        );
         setCandidates(response.candidates);
         setTotalCandidates(response.pagination.totalCandidates);
       } catch (error) {
@@ -87,7 +96,6 @@ const CandidateList = ({
     };
     loadInitialCandidates();
 
-    // Reset scroll position to top
     const gridElement = gridRef.current?.querySelector(
       ".MuiDataGrid-virtualScroller"
     );
@@ -96,12 +104,11 @@ const CandidateList = ({
     }
   }, [showInactive]);
 
-  // Debounced scroll handler for smooth infinite scrolling
   const fetchMoreCandidatesHandler = useCallback(async () => {
     if (isLoading || candidates.length >= totalCandidates) return;
     try {
       setIsLoading(true);
-      const page = Math.floor(candidates.length / 10) + 1; // Calculate page number
+      const page = Math.floor(candidates.length / 10) + 1;
       console.log("Fetching more candidates, page:", page);
       const response = showInactive
         ? await fetchMoreInActiveCandidates(page)
@@ -112,7 +119,9 @@ const CandidateList = ({
       } else {
         console.log("No more candidates to load");
         if (candidates.length < totalCandidates) {
-          console.warn(`Expected more candidates but received none. Current: ${candidates.length}, Total: ${totalCandidates}`);
+          console.warn(
+            `Expected more candidates but received none. Current: ${candidates.length}, Total: ${totalCandidates}`
+          );
         }
       }
     } catch (error) {
@@ -132,7 +141,6 @@ const CandidateList = ({
         console.error("Virtual scroller not found during scroll");
         return;
       }
-
       const { scrollTop, scrollHeight, clientHeight } = gridElement;
       if (
         scrollTop + clientHeight >= scrollHeight - 50 &&
@@ -144,7 +152,6 @@ const CandidateList = ({
     [fetchMoreCandidatesHandler, isLoading, candidates.length, totalCandidates]
   );
 
-  // Scroll handler for infinite scrolling
   useEffect(() => {
     const gridElement = gridRef.current?.querySelector(
       ".MuiDataGrid-virtualScroller"
@@ -154,7 +161,6 @@ const CandidateList = ({
     } else {
       console.error("Virtual scroller not found");
     }
-
     return () => {
       if (gridElement) {
         gridElement.removeEventListener("scroll", handleScroll);
@@ -162,7 +168,11 @@ const CandidateList = ({
     };
   }, [handleScroll]);
 
-  const openConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
+  const openConfirmDialog = (
+    title: string,
+    message: string,
+    onConfirm: () => void
+  ) => {
     setDialogConfig({ title, message, onConfirm });
     setDialogOpen(true);
   };
@@ -184,11 +194,31 @@ const CandidateList = ({
         setTotalCandidates,
         showInactive,
       });
-      event.target.value = ''; // Reset file input
+      event.target.value = "";
     }
   };
 
-  // Responsive column config
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleAddCandidateSuccess = async () => {
+    try {
+      const response = showInactive
+        ? await fetchInitialInActiveCandidates()
+        : await fetchInitialCandidates();
+      setCandidates(response.candidates);
+      setTotalCandidates(response.pagination.totalCandidates);
+      setSuccessMessage("Candidate added successfully");
+    } catch (error: any) {
+      setError(error.message || "Error refreshing candidate list");
+    }
+  };
+
   const getColumns = (): GridColDef[] => {
     const baseColumns: GridColDef[] = [
       {
@@ -302,7 +332,9 @@ const CandidateList = ({
                 size="small"
                 color="info"
                 sx={{ padding: isMobile ? "1px" : "2px" }}
-                onClick={() => router.push(`/candidate-profile/${params.row.id}`)}
+                onClick={() =>
+                  router.push(`/candidate-profile/${params.row.id}`)
+                }
               >
                 <PreviewIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
@@ -315,15 +347,17 @@ const CandidateList = ({
                   sx={{ padding: isMobile ? "1px" : "2px" }}
                   onClick={() => {
                     openConfirmDialog(
-                      'Activate Candidate',
-                      'Are you sure you want to activate this candidate?',
+                      "Activate Candidate",
+                      "Are you sure you want to activate this candidate?",
                       async () => {
                         try {
-                          await updateCandidateStatus(params.row.id, 'Active');
+                          await updateCandidateStatus(params.row.id, "Active");
                           setSuccessMessage("Candidate activated successfully");
                           const response = await fetchInitialInActiveCandidates();
                           setCandidates(response.candidates);
-                          setTotalCandidates(response.pagination.totalCandidates);
+                          setTotalCandidates(
+                            response.pagination.totalCandidates
+                          );
                         } catch (error: any) {
                           setError(error.message || "Error activating candidate");
                         }
@@ -342,17 +376,26 @@ const CandidateList = ({
                   sx={{ padding: isMobile ? "1px" : "2px" }}
                   onClick={() => {
                     openConfirmDialog(
-                      'Deactivate Candidate',
-                      'Are you sure you want to deactivate this candidate?',
+                      "Deactivate Candidate",
+                      "Are you sure you want to deactivate this candidate?",
                       async () => {
                         try {
-                          await updateCandidateStatus(params.row.id, 'In-Active');
-                          setSuccessMessage("Candidate deactivated successfully");
+                          await updateCandidateStatus(
+                            params.row.id,
+                            "In-Active"
+                          );
+                          setSuccessMessage(
+                            "Candidate deactivated successfully"
+                          );
                           const response = await fetchInitialCandidates();
                           setCandidates(response.candidates);
-                          setTotalCandidates(response.pagination.totalCandidates);
+                          setTotalCandidates(
+                            response.pagination.totalCandidates
+                          );
                         } catch (error: any) {
-                          setError(error.message || "Error deactivating candidate");
+                          setError(
+                            error.message || "Error deactivating candidate"
+                          );
                         }
                       }
                     );
@@ -366,7 +409,6 @@ const CandidateList = ({
         ),
       },
     ];
-
     return baseColumns;
   };
 
@@ -398,22 +440,45 @@ const CandidateList = ({
         >
           {showInactive ? "Show Active Candidates" : "Show Inactive Candidates"}
         </Button>
-        <Tooltip title="Upload Excel File" arrow>
-          <Button
-            variant="contained"
-            component="label"
-            startIcon={<UploadFileIcon />}
-            sx={{ backgroundColor: "#1976d2" }}
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleMenuClick}
+          sx={{ backgroundColor: "#1976d2" }}
+        >
+          Add Candidate
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem
+            onClick={() => {
+              setModalOpen(true);
+              handleMenuClose();
+            }}
           >
-            Add Candidate
-            <Input
-              type="file"
-              inputProps={{ accept: ".xlsx, .xls" }}
-              onChange={onFileChange}
-              sx={{ display: "none" }}
-            />
-          </Button>
-        </Tooltip>
+            <AddIcon sx={{ mr: 1 }} />
+            Add Single Candidate
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              fileInputRef.current?.click();
+              handleMenuClose();
+            }}
+          >
+            <UploadFileIcon sx={{ mr: 1 }} />
+            Upload Bulk Candidates
+          </MenuItem>
+        </Menu>
+        <Input
+          type="file"
+          inputRef={fileInputRef}
+          style={{ display: "none" }}
+          inputProps={{ accept: ".xlsx, .xls" }}
+          onChange={onFileChange}
+        />
       </Box>
       <div style={{ height: 700, width: "100%", overflow: "auto" }} ref={gridRef}>
         {error && (
@@ -422,67 +487,72 @@ const CandidateList = ({
           </div>
         )}
         {isLoading ? (
-        <CandidateListSkeleton />
-      ) : (
-        <>
-          <DataGrid
-            showToolbar
-            key={candidates.length}
-            rows={rows}
-            columns={columns}
-            rowHeight={isMobile ? 50 : 60}
-            autoHeight={false}
-            disableSelectionOnClick
-            loading={false} // Controlled by skeleton
-            rowCount={totalCandidates}
-            paginationMode="server"
-            sx={{
-              "& .MuiDataGrid-cell": {
-                fontSize: isMobile ? "14px" : "16px",
-                padding: isMobile ? "4px" : "8px",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                fontSize: isMobile ? "14px" : "16px",
-                padding: isMobile ? "8px 4px" : "12px 16px",
-                backgroundColor: "#5e35b1",
-                color: "white",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                overflow: "auto",
-              },
-            }}
-          />
-          {isLoading && (
-            <Box sx={{ mt: 1 }}>
-              <CandidateListSkeleton />
-            </Box>
-          )}
-        </>
-      )}
-      <Snackbar
-        open={!!successMessage}
-        autoHideDuration={3000}
-        onClose={() => setSuccessMessage(null)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity="success"
-          variant="filled"
+          <CandidateListSkeleton />
+        ) : (
+          <>
+            <DataGrid
+              showToolbar
+              key={candidates.length}
+              rows={rows}
+              columns={columns}
+              rowHeight={isMobile ? 50 : 60}
+              autoHeight={false}
+              disableSelectionOnClick
+              loading={false}
+              rowCount={totalCandidates}
+              paginationMode="server"
+              sx={{
+                "& .MuiDataGrid-cell": {
+                  fontSize: isMobile ? "14px" : "16px",
+                  padding: isMobile ? "4px" : "8px",
+                },
+                "& .MuiDataGrid-columnHeader": {
+                  fontSize: isMobile ? "14px" : "16px",
+                  padding: isMobile ? "8px 4px" : "12px 16px",
+                  backgroundColor: "#5e35b1",
+                  color: "white",
+                },
+                "& .MuiDataGrid-virtualScroller": {
+                  overflow: "auto",
+                },
+              }}
+            />
+            {isLoading && (
+              <Box sx={{ mt: 1 }}>
+                <CandidateListSkeleton />
+              </Box>
+            )}
+          </>
+        )}
+        <Snackbar
+          open={!!successMessage}
+          autoHideDuration={3000}
           onClose={() => setSuccessMessage(null)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          {successMessage}
-        </Alert>
-      </Snackbar>
-      <ConfirmDialog
-        open={dialogOpen}
-        onClose={closeConfirmDialog}
-        onConfirm={() => dialogConfig?.onConfirm()}
-        title={dialogConfig?.title || ""}
-        message={dialogConfig?.message || ""}
-      />
-    </div>
-  </>
-);
+          <Alert
+            severity="success"
+            variant="filled"
+            onClose={() => setSuccessMessage(null)}
+          >
+            {successMessage}
+          </Alert>
+        </Snackbar>
+        <ConfirmDialog
+          open={dialogOpen}
+          onClose={closeConfirmDialog}
+          onConfirm={() => dialogConfig?.onConfirm()}
+          title={dialogConfig?.title || ""}
+          message={dialogConfig?.message || ""}
+        />
+        <AddCandidateModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSuccess={handleAddCandidateSuccess}
+        />
+      </div>
+    </>
+  );
 };
 
 export default CandidateList;

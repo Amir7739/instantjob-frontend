@@ -118,33 +118,35 @@ const RegisterPage: React.FC = () => {
           bgcolor: "white",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            component="div"
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              overflow: "hidden",
-              bgcolor: "#4285f4",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mr: 1,
-            }}
-          >
-            <Image
-              src="/images/ij.jpg"
-              alt="Logo"
-              width={40}
-              height={60}
-              style={{ objectFit: "cover" }}
-            />
-          </Box>
-          <Typography variant="h6" fontWeight="bold" color="#4285f4">
-            InstantJob
-          </Typography>
-        </Box>
+        <Link href="/" style={{ textDecoration: "none" }}>
+  <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+    <Box
+      component="div"
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
+        overflow: "hidden",
+        bgcolor: "#4285f4",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        mr: 1,
+      }}
+    >
+      <Image
+        src="/images/ij.jpg"
+        alt="Logo"
+        width={40}
+        height={60}
+        style={{ objectFit: "cover" }}
+      />
+    </Box>
+    <Typography variant="h6" fontWeight="bold" color="#4285f4">
+      InstantJob
+    </Typography>
+  </Box>
+</Link>
         <Typography variant="body2">
           Already Registered?{" "}
           <Link href="/login" style={{ color: "#4285f4", fontWeight: "bold" }}>

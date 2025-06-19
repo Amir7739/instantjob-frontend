@@ -13,6 +13,16 @@ interface AuthResponse {
   user: User;
 }
 
+interface BulkUploadResponse {
+  status: string;
+  message: string;
+  results: Array<{ row: number; email: string; status: string; message: string }>;
+  errors: Array<{ row: number; message: string }>;
+  totalProcessed: number;
+  totalSuccess: number;
+  totalErrors: number;
+}
+
 interface ErrorResponse {
   message: string;
 }
@@ -47,6 +57,26 @@ export const loginEmployer = async (
     const axiosError = error as AxiosError<ErrorResponse>;
     throw new Error(
       axiosError.response?.data?.message || "Login failed",
+    );
+  }
+};
+
+export const bulkSignupEmployers = async (
+  formData: FormData
+): Promise<BulkUploadResponse> => {
+  try {
+    const response = await axiosInstance.post<BulkUploadResponse>(
+      "/employers/bulk-signup",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    throw new Error(
+      axiosError.response?.data?.message || "Bulk signup failed"
     );
   }
 };

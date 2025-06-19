@@ -1,8 +1,10 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
-import { useState } from "react";
+import { Box, Typography, TextField, MenuItem, Button, Modal } from "@mui/material";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import axiosInstance from "@/utils/axios";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -12,15 +14,44 @@ const ContactUs = () => {
     queryType: "",
     description: "",
   });
+  const [error, setError] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const response = await axiosInstance.post("/contact", formData);
+
+      // Open Thank You modal
+      setOpenModal(true);
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        mobileNo: "",
+        queryType: "",
+        description: "",
+      });
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to submit the form");
+      console.error(err);
+    }
   };
+
+  // Auto-close modal after 5 seconds
+  useEffect(() => {
+    if (openModal) {
+      const timer = setTimeout(() => {
+        setOpenModal(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [openModal]);
 
   return (
     <>
@@ -120,7 +151,7 @@ const ContactUs = () => {
               fontWeight: 500,
             }}
           >
-            support@instantjob.com
+            support@instantjob.in
           </Typography>
         </Box>
 
@@ -150,6 +181,12 @@ const ContactUs = () => {
           >
             CONTACT US
           </Typography>
+
+          {error && (
+            <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
+              {error}
+            </Typography>
+          )}
 
           <form onSubmit={handleSubmit}>
             <TextField
@@ -238,6 +275,54 @@ const ContactUs = () => {
           </form>
         </Box>
       </Box>
+
+      {/* Thank You Modal */}
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        aria-labelledby="thank-you-modal"
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <Box
+          sx={{
+            p: { xs: 3, sm: 4 },
+            borderRadius: 4,
+            background: "rgba(255, 255, 255, 0.95)",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
+            border: "1px solid rgba(255,255,255,0.3)",
+            textAlign: "center",
+            maxWidth: "600px",
+            width: "90%",
+          }}
+        >
+          <Typography
+            variant="h3"
+            id="thank-you-modal"
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              mb: 2,
+              background: "linear-gradient(45deg, #667eea, #764ba2)",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Thank You!
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: "1rem", sm: "1.2rem" },
+              color: "#34495e",
+              mb: 4,
+              lineHeight: 1.6,
+            }}
+          >
+            Your query has been successfully submitted. Our team will get back to
+            you soon.
+          </Typography>
+        </Box>
+      </Modal>
+
       {/* Google Map + Footer Description */}
       <Box sx={{ mt: 5, px: { xs: 2, md: 6 } }}>
         {/* Google Map Embed */}

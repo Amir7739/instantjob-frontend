@@ -15,21 +15,28 @@ import {
   useTheme,
   Button,
   Input,
+  MenuItem,
+  Menu,
 } from "@mui/material";
+
+import * as XLSX from "xlsx";
+
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import AddIcon from "@mui/icons-material/Add";
 
 import PreviewIcon from '@mui/icons-material/Preview';
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+
 
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "../ActivateDeactivateConfirmation";
-import { handleExcelUpload } from "@/utils/excelUpload";
 import { debounce } from "lodash";
 import { fetchInitialEmployers, fetchMoreEmployers, updateEmployerStatus } from "@/services/eployersApi";
 import CandidateListSkeleton from "../CandidateListSkeleton";
 import AddEmployerModal from "./AddEmployerModal";
 import CustomSnackbar from "../CustomSnackbar";
+import { bulkSignupEmployers } from "@/services/employerAuthApi";
 
 const EmployerList = ({
   getStatusColor = (status) => (status === "Verified" ? "success" : "error"),
@@ -55,6 +62,8 @@ const EmployerList = ({
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -202,6 +211,60 @@ const EmployerList = ({
         message: error.message || "Error refreshing employer list",
         severity: "error",
       });
+    }
+  };
+
+
+
+
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleBulkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setSnackbar({
+        open: true,
+        message: "No file selected",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      const formData = new FormData();
+      formData.append("file", file); 
+
+      
+      const response = await bulkSignupEmployers(formData);
+      await handleAddEmployerSuccess(); // Refresh the employer list
+      setSnackbar({
+        open: true,
+        message: `Bulk upload completed: ${response.totalSuccess} succeeded, ${response.totalErrors} failed`,
+        severity: response.totalErrors > 0 ? "error" : "success",
+      });
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.message || "Failed to upload bulk employers",
+        severity: "error",
+      });
+    } finally {
+      setIsLoading(false);
+      handleMenuClose();
     }
   };
 
@@ -396,12 +459,41 @@ const EmployerList = ({
          <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setModalOpen(true)}
+          onClick={handleMenuClick}
           sx={{ backgroundColor: "#1976d2" }}
         >
           Add Employer
         </Button>
-
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem
+            onClick={() => {
+              setModalOpen(true);
+              handleMenuClose();
+            }}
+          >
+            <AddIcon sx={{ mr: 1 }} />
+            Add Single Employer
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+          >
+            <UploadFileIcon sx={{ mr: 1 }} />
+            Upload Bulk Employers
+          </MenuItem>
+        </Menu>
+        <Input
+          type="file"
+          inputRef={fileInputRef}
+          style={{ display: "none" }}
+          inputProps={{ accept: ".xlsx,.xls" }}
+          onChange={handleBulkUpload}
+        />
       </Box>
       <div style={{ height: 700, width: "100%", overflow: "auto" }} ref={gridRef}>
         {error && (
