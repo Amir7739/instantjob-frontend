@@ -16,8 +16,10 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  Stack,
+  Divider,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Google, Visibility, VisibilityOff } from "@mui/icons-material";
 import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -118,33 +120,35 @@ const RegisterPage: React.FC = () => {
           bgcolor: "white",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            component="div"
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              overflow: "hidden",
-              bgcolor: "#4285f4",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mr: 1,
-            }}
-          >
-            <Image
-              src="/images/ij.jpg"
-              alt="Logo"
-              width={40}
-              height={60}
-              style={{ objectFit: "cover" }}
-            />
-          </Box>
-          <Typography variant="h6" fontWeight="bold" color="#4285f4">
-            InstantJob
-          </Typography>
-        </Box>
+        <Link href="/" style={{ textDecoration: "none" }}>
+  <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+    <Box
+      component="div"
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
+        overflow: "hidden",
+        bgcolor: "#4285f4",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        mr: 1,
+      }}
+    >
+      <Image
+        src="/images/ij.jpg"
+        alt="Logo"
+        width={40}
+        height={60}
+        style={{ objectFit: "cover" }}
+      />
+    </Box>
+    <Typography variant="h6" fontWeight="bold" color="#4285f4">
+      InstantJob
+    </Typography>
+  </Box>
+</Link>
         <Typography variant="body2">
           Already Registered?{" "}
           <Link href="/login" style={{ color: "#4285f4", fontWeight: "bold" }}>
@@ -369,23 +373,80 @@ const RegisterPage: React.FC = () => {
                     )}
                 </Box>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                                  <Stack spacing={3}>
                     <Button
                       type="submit"
                       variant="contained"
                       fullWidth
+                      disabled={isMutating}
                       sx={{
-                        py: 1.5,
-                        bgcolor: "#4285f4",
-                        "&:hover": { bgcolor: "#3367d6" },
-                        borderRadius: 1,
+                        py: 2,
+                        fontSize: "1.1rem",
+                        fontWeight: "bold",
+                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        borderRadius: 2,
+                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 6px 20px rgba(102, 126, 234, 0.6)",
+                        },
+                        transition: "all 0.3s ease",
                       }}
                     >
-                      Register Now
+                      {isMutating ? "Creating Account..." : "Register Now"}
                     </Button>
-                  </Grid>
-                </Grid>
+
+                    <Divider sx={{ my: 2 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        OR
+                      </Typography>
+                    </Divider>
+
+                    <Button
+                                      fullWidth
+                                      variant="outlined"
+                                      href="http://localhost:5000/api/auth/google"
+                                      sx={{
+                                        mt: 2,
+                                        py: 1.8,
+                                        borderRadius: 3,
+                                        textTransform: "none",
+                                        fontWeight: 600,
+                                        fontSize: "16px",
+                                        color: "#4285f4",
+                                        borderColor: "#dadce0",
+                                        borderWidth: "2px",
+                                        background: "#ffffff",
+                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                          background: "#f8f9fa",
+                                          borderColor: "#4285f4",
+                                          transform: "translateY(-1px)",
+                                          boxShadow: "0 4px 16px rgba(66, 133, 244, 0.2)",
+                                        },
+                                        "&:active": {
+                                          transform: "translateY(0px)",
+                                        },
+                                      }}
+                                      startIcon={
+                                        <Box
+                                          sx={{
+                                            width: 20,
+                                            height: 20,
+                                            background: `url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M20 10.227c0-.709-.064-1.39-.182-2.045H10.2v3.868h5.513a4.707 4.707 0 01-2.04 3.088v2.555h3.302c1.932-1.778 3.025-4.39 3.025-7.466z' fill='%234285F4'/%3E%3Cpath d='M10.2 20c2.76 0 5.077-.914 6.769-2.477l-3.302-2.555c-.914.614-2.083.978-3.467.978-2.668 0-4.926-1.8-5.732-4.22H1.137v2.636C2.818 17.195 6.226 20 10.2 20z' fill='%2334A853'/%3E%3Cpath d='M4.468 11.726a5.827 5.827 0 010-3.732V5.358H1.137A9.73 9.73 0 000 10.1c0 1.587.386 3.088 1.137 4.421l3.331-2.795z' fill='%23FBBC05'/%3E%3Cpath d='M10.2 4.774c1.506 0 2.855.518 3.916 1.54l2.931-2.93C15.273 1.64 13.013.727 10.2.727c-3.974 0-7.382 2.386-9.063 5.858l3.331 2.795c.806-2.42 3.064-4.606 5.732-4.606z' fill='%23EA4335'/%3E%3C/g%3E%3C/svg%3E")`,
+                                            backgroundSize: "contain",
+                                            backgroundRepeat: "no-repeat",
+                                            backgroundPosition: "center",
+                                          }}
+                                        />
+                                      }
+                                    >
+                                      Continue with Google
+                                    </Button>
+                  </Stack>
+
               </form>
             </Paper>
           </Grid>

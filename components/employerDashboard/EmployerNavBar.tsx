@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { Menu as MenuIcon, Phone as PhoneIcon, Logout as LogoutIcon } from "@mui/icons-material";
 import Link from "next/link";
+import Image from "next/image";
 
 const EmployerNavBar: React.FC = () => {
   const router = useRouter();
@@ -76,181 +77,216 @@ const EmployerNavBar: React.FC = () => {
     <AppBar
       position="fixed"
       sx={{
-        bgcolor: "white",
+        // bgcolor: "white",
         color: "#1F2937",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Link href="/" passHref style={{ textDecoration: "none" }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              color: "#4B5EAA",
-              cursor: "pointer",
-            }}
-          >
-            InstantJob
-          </Typography>
-        </Link>
+      <Box sx={{ width: "100%", px: "2px" }}>
+        <Toolbar 
+          disableGutters
+          sx={{ 
+            justifyContent: "space-between",
+            px: 0
+          }}
+        >
+          {/* Logo Section - Far Left */}
+          <Box sx={{ flexShrink: 0 }}>
+            <Link href="/" passHref style={{ textDecoration: "none" }}>
+              <Box 
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  cursor: "pointer",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                  },
+                }}
+              >
+                <Image
+                  src="/images/logo.png"
+                  alt="InstantJob Logo"
+                  width={isMobile ? 120 : 160}
+                  height={isMobile ? 50 : 90}
+                  priority
+                  style={{
+                    objectFit: "contain",
+                    height: "auto",
+                    width: "auto",
+                    maxWidth: isMobile ? "120px" : "160px",
+                    maxHeight: isMobile ? "50px" : "90px",
+                  }}
+                />
+              </Box>
+            </Link>
+          </Box>
 
-        {!isMobile && (
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              color="inherit"
-              onMouseEnter={handleOfferingsOpen}
-              sx={{
-                textTransform: "none",
-                fontWeight: 500,
-                "&:hover": { color: "#4B5EAA" },
-              }}
-            >
-              Our Offerings
-            </Button>
-            {isEmployer && (
+          {/* Center Navigation - Desktop */}
+          {!isMobile && (
+            <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 color="inherit"
-                onClick={() => router.push("/employer-dash")}
+                onMouseEnter={handleOfferingsOpen}
                 sx={{
                   textTransform: "none",
                   fontWeight: 500,
-                  "&:hover": { color: "#4B5EAA" },
+                  "&:hover": { color: "#4B5EAA",cursor: 'pointer'},
+                  color: 'white'
                 }}
               >
-                My Dashboard
+                Our Offerings
               </Button>
-            )}
-            <Menu
-              anchorEl={anchorElOfferings}
-              open={Boolean(anchorElOfferings)}
-              onClose={handleOfferingsClose}
-              MenuListProps={{
-                onMouseLeave: handleOfferingsClose,
-              }}
-              sx={{
-                "& .MuiPaper-root": {
-                  borderRadius: 1,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                },
-              }}
-            >
-              {offerings.map((offering) => (
+              {isEmployer && (
+                <Button
+                  color="inherit"
+                  onClick={() => router.push("/employer-dash")}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 500,
+                    "&:hover": { color: "#4B5EAA" },
+                  }}
+                >
+                  My Dashboard
+                </Button>
+              )}
+              <Menu
+                anchorEl={anchorElOfferings}
+                open={Boolean(anchorElOfferings)}
+                onClose={handleOfferingsClose}
+                MenuListProps={{
+                  onMouseLeave: handleOfferingsClose,
+                }}
+                sx={{
+                  "& .MuiPaper-root": {
+                    borderRadius: 1,
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  },
+                }}
+              >
+                {offerings.map((offering) => (
+                  <MenuItem
+                    key={offering.label}
+                    onClick={() => {
+                      router.push(offering.path);
+                      handleOfferingsClose();
+                    }}
+                    sx={{
+                      color: "#1F2937",
+                      "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" },
+                    }}
+                  >
+                    {offering.label}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          )}
+
+          {/* Right Section - Desktop */}
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <PhoneIcon sx={{ color: "white" }} />
+                <Typography variant="body2" sx={{ color: "white" }}>
+                  0120-4461787
+                </Typography>
+              </Box>
+              <IconButton onClick={handleProfileMenuOpen}>
+                <Avatar sx={{ bgcolor: "#4B5EAA" }}>{userInitial}</Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorElProfile}
+                open={Boolean(anchorElProfile)}
+                onClose={handleProfileMenuClose}
+                sx={{
+                  "& .MuiPaper-root": {
+                    borderRadius: 1,
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  },
+                }}
+              >
+                {isEmployer && (
+                  <MenuItem
+                    onClick={() => {
+                      router.push("/employer-dash");
+                      handleProfileMenuClose();
+                    }}
+                  >
+                    My Dashboard
+                  </MenuItem>
+                )}
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1, color: "#1F2937" }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
+
+          {/* Mobile Menu Button - Far Right */}
+          {isMobile && (
+            <Box sx={{ flexShrink: 0 }}>
+              <IconButton onClick={handleMobileMenuOpen}>
+                <MenuIcon sx={{ color: "#1F2937" }} />
+              </IconButton>
+            </Box>
+          )}
+          
+          {/* Mobile Menu */}
+          <Menu
+            anchorEl={anchorElMobile}
+            open={Boolean(anchorElMobile)}
+            onClose={handleMobileMenuClose}
+            sx={{
+              "& .MuiPaper-root": {
+                borderRadius: 1,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              },
+            }}
+          >
+            <MenuItem onMouseEnter={handleOfferingsOpen} onClick={handleOfferingsOpen}>
+              Our Offerings
+            </MenuItem>
+            {Boolean(anchorElOfferings) ? (
+              offerings.map((offering) => (
                 <MenuItem
                   key={offering.label}
                   onClick={() => {
                     router.push(offering.path);
-                    handleOfferingsClose();
+                    handleMobileMenuClose();
                   }}
-                  sx={{
-                    color: "#1F2937",
-                    "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" },
-                  }}
+                  sx={{ pl: 4, color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
                 >
                   {offering.label}
                 </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        )}
-
-        {!isMobile && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <PhoneIcon sx={{ color: "#4B5EAA" }} />
-              <Typography variant="body2" sx={{ color: "#1F2937" }}>
-                0120-4461787
-              </Typography>
-            </Box>
-            <IconButton onClick={handleProfileMenuOpen}>
-              <Avatar sx={{ bgcolor: "#4B5EAA" }}>{userInitial}</Avatar>
-            </IconButton>
-            <Menu
-              anchorEl={anchorElProfile}
-              open={Boolean(anchorElProfile)}
-              onClose={handleProfileMenuClose}
-              sx={{
-                "& .MuiPaper-root": {
-                  borderRadius: 1,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                },
-              }}
-            >
-              {isEmployer && (
-                <MenuItem
-                  onClick={() => {
-                    router.push("/employer-dash");
-                    handleProfileMenuClose();
-                  }}
-                >
-                  My Dashboard
+              ))
+            ) : (
+              <>
+                {isEmployer && (
+                  <MenuItem
+                    onClick={() => {
+                      router.push("/employer-dash");
+                      handleMobileMenuClose();
+                    }}
+                    sx={{ color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
+                  >
+                    My Dashboard
+                  </MenuItem>
+                )}
+                <MenuItem sx={{ color: "#1F2937" }}>
+                  <PhoneIcon sx={{ mr: 1, color: "#4B5EAA" }} />
+                  0120-4461787
                 </MenuItem>
-              )}
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1, color: "#1F2937" }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        )}
-
-        {isMobile && (
-          <IconButton onClick={handleMobileMenuOpen}>
-            <MenuIcon sx={{ color: "#1F2937" }} />
-          </IconButton>
-        )}
-        <Menu
-          anchorEl={anchorElMobile}
-          open={Boolean(anchorElMobile)}
-          onClose={handleMobileMenuClose}
-          sx={{
-            "& .MuiPaper-root": {
-              borderRadius: 1,
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            },
-          }}
-        >
-          <MenuItem onMouseEnter={handleOfferingsOpen} onClick={handleOfferingsOpen}>
-            Our Offerings
-          </MenuItem>
-          {Boolean(anchorElOfferings) ? (
-            offerings.map((offering) => (
-              <MenuItem
-                key={offering.label}
-                onClick={() => {
-                  router.push(offering.path);
-                  handleMobileMenuClose();
-                }}
-                sx={{ pl: 4, color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
-              >
-                {offering.label}
-              </MenuItem>
-            ))
-          ) : (
-            <>
-              {isEmployer && (
-                <MenuItem
-                  onClick={() => {
-                    router.push("/employer-dash");
-                    handleMobileMenuClose();
-                  }}
-                  sx={{ color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
-                >
-                  My Dashboard
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1, color: "#1F2937" }} />
+                  Logout
                 </MenuItem>
-              )}
-              <MenuItem sx={{ color: "#1F2937" }}>
-                <PhoneIcon sx={{ mr: 1, color: "#4B5EAA" }} />
-                0120-4461787
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1, color: "#1F2937" }} />
-                Logout
-              </MenuItem>
-            </>
-          )}
-        </Menu>
-      </Toolbar>
+              </>
+            )}
+          </Menu>
+        </Toolbar>
+      </Box>
     </AppBar>
   );
 };

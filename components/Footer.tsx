@@ -118,7 +118,7 @@ const Footer = () => {
               InstantJob
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {["About Us", "Contact", "Policy"].map((item) => (
+              {["About Us", "Contact", "Policy", "Careers"].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1 }}>
                   <Link
                     href={
@@ -126,6 +126,8 @@ const Footer = () => {
                         ? "/about"
                         : item === "Contact"
                         ? "/contact"
+                        : item === "Careers"
+                        ? "/careers"
                         : "#"
                     }
                     style={{
@@ -150,7 +152,7 @@ const Footer = () => {
               Contact Us
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2" paragraph>
-              Email: support@instantjob.com
+              Email: support@instantjob.in
             </Typography>
             <Typography sx={{ color: "#e4e8ed" }} variant="body2" paragraph>
               Phone: 0120-4461787

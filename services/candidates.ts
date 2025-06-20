@@ -1,5 +1,5 @@
 import axiosInstance from "@/utils/axios";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 // Define interfaces based on the API response
 export interface Education {
@@ -56,6 +56,15 @@ interface CandidatesResponse {
     totalCandidates: number;
     candidatesPerPage: number;
   };
+}
+
+interface AddCandidateResponse {
+  message: string;
+  candidate: Candidate;
+}
+
+interface ErrorResponse {
+  message: string;
 }
 
 // Fetch initial candidates (first 10)
@@ -305,3 +314,24 @@ export const updateCandidateStatus = async (candidateId: string, status: 'Active
       );
     }
   };
+
+
+  export const addSingleCandidate = async (
+  formData: FormData
+): Promise<AddCandidateResponse> => {
+  try {
+    const response = await axiosInstance.post<AddCandidateResponse>(
+      "/upload-single-candidate",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    throw new Error(
+      axiosError.response?.data?.message || "Failed to add candidate"
+    );
+  }
+};
