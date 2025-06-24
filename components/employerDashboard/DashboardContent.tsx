@@ -67,7 +67,7 @@ const DashboardContent: React.FC = () => {
       <StatsGrid />
       <PlanCardDetails planData={planData} />
       <ApplicationTrendsChart />
-      <JobCategoriesChart />
+      {/* <JobCategoriesChart /> */}
       <Applicants />
     </Box>
   );

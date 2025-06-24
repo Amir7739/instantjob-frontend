@@ -215,19 +215,28 @@ const CandidateGetProfile: React.FC = () => {
       }}
     >
       <Button
-        variant="contained"
-        startIcon={<ArrowBackIcon />}
-        onClick={() => router.push('/admin-dashboard')}
-        sx={{ 
-          mb: 3,
-          boxShadow: 2,
-          '&:hover': {
-            boxShadow: 4
-          }
-        }}
-      >
-        Back to Dashboard
-      </Button>
+  variant="contained"
+  startIcon={<ArrowBackIcon />}
+  onClick={() => {
+    const role = localStorage.getItem("role");
+    if (role === "admin") {
+      router.push("/admin-dashboard");
+    } else if (role === "employer") {
+      router.push("/employer-dash");
+    } else {
+      router.push("/");
+    }
+  }}
+  sx={{ 
+    mb: 3,
+    boxShadow: 2,
+    '&:hover': {
+      boxShadow: 4
+    }
+  }}
+>
+  Back to Dashboard
+</Button>
 
       {/* Header Card */}
       <Card 
