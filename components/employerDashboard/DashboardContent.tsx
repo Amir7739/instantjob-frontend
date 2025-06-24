@@ -35,7 +35,10 @@ const planData = {
 
 const DashboardContent: React.FC = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <Box sx={{
+      display: "flex", flexDirection: "column", gap: 3,
+      m: { xs: 2, md: 3 },
+    }}>
       {/* Welcome Message */}
       <WelcomeCard />
       <Box

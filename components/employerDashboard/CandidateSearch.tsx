@@ -217,6 +217,7 @@ const CandidateSearch: React.FC = () => {
         flexDirection: "column",
         gap: 2,
         minHeight: "100vh",
+        m: { xs: 2, md: 3 },
       }}
     >
       {/* Header Section */}
@@ -875,7 +876,7 @@ const CandidateSearch: React.FC = () => {
                               }}
                             />
                           </Box>
-{/* 
+                          {/* 
                           <Box
                             sx={{
                               display: "flex",

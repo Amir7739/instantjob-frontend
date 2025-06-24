@@ -226,7 +226,8 @@ const Applicants = () => {
   ];
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, p: 3 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, p: 3 , 
+               m: { xs: 2, md: 3 },}}>
       <Typography sx={{ fontSize: 18, fontWeight: "medium", color: "#1F2937" }}>
         Recent Applicants
       </Typography>

@@ -53,7 +53,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
   const [isLoadingAllJobs, setIsLoadingAllJobs] = useState(false);
-    const jobSectionRef = useRef<HTMLDivElement>(null);
+  const jobSectionRef = useRef<HTMLDivElement>(null);
 
 
   const jobsPerPage = 9;
@@ -244,249 +244,260 @@ export default function HomePage() {
     <>
       <Navbar />
       <Box
-  sx={{
-    background: "linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b)",
-    pt: { xs: 10, md: 16 },  // Increased padding top
-    pb: { xs: 6, md: 12 },
-    position: "relative",
-    overflow: "hidden",
-    minHeight: { xs: "40vh", md: "60vh" }, // Added minHeight for better breathing space
-  }}
->
-  {/* Background Image */}
-  <Box
-    sx={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      opacity: 0.1,
-      zIndex: 0,
-    }}
-  >
-    <Image
-      src="/images/1.png"
-      alt="Background pattern"
-      fill
-      style={{ objectFit: "cover" }}
-    />
-  </Box>
-
-  {/* Main Content */}
-  <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-    <Grid
-      container
-      spacing={4}
-      sx={{
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        px: { xs: 0, md: 2 }, // No side padding on mobile, add on desktop
-      }}
-    >
-      {/* Text Content */}
-      <Grid item xs={12} md={7}>
-        <Typography
-          variant="h2"
-          component="h1"
-          sx={{
-            fontWeight: "bold",
-            mb: 2,
-            color: "white",
-            fontSize: { xs: "2.5rem", md: "3.5rem" }, // Slightly bigger on mobile
-            mt: { xs: 4, sm: 6, md: 8, lg: 10 },
-          }}
-        >
-          Find Your Dream Job Instantly
-        </Typography>
-
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 4,
-            color: "white",
-            fontSize: { xs: "1.2rem", md: "1.5rem" },
-          }}
-        >
-          Connect with top employers and get hired faster
-        </Typography>
-
-        {/* Search Form */}
-<Paper
-  elevation={3}
-  sx={{
-    p: { xs: 2, md: 3 },
-    borderRadius: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    width: {
-      xs: "80%",
-      sm: "100%",
-      md: "100%",
-      lg: "100%",
-      xl: "100%",
-    },
-    mx: "auto",
-  }}
->
-  <Grid container spacing={2}>
-    <Grid
-      item
-      xs={12}
-      sm={6}
-      md={5}
-      sx={{
-        mb: { xs: 2, md: 0 },
-      }}
-    >
-      <TextField
-        fullWidth
-        placeholder="Title, company, skills, or job type"
-        variant="outlined"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        size="medium"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon sx={{ color: "#4F46E5" }} />
-            </InputAdornment>
-          ),
-        }}
         sx={{
-          minWidth: { xs: "100%", sm: "100%" },
+          background: "linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b)",
+          pt: { xs: 10, md: 16 },  // Increased padding top
+          pb: { xs: 6, md: 12 },
+          position: "relative",
+          overflow: "hidden",
+          minHeight: { xs: "40vh", md: "60vh" }, // Added minHeight for better breathing space
         }}
-      />
-    </Grid>
-
-    <Grid
-      item
-      xs={12}
-      sm={6}
-      md={4}
-      sx={{
-        mb: { xs: 2, md: 0 },
-      }}
-    >
-      <TextField
-        fullWidth
-        placeholder="Location"
-        variant="outlined"
-        value={searchLocation}
-        onChange={(e) => setSearchLocation(e.target.value)}
-        size="medium"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <LocationOnIcon sx={{ color: "#4F46E5" }} />
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          minWidth: { xs: "100%", sm: "100%" },
-        }}
-      />
-    </Grid>
-
-    <Grid item xs={12} sm={12} md={3}>
-      <Button
-        fullWidth
-        variant="contained"
-        color="primary"
-        sx={{
-          minHeight: 54,
-          borderRadius: 2,
-          fontSize: "1rem",
-          fontWeight: 600,
-          py: { xs: 1.5, md: 0 },
-        }}
-        onClick={handleSearch}
-        endIcon={<ArrowForwardIcon />}
       >
-        Search Jobs
-      </Button>
-    </Grid>
-  </Grid>
-</Paper>
-
-
-
-        {/* Popular Searches */}
-        <Box
-          component={motion.div}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          sx={{
-            mt: 3,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1,
-            justifyContent: { xs: "center", md: "flex-start" },
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{ color: "white", mr: 1, opacity: 0.9 }}
-          >
-            Popular searches:
-          </Typography>
-
-          {["Remote", "Full-time", "Part-time", "Internship", "IT Jobs"].map(
-            (term) => (
-              <Chip
-                key={term}
-                label={term}
-                size="small"
-                sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.15)",
-                  color: "white",
-                  borderRadius: 4,
-                  backdropFilter: "blur(4px)",
-                  fontWeight: 500,
-                  "&:hover": {
-                    bgcolor: "rgba(255, 255, 255, 0.25)",
-                    cursor: "pointer",
-                  },
-                }}
-              />
-            )
-          )}
-        </Box>
-      </Grid>
-
-      {/* Image Section */}
-      <Grid
-        item
-        xs={12}
-        md={5}
-        sx={{ display: { xs: "none", md: "block" } }}
-        component={motion.div}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-      >
+        {/* Background Image */}
         <Box
           sx={{
-            position: "relative",
-            height: 450,
-            filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.18))",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            opacity: 0.1,
+            zIndex: 0,
           }}
-          component={motion.div}
-          animate={{ y: [0, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
         >
           <Image
-            src="/images/job-search-illustration.png"
-            alt="People finding jobs"
+            src="/images/1.png"
+            alt="Background pattern"
             fill
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "cover" }}
           />
         </Box>
-      </Grid>
-    </Grid>
-  </Container>
-</Box>
+
+        {/* Main Content */}
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Grid
+            container
+            spacing={4}
+            sx={{
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              px: { xs: 0, md: 2 }, // No side padding on mobile, add on desktop
+            }}
+          >
+            {/* Text Content */}
+            <Grid item xs={12} md={7}>
+              <Typography
+                variant="h2"
+                component="h1"
+                sx={{
+                  fontWeight: "bold",
+                  mb: 2,
+                  color: "white",
+                  fontSize: { xs: "2.5rem", md: "3.5rem" }, // Slightly bigger on mobile
+                  mt: { xs: 4, sm: 6, md: 8, lg: 10 },
+                }}
+              >
+                Find Your Dream Job Instantly
+              </Typography>
+
+              <Typography
+                variant="h5"
+                sx={{
+                  mb: 4,
+                  color: "white",
+                  fontSize: { xs: "1.2rem", md: "1.5rem" },
+                }}
+              >
+                Connect with top employers and get hired faster
+              </Typography>
+
+              {/* Search Form */}
+              <Paper
+                elevation={3}
+                sx={{
+                  p: { xs: 2, md: 3 },
+                  borderRadius: 2,
+                  backgroundColor: "rgba(255, 255, 255, 0.95)",
+                  width: {
+                    xs: "80%",
+                    sm: "100%",
+                    md: "100%",
+                    lg: "100%",
+                    xl: "100%",
+                  },
+                  mx: "auto",
+                }}
+              >
+                <Grid container spacing={2} >
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={5}
+                    sx={{
+                      mb: { xs: 2, md: 0 },
+                      width : {
+                        xs : "100%",
+                        md : "auto"
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      placeholder="Title, company, skills, or job type"
+                      variant="outlined"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      size="medium"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: "#4F46E5" }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        minWidth: { xs: "100%", sm: "100%" },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    sx={{
+                      mb: { xs: 2, md: 0 },
+                       width : {
+                        xs : "100%",
+                        md : "auto"
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      placeholder="Location"
+                      variant="outlined"
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                      size="medium"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocationOnIcon sx={{ color: "#4F46E5" }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        minWidth: { xs: "100%", sm: "100%" },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} md={3} sx={{ width : {
+                        xs : "100%",
+                        md : "auto"
+                      }}}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        minHeight: 54,
+                        borderRadius: 2,
+                        fontSize: "1rem",
+                        fontWeight: 600,
+                        py: { xs: 1.5, md: 0 },
+                      }}
+                      onClick={handleSearch}
+                      endIcon={<ArrowForwardIcon />}
+                    >
+                      Search Jobs
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Paper>
+
+
+
+              {/* Popular Searches */}
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                sx={{
+                  mt: 3,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  justifyContent: { xs: "center", md: "flex-start" },
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: "white", mr: 1, opacity: 0.9 }}
+                >
+                  Popular searches:
+                </Typography>
+
+                {["Remote", "Full-time", "Part-time", "Internship", "IT Jobs"].map(
+                  (term) => (
+                    <Chip
+                      key={term}
+                      label={term}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(255, 255, 255, 0.15)",
+                        color: "white",
+                        borderRadius: 4,
+                        backdropFilter: "blur(4px)",
+                        fontWeight: 500,
+                        "&:hover": {
+                          bgcolor: "rgba(255, 255, 255, 0.25)",
+                          cursor: "pointer",
+                        },
+                      }}
+                    />
+                  )
+                )}
+              </Box>
+            </Grid>
+
+            {/* Image Section */}
+            <Grid
+              item
+              xs={12}
+              md={5}
+              sx={{ display: { xs: "none", md: "block" } }}
+              component={motion.div}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              <Box
+                sx={{
+                  position: "relative",
+                  height: 450,
+                  filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.18))",
+                }}
+                component={motion.div}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+              >
+                <Image
+                  src="/images/job-search-illustration.png"
+                  alt="People finding jobs"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
 
 
       {/* Stats Bar */}
@@ -539,48 +550,48 @@ export default function HomePage() {
       </Box>
 
       {/* Categories Section with Improved Cards */}
-      
+
 
       {/* Featured Jobs Section with Improved Cards */}
       <Box
-  id="job-listings"
-  component={motion.div}
-  ref={jobSectionRef}
-  initial={{ opacity: 0 }}
-  whileInView={{ opacity: 1 }}
-  viewport={{ once: true }}
-  transition={{ duration: 0.6 }}
-  sx={{
-    py: { xs: 6, sm: 8, md: 10 },
-    px: { xs: 2, md: 4 },  // <-- instead of ml, use px for side padding
-  }}
->
-  <Container maxWidth="xl" sx={{ px: 2 }}>
-    <Box sx={{ mb: { xs: 5, md: 7 }, textAlign: "center" }}>
-      <Typography
-        variant="h4"
-        component="h2"
-        fontWeight="800"
-        gutterBottom
+        id="job-listings"
+        component={motion.div}
+        ref={jobSectionRef}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         sx={{
-          fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
-          background: "linear-gradient(to right, #4F46E5, #7C3AED)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
+          py: { xs: 6, sm: 8, md: 10 },
+          px: { xs: 2, md: 4 },  // <-- instead of ml, use px for side padding
         }}
       >
-        Featured Job Openings
-      </Typography>
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        sx={{ maxWidth: "800px", mx: "auto" }}
-      >
-        Handpicked opportunities from top companies
-      </Typography>
-    </Box>
+        <Container maxWidth="xxl" sx={{ px: 2 }}>
+          <Box sx={{ mb: { xs: 5, md: 7 }, textAlign: "center" }}>
+            <Typography
+              variant="h4"
+              component="h2"
+              fontWeight="800"
+              gutterBottom
+              sx={{
+                fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" },
+                background: "linear-gradient(to right, #4F46E5, #7C3AED)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Featured Job Openings
+            </Typography>
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ maxWidth: "800px", mx: "auto" }}
+            >
+              Handpicked opportunities from top companies
+            </Typography>
+          </Box>
 
-    {isLoadingAllJobs ? (
+          {isLoadingAllJobs ? (
             <Grid container spacing={2}>
               {[...Array(9)].map((_, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
@@ -606,65 +617,65 @@ export default function HomePage() {
               </Typography>
             </Box>
           ) : (
-            <Grid container spacing={2}>
+            <Grid container  spacing={{ xs: 2, sm: 3, md: 4 }} justifyContent="center" >
               {jobs.map((job) => (
-                <Grid item xs={12} sm={6} md={4} key={job._id}>
-                  <JobCard job={job} />
+                <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={job._id}>
+                  <JobCard job={job} sx={{ width: '100%', maxWidth: 350 }}/>
                 </Grid>
               ))}
             </Grid>
           )}
 
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      mt={4}
-      mb={2}
-    >
-      <Button
-        variant="contained"
-        size="large"
-        startIcon={
-          isLoadingAllJobs ? (
-            <CircularProgress size={20} color="inherit" />
-          ) : (
-            <WorkIcon />
-          )
-        }
-        sx={{
-          backgroundColor: "#1976d2",
-          color: "white",
-          padding: "10px 24px",
-          borderRadius: "8px",
-          fontWeight: 600,
-          textTransform: "none",
-          fontSize: "1rem",
-          boxShadow: "0 4px 10px rgba(25, 118, 210, 0.3)",
-          transition: "all 0.3s",
-          "&:hover": {
-            backgroundColor: "#1565c0",
-            boxShadow: "0 6px 12px rgba(25, 118, 210, 0.4)",
-            transform: "translateY(-2px)",
-          },
-          "&:disabled": {
-            backgroundColor: "#1976d2",
-            opacity: 0.7,
-          },
-        }}
-        onClick={() => {
-          setIsLoadingAllJobs(true);
-          setTimeout(() => {
-            window.location.href = "/all-jobs";
-          }, 2000); // Simulate loading delay
-        }}
-        disabled={isLoadingAllJobs}
-      >
-        {isLoadingAllJobs ? "Loading..." : "View All Jobs"}
-      </Button>
-    </Box>
-  </Container>
-</Box>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            mt={4}
+            mb={2}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={
+                isLoadingAllJobs ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <WorkIcon />
+                )
+              }
+              sx={{
+                backgroundColor: "#1976d2",
+                color: "white",
+                padding: "10px 24px",
+                borderRadius: "8px",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: "1rem",
+                boxShadow: "0 4px 10px rgba(25, 118, 210, 0.3)",
+                transition: "all 0.3s",
+                "&:hover": {
+                  backgroundColor: "#1565c0",
+                  boxShadow: "0 6px 12px rgba(25, 118, 210, 0.4)",
+                  transform: "translateY(-2px)",
+                },
+                "&:disabled": {
+                  backgroundColor: "#1976d2",
+                  opacity: 0.7,
+                },
+              }}
+              onClick={() => {
+                setIsLoadingAllJobs(true);
+                setTimeout(() => {
+                  window.location.href = "/all-jobs";
+                }, 2000); // Simulate loading delay
+              }}
+              disabled={isLoadingAllJobs}
+            >
+              {isLoadingAllJobs ? "Loading..." : "View All Jobs"}
+            </Button>
+          </Box>
+        </Container>
+      </Box>
 
 
       {/* Testimonials Section (NEW) */}
@@ -746,9 +757,8 @@ export default function HomePage() {
               sx={{
                 display: "flex",
                 transition: "transform 0.8s ease",
-                transform: `translateX(-${
-                  currentSlide * (100 / testimonials.length)
-                }%)`,
+                transform: `translateX(-${currentSlide * (100 / testimonials.length)
+                  }%)`,
                 width: `${testimonials.length * 100}%`,
               }}
             >

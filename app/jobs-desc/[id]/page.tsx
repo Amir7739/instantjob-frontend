@@ -495,159 +495,269 @@ const JobDetailsPage = () => {
           {/* Job Header Section */}
           <JobHeaderSection>
             <Grid container spacing={3} alignItems="center">
-              <Grid item>
-                <CompanyLogo
-                  src={jobData.companyLogo}
-                  alt={jobData.companyName}
-                >
-                  {jobData.companyName.charAt(0)}
-                </CompanyLogo>
-              </Grid>
-              <Grid item xs>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
-                >
-                  <Typography variant="h3" fontWeight="800" gutterBottom>
-                    {jobData.title}
-                  </Typography>
-                  <Verified
-                    sx={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "2rem" }}
-                  />
-                </Box>
-                <Typography
-                  variant="h5"
-                  sx={{ opacity: 0.9, mb: 3, fontWeight: "500" }}
-                >
-                  {jobData.companyName}
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                  <InfoBadge>
-                    <LocationOn fontSize="small" />
-                    <Typography variant="body1">{jobData.location}</Typography>
-                  </InfoBadge>
-                  <InfoBadge>
-                    <BusinessCenter fontSize="small" />
-                    <Typography variant="body1">{jobData.jobType}</Typography>
-                  </InfoBadge>
-                  <InfoBadge>
-                    <Work fontSize="small" />
-                    <Typography variant="body1">
-                      {jobData.minExp}-{jobData.maxExp} years
+              {/* Company Logo and Job Info Combined */}
+              <Grid item xs={12} sm>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'center', sm: 'flex-start' },
+                  gap: { xs: 2, sm: 3 },
+                  textAlign: { xs: 'center', sm: 'left' }
+                }}>
+                  {/* Company Logo */}
+                  <Box sx={{
+                    flexShrink: 0,
+                    alignSelf: { xs: 'center', sm: 'flex-start' }
+                  }}>
+                    <CompanyLogo
+                      src={jobData.companyLogo}
+                      alt={jobData.companyName}
+                    >
+                      {jobData.companyName.charAt(0)}
+                    </CompanyLogo>
+                  </Box>
+
+                  {/* Job Details */}
+                  <Box sx={{
+                    flex: 1,
+                    minWidth: 0, // Prevent flex item from overflowing
+                  }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: { xs: 'center', sm: 'flex-start' },
+                        gap: 2,
+                        mb: 2,
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <Typography
+                        variant="h3"
+                        fontWeight="800"
+                        gutterBottom
+                        sx={{
+                          fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' },
+                          lineHeight: 1.2,
+                          margin: 0
+                        }}
+                      >
+                        {jobData.title}
+                      </Typography>
+                      <Verified
+                        sx={{
+                          color: "rgba(255, 255, 255, 0.8)",
+                          fontSize: { xs: "1.5rem", sm: "2rem" }
+                        }}
+                      />
+                    </Box>
+
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        opacity: 0.9,
+                        mb: 3,
+                        fontWeight: "500",
+                        fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.5rem' }
+                      }}
+                    >
+                      {jobData.companyName}
                     </Typography>
-                  </InfoBadge>
-                  <InfoBadge>
-                    <PeopleAltIcon fontSize="small" />
-                    <Typography variant="body1">
-                      {jobData.openings || 1}{" "}
-                      {jobData.openings === 1 ? "opening" : "openings"}
-                    </Typography>
-                  </InfoBadge>
-                  <InfoBadge>
-                    <AccessTime fontSize="small" />
-                    <Typography variant="body1">Posted 3 days ago</Typography>
-                  </InfoBadge>
+
+
+                    <Box sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: { xs: 1, sm: 2 },
+                      justifyContent: { xs: 'center', sm: 'flex-start' }
+                    }}>
+                      <InfoBadge>
+                        <LocationOn fontSize="small" />
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          {jobData.location}
+                        </Typography>
+                      </InfoBadge>
+                      <InfoBadge>
+                        <BusinessCenter fontSize="small" />
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          {jobData.jobType}
+                        </Typography>
+                      </InfoBadge>
+                      <InfoBadge>
+                        <Work fontSize="small" />
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          {jobData.minExp}-{jobData.maxExp} years
+                        </Typography>
+                      </InfoBadge>
+                      <InfoBadge>
+                        <PeopleAltIcon fontSize="small" />
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          {jobData.openings || 1}{" "}
+                          {jobData.openings === 1 ? "opening" : "openings"}
+                        </Typography>
+                      </InfoBadge>
+                      <InfoBadge>
+                        <AccessTime fontSize="small" />
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          Posted 3 days ago
+                        </Typography>
+                      </InfoBadge>
+                    </Box>
+                  </Box>
                 </Box>
               </Grid>
-              <Grid item xs={12} md="auto" sx={{ mt: { xs: 3, md: 0 } }}>
+
+              {/* Action Buttons */}
+              <Grid item xs={12} lg="auto" sx={{ display: "flex", justifyContent: "center" , marginX:"auto" }}>
                 <Box
                   sx={{
                     display: "flex",
-                    flexWrap: { xs: "wrap", sm: "nowrap" },
-                    flexDirection: { xs: "row", sm: "row" },
-                    gap: 2,
-                    justifyContent: { xs: "center", md: "flex-end" },
+                    flexDirection: "column",
+                    gap: { xs: 1.5, sm: 2 },
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "fit-content",
                   }}
                 >
-                  {/* Apply Now Button with Tooltip */}
-                  <Tooltip
-                    title={
-                      role && role !== "candidate"
-                        ? "Only candidates can apply for this job"
-                        : ""
-                    }
-                    arrow
-                  >
-                    <span>
-                      <ApplyButton
-                        variant="contained"
-                        startIcon={<SendOutlined />}
-                        onClick={handleApplyJob}
-                        disabled={
-                          checkAppliedOrNot === 1 ||
-                          (role && role !== "candidate")
-                        }
-                        sx={{
-                          width: { xs: "10rem", sm: "11rem" },
-                          fontSize: { xs: "0.9rem", sm: "1rem" },
-                          py: { xs: 1.5, sm: 1.5 },
-                        }}
-                      >
-                        {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
-                      </ApplyButton>
-                    </span>
-                  </Tooltip>
-
-                  {/* Save Button with Tooltip */}
-                  <Tooltip
-                    title={
-                      role && role !== "candidate"
-                        ? "Only candidates can save this job"
-                        : ""
-                    }
-                    arrow
-                  >
-                    <span>
-                      <SaveButton
-                        variant="outlined"
-                        startIcon={<Bookmark />}
-                        onClick={handleSaveJob}
-                        sx={{
-                          width: { xs: "9rem", sm: "10rem" },
-                          fontSize: { xs: "0.9rem", sm: "1rem" },
-                          py: { xs: 1.3, sm: 1.3 },
-                          ...(savedJobStatus === 1 && {
-                            background: "rgba(34, 197, 94, 0.1)",
-                            color: "#059669",
-                            borderColor: "#059669",
-                          }),
-                        }}
-                        disabled={
-                          savedJobStatus === 1 || (role && role !== "candidate")
-                        }
-                      >
-                        {savedJobStatus === 1 ? "Saved" : "Save"}
-                      </SaveButton>
-                    </span>
-                  </Tooltip>
-
-                  {/* Browse Jobs Button */}
-                  <Button
-                    variant="outlined"
-                    startIcon={<TrendingUp />}
+                  {/* First Row - Apply Now and Save Buttons */}
+                  <Box
                     sx={{
-                      width: { xs: "100%", sm: "11rem" },
-                      fontSize: { xs: "0.9rem", sm: "1rem" },
-                      py: { xs: 1.3, sm: 1.3 },
-                      color: "white",
-                      borderColor: "rgba(255, 255, 255, 0.5)",
-                      background: "rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(10px)",
-                      textTransform: "none",
-                      fontWeight: "600",
-                      "&:hover": {
-                        background: "rgba(255, 255, 255, 0.2)",
-                        borderColor: "rgba(255, 255, 255, 0.8)",
-                        transform: "translateY(-2px)",
-                      },
+                      display: "flex",
+                      gap: { xs: 1.5, sm: 2 },
+                      justifyContent: "center",
+                      alignItems: "center",
+                      flexWrap: "wrap"
                     }}
-                    href="/all-jobs"
                   >
-                    Browse Jobs
-                  </Button>
+                    {/* Apply Now Button with Tooltip */}
+                    <Tooltip
+                      title={
+                        role && role !== "candidate"
+                          ? "Only candidates can apply for this job"
+                          : ""
+                      }
+                      arrow
+                    >
+                      <span>
+                        <ApplyButton
+                          variant="contained"
+                          startIcon={<SendOutlined />}
+                          onClick={handleApplyJob}
+                          disabled={
+                            checkAppliedOrNot === 1 ||
+                            (role && role !== "candidate")
+                          }
+                          sx={{
+                            width: { xs: "9rem", sm: "11rem" },
+                            minWidth: { xs: "9rem", sm: "11rem" },
+                            fontSize: { xs: "0.8rem", sm: "1rem" },
+                            py: { xs: 1.2, sm: 1.5 },
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {checkAppliedOrNot === 1 ? "Applied" : "Apply Now"}
+                        </ApplyButton>
+                      </span>
+                    </Tooltip>
+
+                    {/* Save Button with Tooltip */}
+                    <Tooltip
+                      title={
+                        role && role !== "candidate"
+                          ? "Only candidates can save this job"
+                          : ""
+                      }
+                      arrow
+                    >
+                      <span>
+                        <SaveButton
+                          variant="outlined"
+                          startIcon={<Bookmark />}
+                          onClick={handleSaveJob}
+                          sx={{
+                            width: { xs: "8rem", sm: "10rem" },
+                            minWidth: { xs: "8rem", sm: "10rem" },
+                            fontSize: { xs: "0.8rem", sm: "1rem" },
+                            py: { xs: 1, sm: 1.3 },
+                            whiteSpace: 'nowrap',
+                            ...(savedJobStatus === 1 && {
+                              background: "rgba(34, 197, 94, 0.1)",
+                              color: "#059669",
+                              borderColor: "#059669",
+                            }),
+                          }}
+                          disabled={
+                            savedJobStatus === 1 || (role && role !== "candidate")
+                          }
+                        >
+                          {savedJobStatus === 1 ? "Saved" : "Save"}
+                        </SaveButton>
+                      </span>
+                    </Tooltip>
+
+                    {/* Browse Jobs Button - Show inline on larger screens */}
+                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                      <Button
+                        variant="outlined"
+                        startIcon={<TrendingUp />}
+                        sx={{
+                          width: { sm: "11rem" },
+                          minWidth: { sm: "11rem" },
+                          fontSize: { sm: "1rem" },
+                          py: { sm: 1.3 },
+                          color: "white",
+                          borderColor: "rgba(255, 255, 255, 0.5)",
+                          background: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(10px)",
+                          textTransform: "none",
+                          fontWeight: "600",
+                          whiteSpace: 'nowrap',
+                          "&:hover": {
+                            background: "rgba(255, 255, 255, 0.2)",
+                            borderColor: "rgba(255, 255, 255, 0.8)",
+                            transform: "translateY(-2px)",
+                          },
+                        }}
+                        href="/all-jobs"
+                      >
+                        Browse Jobs
+                      </Button>
+                    </Box>
+                  </Box>
+
+                  {/* Second Row - Browse Jobs Button (mobile only, centered) */}
+                  <Box sx={{ display: { xs: "block", sm: "none" } }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<TrendingUp />}
+                      sx={{
+                        width: "10rem",
+                        minWidth: "10rem",
+                        fontSize: "0.8rem",
+                        py: 1,
+                        color: "white",
+                        borderColor: "rgba(255, 255, 255, 0.5)",
+                        background: "rgba(255, 255, 255, 0.1)",
+                        backdropFilter: "blur(10px)",
+                        textTransform: "none",
+                        fontWeight: "600",
+                        whiteSpace: 'nowrap',
+                        "&:hover": {
+                          background: "rgba(255, 255, 255, 0.2)",
+                          borderColor: "rgba(255, 255, 255, 0.8)",
+                          transform: "translateY(-2px)",
+                        },
+                      }}
+                      href="/all-jobs"
+                    >
+                      Browse Jobs
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
             </Grid>
           </JobHeaderSection>
+
 
           {/* Main Content */}
           <Box
@@ -1168,8 +1278,8 @@ const JobDetailsPage = () => {
                 snackbarMessage.includes("already")
                   ? "warning"
                   : snackbarMessage.includes("Error")
-                  ? "error"
-                  : "success"
+                    ? "error"
+                    : "success"
               }
               sx={{
                 width: "100%",
@@ -1178,8 +1288,8 @@ const JobDetailsPage = () => {
                 background: snackbarMessage.includes("already")
                   ? "rgba(251, 146, 60, 0.95)"
                   : snackbarMessage.includes("Error")
-                  ? "rgba(239, 68, 68, 0.95)"
-                  : "rgba(34, 197, 94, 0.95)",
+                    ? "rgba(239, 68, 68, 0.95)"
+                    : "rgba(34, 197, 94, 0.95)",
                 color: "white",
                 fontWeight: "600",
                 "& .MuiAlert-icon": {

@@ -57,6 +57,7 @@ import {
   LocationOn
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import { wrap } from 'lodash';
 
 // Custom theme with InstantJob brand colors
 const instantJobTheme = createTheme({
@@ -339,7 +340,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="body1" color="text.secondary" gutterBottom>
           Senior Frontend Developer
         </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2,  }}>
           <Chip 
             icon={<Business />} 
             label="5 years experience" 
