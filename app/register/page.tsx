@@ -117,7 +117,7 @@ const RegisterPage: React.FC = () => {
           alignItems: "center",
           p: 2,
           borderBottom: "1px solid #e8e8e8",
-          bgcolor: "white",
+          bgcolor: "#1976d2",
         }}
       >
         <Link href="/" style={{ textDecoration: "none" }}>
@@ -125,33 +125,33 @@ const RegisterPage: React.FC = () => {
     <Box
       component="div"
       sx={{
-        width: 40,
-        height: 40,
-        borderRadius: "50%",
-        overflow: "hidden",
-        bgcolor: "#4285f4",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        width: 100,
+        height: 60,
+        // borderRadius: "50%",
+        // overflow: "hidden",
+        // bgcolor: "#4285f4",
+        // display: "flex",
+        // alignItems: "center",
+        // justifyContent: "center",
         mr: 1,
       }}
     >
       <Image
-        src="/images/ij.jpg"
+        src="/images/logo.png"
         alt="Logo"
-        width={40}
+        width={150}
         height={60}
         style={{ objectFit: "cover" }}
       />
     </Box>
-    <Typography variant="h6" fontWeight="bold" color="#4285f4">
+    {/* <Typography variant="h6" fontWeight="bold" color="#4285f4">
       InstantJob
-    </Typography>
+    </Typography> */}
   </Box>
 </Link>
-        <Typography variant="body2">
+        <Typography sx={{color: 'white'}} variant="body2">
           Already Registered?{" "}
-          <Link href="/login" style={{ color: "#4285f4", fontWeight: "bold" }}>
+          <Link href="/login" style={{ color: "yellow", fontWeight: "bold" }}>
             Login
           </Link>{" "}
           here
@@ -165,7 +165,7 @@ const RegisterPage: React.FC = () => {
             <Paper elevation={0} sx={{ p: 4, borderRadius: 2, height: "80%" }}>
               <Box
                 component="img"
-                src="/images/2.png"
+                src="/images/Registration (5).png"
                 alt="Illustration"
                 sx={{ maxWidth: "80%", mx: "auto", mb: 4, display: "block" }}
               />

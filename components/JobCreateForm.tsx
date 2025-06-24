@@ -558,6 +558,17 @@ const JobCreateForm = ({
     }
   };
 
+  const handleCancel = () => {
+  const role = localStorage.getItem("role");
+  if (role === "admin") {
+    router.push("/admin-dashboard");
+  } else if (role === "employer") {
+    router.push("/employer-dash");
+  } else {
+    router.push("/");
+  }
+};
+
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="md" sx={{ my: 5, mt: "5rem" }}>
@@ -1623,21 +1634,21 @@ const JobCreateForm = ({
                       ? "Update Job"
                       : "Create Job"}
                   </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    size="large"
-                    onClick={() => router.push("/admin-dashboard")}
-                    sx={{
-                      px: 6,
-                      py: 1.8,
-                      borderRadius: 2,
-                      fontSize: "1.1rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Cancel
-                  </Button>
+<Button
+  variant="outlined"
+  color="secondary"
+  size="large"
+  onClick={handleCancel}
+  sx={{
+    px: 6,
+    py: 1.8,
+    borderRadius: 4,
+    fontSize: "1.1rem",
+    fontWeight: 600,
+  }}
+>
+  Cancel
+</Button>
                 </Box>
 
                 {Object.keys(errors).length > 0 && touched.title && (

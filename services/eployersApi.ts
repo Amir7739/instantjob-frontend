@@ -32,6 +32,38 @@ interface EmployerResponse {
   employer: Employer;
 }
 
+export interface Job {
+  id: string;
+  title: string;
+  companyName: string;
+  location: string;
+  salaryRange: string;
+  jobType: string;
+  minExp: number;
+  maxExp: number;
+  keySkills: string[];
+  industryType: string;
+  category: string;
+  applyBy: string;
+  openings: number;
+  status: string;
+  postedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JobsResponse {
+  status: string;
+  message: string;
+  jobs: Job[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalJobs: number;
+    jobsPerPage: number;
+  };
+}
+
 interface StatIcon {
   name: string;
   color: string;
@@ -81,6 +113,18 @@ interface RecentApplicantsResponse {
     totalApplicants: number;
     applicantsPerPage: number;
   };
+}
+
+export interface JobFilters {
+  locations: string[];
+  statuses: string[];
+  jobTypes: string[];
+}
+
+interface JobFiltersResponse {
+  status: string;
+  message: string;
+  data: JobFilters;
 }
 
 
@@ -308,5 +352,104 @@ export const updateApplicantStatus = async (id: string, status: string): Promise
   } catch (error: any) {
     console.error("Error in updateApplicantStatus:", error);
     throw new Error(error.response?.data?.message || "Error updating applicant status");
+  }
+};
+
+export const fetchJobsByEmployer = async (
+  employerId: string,
+  page: number,
+  status: string | null,
+  jobType: string | null,
+  location: string | null
+): Promise<JobsResponse> => {
+  try {
+    const response: AxiosResponse<JobsResponse> = await axiosInstance.get(
+      `/employers/get-jobs-by-employer/${employerId}`,
+      {
+        params: {
+          page,
+          status: status !== "all" ? status : undefined,
+          jobType: jobType !== "all" ? jobType : undefined,
+          location: location !== "all" ? location : undefined,
+        },
+      }
+    );
+
+    return {
+      ...response.data,
+      jobs: response.data.jobs.map((job) => ({
+        id: job.id || "",
+        title: job.title || "",
+        companyName: job.companyName || "",
+        location: job.location || "",
+        salaryRange: job.salaryRange || "",
+        jobType: job.jobType || "",
+        minExp: job.minExp || 0,
+        maxExp: job.maxExp || 0,
+        keySkills: job.keySkills || [],
+        industryType: job.industryType || "",
+        category: job.category || "",
+        applyBy: job.applyBy || "",
+        openings: job.openings || 0,
+        status: job.status || "",
+        postedAt: job.postedAt || "",
+        createdAt: job.createdAt || "",
+        updatedAt: job.updatedAt || "",
+      })),
+    };
+  } catch (error: any) {
+    console.error("Error in fetchJobsByEmployer:", error);
+    throw new Error(
+      error.response?.data?.message || "Error fetching jobs"
+    );
+  }
+};
+
+
+export const fetchJobFiltersForEmployer = async (employerId: string): Promise<JobFilters> => {
+  try {
+    const response: AxiosResponse<JobFiltersResponse> = await axiosInstance.get(
+      `/employers/get-job-filters-for-employer/${employerId}`
+    );
+
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to fetch job filters");
+    }
+
+    return {
+      locations: response.data.data.locations || [],
+      statuses: response.data.data.statuses || [],
+      jobTypes: response.data.data.jobTypes || [],
+    };
+  } catch (error: any) {
+    console.error("Error in fetchJobFiltersForEmployer:", error);
+    throw new Error(
+      error.response?.data?.message || "Error fetching job filters"
+    );
+  }
+};
+
+export const updateJobStatus = async (
+  jobId: string,
+  status: string
+): Promise<{ status: string; message: string; job: { id: string; title: string; status: string } }> => {
+  try {
+    const token = localStorage.getItem("token");
+    const response: AxiosResponse = await axiosInstance.put(
+      `/employers/update-job-status/${jobId}`,
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to update job status");
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Error in updateJobStatus:", error);
+    throw new Error(error.response?.data?.message || "Error updating job status");
   }
 };

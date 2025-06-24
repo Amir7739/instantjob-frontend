@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { Box, Container, Typography, Grid, Divider, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Divider,
+  useMediaQuery,
+} from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -19,25 +26,25 @@ const Footer = () => {
       name: "linkedin",
       icon: <LinkedInIcon />,
       color: "#0e76a8",
-      url: "https://www.linkedin.com"
+      url: "https://www.linkedin.com",
     },
     {
       name: "facebook",
       icon: <FacebookIcon />,
       color: "#3b5998",
-      url: "https://www.facebook.com"
+      url: "https://www.facebook.com",
     },
     {
       name: "instagram",
       icon: <InstagramIcon />,
       color: "#E1306C",
-      url: "https://www.instagram.com"
+      url: "https://www.instagram.com",
     },
     {
       name: "twitter",
       icon: <TwitterIcon />,
       color: "#1DA1F2",
-      url: "https://www.twitter.com"
+      url: "https://www.twitter.com",
     },
   ];
 
@@ -75,7 +82,6 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-
         <Grid
           container
           spacing={4}
@@ -87,13 +93,26 @@ const Footer = () => {
         >
           {/* For Job Seekers */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="h6" color="white" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography
+              variant="h6"
+              color="white"
+              gutterBottom
+              sx={{ fontWeight: 600 }}
+            >
               For Job Seekers
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {["Browse Jobs", "Company Reviews", "Career Advice", "Salary Calculator"].map((item) => (
+              {[
+                "Browse Jobs",
+                "Company Reviews",
+                "Career Advice",
+                "Salary Calculator",
+              ].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1.5 }}>
-                  <Link href={item === "Browse Jobs" ? "/all-jobs" : "#"} style={{ textDecoration: "none" }}>
+                  <Link
+                    href={item === "Browse Jobs" ? "/all-jobs" : "#"}
+                    style={{ textDecoration: "none" }}
+                  >
                     <Typography
                       variant="body2"
                       sx={{
@@ -117,19 +136,29 @@ const Footer = () => {
 
           {/* For Employers */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="h6" color="white" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography
+              variant="h6"
+              color="white"
+              gutterBottom
+              sx={{ fontWeight: 600 }}
+            >
               For Employers
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {["Post Jobs", "Search Resumes", "Pricing", "Recruitment Solutions"].map((item) => (
+              {[
+                "Post Jobs",
+                "Search Resumes",
+                "Pricing",
+                "Recruitment Solutions",
+              ].map((item) => (
                 <Box component="li" key={item} sx={{ mb: 1.5 }}>
                   <Link
                     href={
                       item === "Post Jobs"
                         ? "/jobs/create"
                         : item === "Search Resumes"
-                          ? "/employer-dash"
-                          : "#"
+                        ? "/employer-dash"
+                        : "#"
                     }
                     style={{ textDecoration: "none" }}
                   >
@@ -156,66 +185,104 @@ const Footer = () => {
 
           {/* Company */}
           <Grid item xs={12} sm={6} md={2.5}>
-            <Typography variant="h6" color="white" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography
+              variant="h6"
+              color="white"
+              gutterBottom
+              sx={{ fontWeight: 600 }}
+            >
               Company
             </Typography>
             <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-              {["About Us", "Contact", "Privacy Policy", "Careers", "Blog"].map((item) => (
-                <Box component="li" key={item} sx={{ mb: 1.5 }}>
-                  <Link
-                    href={
-                      item === "About Us"
-                        ? "/about"
-                        : item === "Contact"
+              {["About Us", "Contact", "Privacy Policy", "Careers", "Blog"].map(
+                (item) => (
+                  <Box component="li" key={item} sx={{ mb: 1.5 }}>
+                    <Link
+                      href={
+                        item === "About Us"
+                          ? "/about"
+                          : item === "Contact"
                           ? "/contact"
+                          : item === "Privacy Policy"
+                          ? "/policy"
                           : item === "Careers"
-                            ? "/careers"
-                            : "#"
-                    }
-                    style={{ textDecoration: "none" }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#e4e8ed",
-                        transition: "all 0.2s ease",
-                        fontWeight: 500,
-                        "&:hover": {
-                          color: "white",
-                          textDecoration: "underline",
-                          fontWeight: 600,
-                        },
-                      }}
+                          ? "/careers"
+                          : "#"
+                      }
+                      style={{ textDecoration: "none" }}
                     >
-                      {item}
-                    </Typography>
-                  </Link>
-                </Box>
-              ))}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#e4e8ed",
+                          transition: "all 0.2s ease",
+                          fontWeight: 500,
+                          "&:hover": {
+                            color: "white",
+                            textDecoration: "underline",
+                            fontWeight: 600,
+                          },
+                        }}
+                      >
+                        {item}
+                      </Typography>
+                    </Link>
+                  </Box>
+                )
+              )}
             </Box>
           </Grid>
 
           {/* Contact Us */}
           <Grid item xs={12} sm={6} md={3.5}>
-            <Typography variant="h6" color="white" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography
+              variant="h6"
+              color="white"
+              gutterBottom
+              sx={{ fontWeight: 600 }}
+            >
               Contact Us
             </Typography>
 
-            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent:"flex-start", mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                mb: 2,
+              }}
+            >
               <Box sx={iconBoxStyle}>✉️</Box>
-              <Typography sx={contactTextStyle}>support@instantjob.in</Typography>
+              <Typography sx={contactTextStyle}>
+                support@instantjob.in
+              </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: { xs: "flex-start", sm: "flex-start" }, mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: { xs: "flex-start", sm: "flex-start" },
+                mb: 2,
+              }}
+            >
               <Box sx={iconBoxStyle}>📞</Box>
               <Typography sx={contactTextStyle}>0120-4461787</Typography>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: { xs: "flex-start", sm: "flex-start" } }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: { xs: "flex-start", sm: "flex-start" },
+              }}
+            >
               <Box sx={iconBoxStyle}>🏢</Box>
               <Typography sx={{ ...contactTextStyle, lineHeight: 1.6 }}>
-                911, 9th Floor, Tower-B,<br />
-                Advant IT Park, Sector-142,<br />
+                911, 9th Floor, Tower-B,
+                <br />
+                Advant IT Park, Sector-142,
+                <br />
                 Noida, U.P.-201305
               </Typography>
             </Box>
@@ -230,41 +297,43 @@ const Footer = () => {
             maxWidth: "800px",
             mx: "auto",
             mt: 3,
-            lineHeight: 1.6
+            lineHeight: 1.6,
           }}
         >
           Find your dream job instantly with India's fastest growing job portal.
-          Join over 1 million professionals who found their perfect career match with us.
+          Join over 1 million professionals who found their perfect career match
+          with us.
         </Typography>
-
 
         <Divider
           sx={{
             my: 2,
             borderColor: "rgba(255,255,255,0.3)",
-            borderWidth: 1
+            borderWidth: 1,
           }}
         />
 
-        <Box sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 2
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           <Typography
             sx={{
               color: "rgba(255,255,255,0.9)",
               letterSpacing: 0.5,
-              fontWeight: 500
+              fontWeight: 500,
             }}
             variant="body2"
           >
             © {new Date().getFullYear()} InstantJob. All rights reserved.
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
             {socials.map((social) => (
               <Box
                 key={social.name}
@@ -319,8 +388,8 @@ const Footer = () => {
                     transition: "all 0.2s ease",
                     "&:hover": {
                       color: "white",
-                      textDecoration: "underline"
-                    }
+                      textDecoration: "underline",
+                    },
                   }}
                   variant="body2"
                 >

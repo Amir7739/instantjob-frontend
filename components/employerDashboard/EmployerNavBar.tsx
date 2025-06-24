@@ -144,7 +144,7 @@ const EmployerNavBar: React.FC = () => {
                   sx={{
                     textTransform: "none",
                     fontWeight: 500,
-                    "&:hover": { color: "#4B5EAA" },
+                    "&:hover": { color: "white" },
                   }}
                 >
                   My Dashboard
@@ -208,6 +208,7 @@ const EmployerNavBar: React.FC = () => {
               >
                 {isEmployer && (
                   <MenuItem
+                  sx={{color:'white'}}
                     onClick={() => {
                       router.push("/employer-dash");
                       handleProfileMenuClose();
@@ -269,7 +270,7 @@ const EmployerNavBar: React.FC = () => {
                       router.push("/employer-dash");
                       handleMobileMenuClose();
                     }}
-                    sx={{ color: "#1F2937", "&:hover": { bgcolor: "#F3F4F6", color: "#4B5EAA" } }}
+                    sx={{ color: "#1F2937", "&:hover": { bgcolor: "white", color: "#4B5EAA" } }}
                   >
                     My Dashboard
                   </MenuItem>

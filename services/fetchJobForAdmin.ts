@@ -22,6 +22,7 @@ interface Job {
   qualifications: string[];
   benefits: string[];
   companyDescription: string;
+  status: string;
 }
 
 interface JobsResponse {
