@@ -9,7 +9,10 @@ const mockEmployerData = {
 
 const Settings: React.FC = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <Box sx={{
+      display: "flex", flexDirection: "column", gap: 3,
+      m: { xs: 2, md: 3 },
+    }}>
       <Paper elevation={3} sx={{ p: 2, borderRadius: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1F2937", mb: 2 }}>
           Company Profile

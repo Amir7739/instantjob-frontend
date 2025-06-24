@@ -2,12 +2,20 @@
 
 import React from 'react';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
+import { usePathname } from 'next/navigation';
 import theme from '../styles/theme';
 import Footer from '../components/Footer';
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+  const pathname = usePathname();
+
+  const hideFooterRoutes = ['/employer-dash', '/admin-dashboard']; // add more if needed
+
+  const shouldShowFooter = !hideFooterRoutes.includes(pathname);
+
   return (
     <html lang="en">
       <body>
@@ -27,24 +35,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 sx={{
                   flexGrow: 1,
                   overflow: 'hidden', // Prevent outer scrolling
-                  paddingBottom: '64px', // Reserve space for fixed footer
                 }}
               >
                 {children}
               </Box>
-              <Box
-                component="footer"
-                sx={{
-                  
-                  zIndex: 1300, // Above all other elements
-                  // position: 'fixed',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                }}
-              >
-                <Footer />
-              </Box>
+              {shouldShowFooter && (
+                <Box
+                  component="footer"
+                  sx={{
+
+                    // Above all other elements
+                    // position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                  }}
+                >
+                  <Footer />
+                </Box>
+              )}
             </Box>
           </ThemeProvider>
         </Provider>

@@ -187,9 +187,8 @@ const ViewAllJobsPage = () => {
           All Filters
         </Typography>
         <Chip
-          label={`Applied (${
-            Object.values(selectedFilters).filter((filter) => filter).length
-          })`}
+          label={`Applied (${Object.values(selectedFilters).filter((filter) => filter).length
+            })`}
           color="primary"
           variant="outlined"
           size="small"
@@ -403,7 +402,15 @@ const ViewAllJobsPage = () => {
         minHeight: "100vh",
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="xl"
+        sx={{
+          '@media (min-width: 1800px)': {
+            maxWidth: '1700px', // or any width you want for xxl screens
+          },
+          '@media (min-width: 2100px)': {
+            maxWidth: '2300px', // or any width you want for xxl screens
+          },
+        }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -642,15 +649,18 @@ const ViewAllJobsPage = () => {
             <Grid container spacing={{ xs: 2, md: 3 }}>
               {loading
                 ? [...Array(6)].map((_, index) => (
-                    <Grid item xs={12} key={index}>
-                      <FormSkeleton />
-                    </Grid>
-                  ))
-                : jobs.map((job) => (
-                    <Grid item xs={12} key={job._id}>
-                      <JobCard job={job} />
-                    </Grid>
+                  <Grid item xs={12} key={index}>
+                    <FormSkeleton />
+                  </Grid>
+                ))
+                :
+                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} justifyContent="center" >
+               { jobs.map((job) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={job._id}>
+                    <JobCard job={job} />
+                  </Grid>
                   ))}
+                </Grid>}
             </Grid>
 
             {/* Empty state */}

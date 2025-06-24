@@ -34,6 +34,7 @@ import EmployerList from "@/components/adminDashboard/EmployerList";
 import RecruitersPage from "@/components/adminDashboard/RecruitersPage";
 import BulkCandidatesPage from "@/components/adminDashboard/BulkCandidatesPage";
 import CandidateAddedByRecruitersList from "@/components/adminDashboard/CandidateAddedByRecruitersList";
+import Footer from "@/components/Footer";
 
 // Dummy data for jobs and candidates
 const candidates = [
@@ -228,7 +229,9 @@ const AdminDashboard = () => {
       case "dashboard":
         return (
           <>
-            <Grid container spacing={2} sx={{ mb: 4 }}>
+            <Grid container spacing={2} sx={{
+              mb: 4,
+            }}>
               {statsData.map((stat, index) => (
                 <Grid
                   item
@@ -470,7 +473,7 @@ const AdminDashboard = () => {
         );
       case "jobs":
         return (
-          <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+          <Card sx={{ width: "100%", mb: 5, overflow: "hidden" , }}>
             <Box
               sx={{
                 p: 3,
@@ -541,7 +544,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
-     case "employers":
+      case "employers":
         return (
           <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
             <Box
@@ -564,10 +567,10 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
-        case "recruiters":
-      return (
-        <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
-          {/* <Box
+      case "recruiters":
+        return (
+          <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
+            {/* <Box
             sx={{
               p: 3,
               background: `linear-gradient(45deg, ${theme.palette.info.main} 30%, ${theme.palette.info.light} 90%)`,
@@ -582,11 +585,11 @@ const AdminDashboard = () => {
             </Typography>
           </Box>
           <Divider /> */}
-          <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-            <RecruitersPage />
-          </CardContent>
-        </Card>
-      );
+            <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+              <RecruitersPage />
+            </CardContent>
+          </Card>
+        );
       case "bulkCandidate":
         return (
           // <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
@@ -609,10 +612,10 @@ const AdminDashboard = () => {
 
           //   </CardContent>
           // </Card>
-                        <BulkCandidatesPage />
+          <BulkCandidatesPage />
         );
 
-        case "candAddedByRecruiters":
+      case "candAddedByRecruiters":
         return (
           // <Card sx={{ width: "100%", mb: 5, overflow: "hidden" }}>
           //   <Box
@@ -634,9 +637,9 @@ const AdminDashboard = () => {
 
           //   </CardContent>
           // </Card>
-                        <CandidateAddedByRecruitersList />
+          <CandidateAddedByRecruitersList />
         );
-      
+
       default:
         return null;
 
@@ -667,7 +670,6 @@ const AdminDashboard = () => {
             overflowX: "auto",
             width: "100%",
             backgroundColor: "background.default",
-            p: { xs: 1, sm: 2, md: 3 },
             mt: { xs: 8, sm: 8, md: 0 },
             transition: theme.transitions.create(["margin", "width"], {
               easing: theme.transitions.easing.sharp,
@@ -680,10 +682,11 @@ const AdminDashboard = () => {
               mb: 3,
               mt: { xs: 1, sm: 2 },
               p: { xs: 2, sm: 3 },
+              m: { xs: 1, sm: 2, md: 3 },
               backgroundColor: "background.paper",
               borderRadius: 2,
               boxShadow: "0 4px 20px 0 rgba(0,0,0,0.05)",
-              width: "100%",
+              maxWidth: "100%",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
@@ -727,10 +730,22 @@ const AdminDashboard = () => {
                 "Manage registered companies and organizations"}
             </Typography>
           </Box>
-          <Box sx={{ width: "100%", px: { xs: 0, sm: 0 } }}>
+          <Box sx={{ width: "100%", px: { xs: 0, sm: 0 } , 
+              p: { xs: 1, sm: 2, md: 3 }, }}>
             {renderDashboardContent()}
           </Box>
+          <Box
+            component="footer"
+            sx={{
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <Footer />
+          </Box>
         </Box>
+
       </Box>
     </ThemeProvider>
   );

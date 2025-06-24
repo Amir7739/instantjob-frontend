@@ -38,7 +38,8 @@ import { jobListings } from "../../components/employerDashboard/data";
 
 const JobListings: React.FC = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 , 
+               m: { xs: 2, md: 3 },}}>
       <Box
         sx={{
           display: "flex",

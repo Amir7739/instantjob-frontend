@@ -104,7 +104,8 @@ const Navbar = () => {
           ? "linear-gradient(135deg, #2d3748 0%, #4a5568 100%)"
           : "linear-gradient(135deg, #2d3748 0%, #4a5568 100%)",
         backdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.1)", 
+        zIndex : 1400,
         height: isMobile ? 70 : 85,
       }}
     >
@@ -280,10 +281,6 @@ const Navbar = () => {
               }}
             />
           </Box>
-          
-          <Typography variant="h6" sx={{ px: 3, pb: 2, fontWeight: 700, opacity: 0.9 }}>
-            Navigation
-          </Typography>
           
           <List>
             {navItems.map((item) => (

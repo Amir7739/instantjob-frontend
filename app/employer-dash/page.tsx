@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import Footer from "@/components/Footer";
 
 // Dynamically import all components with SSR disabled
 const Applicants = dynamic(() => import("@/components/employerDashboard/Applicants"), { ssr: false });
@@ -25,7 +26,7 @@ const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 };
 
 const EmployerDashboard: React.FC = () => {
-    const router = useRouter();
+  const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(!isMobile);
@@ -44,7 +45,7 @@ const EmployerDashboard: React.FC = () => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
 
-   useEffect(() => {
+  useEffect(() => {
     const role = localStorage.getItem("role");
     if (role !== "employer") {
       router.push("/employer-dash/login");
@@ -78,7 +79,7 @@ const EmployerDashboard: React.FC = () => {
           sx={{
             flex: 1,
             overflowY: "auto",
-            p: { xs: 2, md: 3 },
+            // p: { xs: 2, md: 3 },
             bgcolor: "#F3F4F6",
           }}
         >
@@ -95,7 +96,7 @@ const EmployerDashboard: React.FC = () => {
           {activeTab === "applicants" && (
             <ErrorBoundary>
               <Applicants />
-            
+
             </ErrorBoundary>
           )}
           {activeTab === "recent-applicants" && (
@@ -123,6 +124,17 @@ const EmployerDashboard: React.FC = () => {
               <Settings />
             </ErrorBoundary>
           )}
+
+        </Box>
+        <Box
+          component="footer"
+          sx={{
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+        >
+          <Footer />
         </Box>
       </Box>
     </Box>

@@ -60,14 +60,14 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           flexDirection: "column",
           height: {
             xs: "auto",
-            sm: "380px",
+            sm: "auto",
             md: "380px",
             lg: "390px",
             xl: "370px",
           },
           width: {
-            xs: "100%",
-            sm: "310px",
+            xs: "300px",
+            sm: "530px",
             md: "380px",
             lg: "355px",
             xl: "450px",
