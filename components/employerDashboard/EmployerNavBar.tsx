@@ -78,6 +78,7 @@ const EmployerNavBar: React.FC = () => {
       position="fixed"
       sx={{
         // bgcolor: "white",
+        backgroundColor:"#2d3748",
         color: "#1F2937",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
       }}
@@ -131,6 +132,7 @@ const EmployerNavBar: React.FC = () => {
                 sx={{
                   textTransform: "none",
                   fontWeight: 500,
+                  fontSize: 18,
                   "&:hover": { color: "#4B5EAA",cursor: 'pointer'},
                   color: 'white'
                 }}
@@ -186,9 +188,10 @@ const EmployerNavBar: React.FC = () => {
           {/* Right Section - Desktop */}
           {!isMobile && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 , }}>
                 <PhoneIcon sx={{ color: "white" }} />
-                <Typography variant="body2" sx={{ color: "white" }}>
+                <Typography variant="body2" sx={{ color: "white" , 
+                  fontSize: 17}}>
                   0120-4461787
                 </Typography>
               </Box>
@@ -229,7 +232,7 @@ const EmployerNavBar: React.FC = () => {
           {isMobile && (
             <Box sx={{ flexShrink: 0 }}>
               <IconButton onClick={handleMobileMenuOpen}>
-                <MenuIcon sx={{ color: "#1F2937" }} />
+                <MenuIcon sx={{ color: "#fff" }} />
               </IconButton>
             </Box>
           )}

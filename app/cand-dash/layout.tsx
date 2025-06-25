@@ -7,6 +7,7 @@ import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import { DashboardHeader } from "@/components/candidateDashboard/dashboard-header";
 import { DashboardSidebar } from "@/components/candidateDashboard/dashboard-sidebar";
+import Footer from "@/components/Footer";
 
 export default function DashboardLayout({
   children,
@@ -96,15 +97,26 @@ export default function DashboardLayout({
           component="main"
           sx={{
             flexGrow: 1,
-            p: { xs: 2, md: 3 },
             overflowY: "auto",
             marginLeft: { xs: 0, md: "240px" },
             height: "calc(100vh - 64px)",
-            paddingBottom: "80px",
+            // paddingBottom: "80px",
           }}
         >
           {children}
+          <Box
+            component="footer"
+            sx={{
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <Footer />
+          </Box>
+
         </Box>
+
       </Box>
     </Box>
   );

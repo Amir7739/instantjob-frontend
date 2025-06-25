@@ -68,7 +68,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
             </Box>
           </Grid>
           {/* Right Side: Form */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} sx={{
+                width: {xs : "100%",md:"25rem"},}}>
             <Box
               sx={{
                 p: { xs: 2, sm: 4 },
@@ -80,7 +81,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
                   sm: "4rem", // small screens
                   md: "2rem", // medium screens and up (like desktop)
                 },
-                width: "25rem",
+                width: {xs : "100%",md:"25rem"},
               }}
             >
               <Typography
