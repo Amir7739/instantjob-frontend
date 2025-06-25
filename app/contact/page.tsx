@@ -68,7 +68,7 @@ const ContactUs = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+          background: "linear-gradient(135deg, #a87b7e 0%, #c5a1a3 30%, #d8b8ba 70%, #e8d1d2 100%)",
           color: "white",
           py: { xs: 8, md: 12 },
           mt: 8,
