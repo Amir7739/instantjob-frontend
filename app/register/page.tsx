@@ -121,35 +121,35 @@ const RegisterPage: React.FC = () => {
         }}
       >
         <Link href="/" style={{ textDecoration: "none" }}>
-  <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-    <Box
-      component="div"
-      sx={{
-        width: 100,
-        height: 60,
-        // borderRadius: "50%",
-        // overflow: "hidden",
-        // bgcolor: "#4285f4",
-        // display: "flex",
-        // alignItems: "center",
-        // justifyContent: "center",
-        mr: 1,
-      }}
-    >
-      <Image
-        src="/images/logo.png"
-        alt="Logo"
-        width={150}
-        height={60}
-        style={{ objectFit: "cover" }}
-      />
-    </Box>
-    {/* <Typography variant="h6" fontWeight="bold" color="#4285f4">
+          <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <Box
+              component="div"
+              sx={{
+                width: 100,
+                height: 60,
+                // borderRadius: "50%",
+                // overflow: "hidden",
+                // bgcolor: "#4285f4",
+                // display: "flex",
+                // alignItems: "center",
+                // justifyContent: "center",
+                mr: 1,
+              }}
+            >
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={150}
+                height={60}
+                style={{ objectFit: "cover" }}
+              />
+            </Box>
+            {/* <Typography variant="h6" fontWeight="bold" color="#4285f4">
       InstantJob
     </Typography> */}
-  </Box>
-</Link>
-        <Typography sx={{color: 'white'}} variant="body2">
+          </Box>
+        </Link>
+        <Typography sx={{ color: 'white' }} variant="body2">
           Already Registered?{" "}
           <Link href="/login" style={{ color: "yellow", fontWeight: "bold" }}>
             Login
@@ -158,11 +158,11 @@ const RegisterPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ my: 4 }}>
         <Grid container spacing={4}>
           {/* Left Section */}
           <Grid item xs={12} md={4}>
-            <Paper elevation={0} sx={{ p: 4, borderRadius: 2, height: "80%" }}>
+            <Paper elevation={0} sx={{ p: 4, borderRadius: 2, height: "100%" }}>
               <Box
                 component="img"
                 src="/images/Registration (5).png"
@@ -210,8 +210,12 @@ const RegisterPage: React.FC = () => {
           </Grid>
 
           {/* Right Form Section */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={10} sx={{ p: 4, borderRadius: 2 }}>
+          <Grid item xs={12} md={8}>
+            <Paper elevation={10} sx={{
+              p: { xs: 2, sm: 3, md: 4 },
+              borderRadius: 2,
+              mx: { xs: 1, sm: 0 }
+            }}>
               <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
                 Create your InstantJob profile
               </Typography>
@@ -246,12 +250,22 @@ const RegisterPage: React.FC = () => {
                     helperText={
                       formik.touched.full_name && formik.errors.full_name
                     }
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        fontSize: { xs: '14px', sm: '16px' },
+                        minHeight: { xs: '48px', sm: '56px' },
+                      },
+                      '& .MuiOutlinedInput-input': {
+                        padding: { xs: '12px 14px', sm: '16.5px 14px' },
+                      }
+                    }}
                   />
                 </Box>
 
                 {/* Email and Mobile */}
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={12} sm={6}>
+                <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 3 }}>
+                  {/* Email Field */}
+                  <Grid item xs={12} sm={12} md={6}>
                     <Typography
                       variant="body1"
                       fontWeight="medium"
@@ -274,9 +288,18 @@ const RegisterPage: React.FC = () => {
                         formik.touched.email && Boolean(formik.errors.email)
                       }
                       helperText={formik.touched.email && formik.errors.email}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          fontSize: { xs: '14px', sm: '16px' },
+                          minHeight: { xs: '48px', sm: '56px' },
+                        },
+                        '& .MuiOutlinedInput-input': {
+                          padding: { xs: '12px 14px', sm: '16.5px 14px' },
+                        }
+                      }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  </Grid>                  
+                  <Grid item xs={12} sm={12} md={6}>
                     <Typography
                       variant="body1"
                       fontWeight="medium"
@@ -302,6 +325,20 @@ const RegisterPage: React.FC = () => {
                         startAdornment: (
                           <InputAdornment position="start">+91</InputAdornment>
                         ),
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          fontSize: { xs: '14px', sm: '16px' },
+                          minHeight: { xs: '48px', sm: '56px' },
+                        },
+                        '& .MuiOutlinedInput-input': {
+                          padding: { xs: '12px 14px', sm: '16.5px 14px' },
+                        },
+                        '& .MuiInputAdornment-root': {
+                          '& .MuiTypography-root': {
+                            fontSize: { xs: '14px', sm: '16px' },
+                          }
+                        }
                       }}
                     />
                   </Grid>
@@ -339,11 +376,23 @@ const RegisterPage: React.FC = () => {
                           <IconButton
                             onClick={() => setShowPassword(!showPassword)}
                             edge="end"
+                            sx={{
+                              padding: { xs: '6px', sm: '8px' }
+                            }}
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
                       ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        fontSize: { xs: '14px', sm: '16px' },
+                        minHeight: { xs: '48px', sm: '56px' },
+                      },
+                      '& .MuiOutlinedInput-input': {
+                        padding: { xs: '12px 14px', sm: '16.5px 14px' },
+                      }
                     }}
                   />
                 </Box>
@@ -357,95 +406,98 @@ const RegisterPage: React.FC = () => {
                         checked={formik.values.agreeToTerms}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
+                        sx={{
+                          padding: { xs: '6px', sm: '9px' }
+                        }}
                       />
                     }
                     label={
-                      <Typography variant="body2">
+                      <Typography variant="body2" sx={{ fontSize: { xs: '13px', sm: '14px' } }}>
                         I agree to the Terms & Conditions and Privacy Policy
                       </Typography>
                     }
                   />
                   {formik.touched.agreeToTerms &&
                     formik.errors.agreeToTerms && (
-                      <Typography color="error" variant="caption">
+                      <Typography color="error" variant="caption" sx={{ fontSize: { xs: '11px', sm: '12px' } }}>
                         {formik.errors.agreeToTerms}
                       </Typography>
                     )}
                 </Box>
 
-                                  <Stack spacing={3}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      fullWidth
-                      disabled={isMutating}
-                      sx={{
-                        py: 2,
-                        fontSize: "1.1rem",
-                        fontWeight: "bold",
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        borderRadius: 2,
-                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
-                        "&:hover": {
-                          background: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
-                          transform: "translateY(-2px)",
-                          boxShadow: "0 6px 20px rgba(102, 126, 234, 0.6)",
-                        },
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      {isMutating ? "Creating Account..." : "Register Now"}
-                    </Button>
+                <Stack spacing={3}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={isMutating}
+                    sx={{
+                      py: { xs: 1.5, sm: 2 },
+                      fontSize: { xs: "1rem", sm: "1.1rem" },
+                      fontWeight: "bold",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      borderRadius: 2,
+                      boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
+                      "&:hover": {
+                        background: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 6px 20px rgba(102, 126, 234, 0.6)",
+                      },
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {isMutating ? "Creating Account..." : "Register Now"}
+                  </Button>
 
-                    <Divider sx={{ my: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        OR
-                      </Typography>
-                    </Divider>
+                  <Divider sx={{ my: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      OR
+                    </Typography>
+                  </Divider>
 
-                    <Button
-                                      fullWidth
-                                      variant="outlined"
-                                      href="http://localhost:5000/api/auth/google"
-                                      sx={{
-                                        mt: 2,
-                                        py: 1.8,
-                                        borderRadius: 3,
-                                        textTransform: "none",
-                                        fontWeight: 600,
-                                        fontSize: "16px",
-                                        color: "#4285f4",
-                                        borderColor: "#dadce0",
-                                        borderWidth: "2px",
-                                        background: "#ffffff",
-                                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                                        transition: "all 0.3s ease",
-                                        "&:hover": {
-                                          background: "#f8f9fa",
-                                          borderColor: "#4285f4",
-                                          transform: "translateY(-1px)",
-                                          boxShadow: "0 4px 16px rgba(66, 133, 244, 0.2)",
-                                        },
-                                        "&:active": {
-                                          transform: "translateY(0px)",
-                                        },
-                                      }}
-                                      startIcon={
-                                        <Box
-                                          sx={{
-                                            width: 20,
-                                            height: 20,
-                                            background: `url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M20 10.227c0-.709-.064-1.39-.182-2.045H10.2v3.868h5.513a4.707 4.707 0 01-2.04 3.088v2.555h3.302c1.932-1.778 3.025-4.39 3.025-7.466z' fill='%234285F4'/%3E%3Cpath d='M10.2 20c2.76 0 5.077-.914 6.769-2.477l-3.302-2.555c-.914.614-2.083.978-3.467.978-2.668 0-4.926-1.8-5.732-4.22H1.137v2.636C2.818 17.195 6.226 20 10.2 20z' fill='%2334A853'/%3E%3Cpath d='M4.468 11.726a5.827 5.827 0 010-3.732V5.358H1.137A9.73 9.73 0 000 10.1c0 1.587.386 3.088 1.137 4.421l3.331-2.795z' fill='%23FBBC05'/%3E%3Cpath d='M10.2 4.774c1.506 0 2.855.518 3.916 1.54l2.931-2.93C15.273 1.64 13.013.727 10.2.727c-3.974 0-7.382 2.386-9.063 5.858l3.331 2.795c.806-2.42 3.064-4.606 5.732-4.606z' fill='%23EA4335'/%3E%3C/g%3E%3C/svg%3E")`,
-                                            backgroundSize: "contain",
-                                            backgroundRepeat: "no-repeat",
-                                            backgroundPosition: "center",
-                                          }}
-                                        />
-                                      }
-                                    >
-                                      Continue with Google
-                                    </Button>
-                  </Stack>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    href="http://localhost:5000/api/auth/google"
+                    sx={{
+                      mt: 2,
+                      py: { xs: 1.5, sm: 1.8 },
+                      borderRadius: 3,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      fontSize: { xs: "14px", sm: "16px" },
+                      color: "#4285f4",
+                      borderColor: "#dadce0",
+                      borderWidth: "2px",
+                      background: "#ffffff",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        background: "#f8f9fa",
+                        borderColor: "#4285f4",
+                        transform: "translateY(-1px)",
+                        boxShadow: "0 4px 16px rgba(66, 133, 244, 0.2)",
+                      },
+                      "&:active": {
+                        transform: "translateY(0px)",
+                      },
+                    }}
+                    startIcon={
+                      <Box
+                        sx={{
+                          width: { xs: 18, sm: 20 },
+                          height: { xs: 18, sm: 20 },
+                          background: `url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M20 10.227c0-.709-.064-1.39-.182-2.045H10.2v3.868h5.513a4.707 4.707 0 01-2.04 3.088v2.555h3.302c1.932-1.778 3.025-4.39 3.025-7.466z' fill='%234285F4'/%3E%3Cpath d='M10.2 20c2.76 0 5.077-.914 6.769-2.477l-3.302-2.555c-.914.614-2.083.978-3.467.978-2.668 0-4.926-1.8-5.732-4.22H1.137v2.636C2.818 17.195 6.226 20 10.2 20z' fill='%2334A853'/%3E%3Cpath d='M4.468 11.726a5.827 5.827 0 010-3.732V5.358H1.137A9.73 9.73 0 000 10.1c0 1.587.386 3.088 1.137 4.421l3.331-2.795z' fill='%23FBBC05'/%3E%3Cpath d='M10.2 4.774c1.506 0 2.855.518 3.916 1.54l2.931-2.93C15.273 1.64 13.013.727 10.2.727c-3.974 0-7.382 2.386-9.063 5.858l3.331 2.795c.806-2.42 3.064-4.606 5.732-4.606z' fill='%23EA4335'/%3E%3C/g%3E%3C/svg%3E")`,
+                          backgroundSize: "contain",
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "center",
+                        }}
+                      />
+                    }
+                  >
+                    Continue with Google
+                  </Button>
+                </Stack>
 
               </form>
             </Paper>

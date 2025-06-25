@@ -1,10 +1,11 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import { Box, Typography, TextField, MenuItem, Button, Modal } from "@mui/material";
+import { Box, Typography, TextField, MenuItem, Button, Modal, Container, Grid, Card, CardContent } from "@mui/material";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import axiosInstance from "@/utils/axios";
+import { Phone, Mail, LocationOn, BusinessCenter, Support, QuestionAnswer, TrendingUp } from "@mui/icons-material";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -53,228 +54,470 @@ const ContactUs = () => {
     }
   }, [openModal]);
 
+  const queryTypeOptions = [
+    { value: "general", label: "General Inquiry", icon: <QuestionAnswer /> },
+    { value: "job", label: "Job Related", icon: <BusinessCenter /> },
+    { value: "support", label: "Technical Support", icon: <Support /> },
+    { value: "other", label: "Others", icon: <TrendingUp /> },
+  ];
+
   return (
     <>
       <Navbar />
+
+      {/* Hero Section */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "center",
-          alignItems: "stretch",
-          px: { xs: 2, sm: 3, md: 6 },
-          py: { xs: 3, md: 6 },
-          mt: 10,
-          gap: { xs: 3, md: 6 },
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          minHeight: "40vh",
+          background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+          color: "white",
+          py: { xs: 8, md: 12 },
+          mt: 8,
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>') repeat",
+            opacity: 0.1,
+          }
         }}
       >
-        {/* LEFT SECTION */}
-        <Box
-          sx={{
-            flex: 1,
-            maxWidth: { xs: "100%", md: "50%" },
-            p: { xs: 2, sm: 3 },
-            borderRadius: 4,
-            background: "rgba(255, 255, 255, 0.95)",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-            border: "1px solid rgba(255,255,255,0.2)",
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              fontSize: { xs: "1.3rem", sm: "1.6rem", md: "1.8rem" },
-              mb: 2,
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Corporate Office :
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: "0.95rem", sm: "1.05rem" },
-              color: "#34495e",
-              mb: 3,
-              lineHeight: 1.7,
-            }}
-          >
-            911, 9th Floor, Tower-B, Advant IT Park, Sector-142, Noida, Uttar
-            Pradesh, 201305, India
-          </Typography>
-
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              fontSize: { xs: "1.1rem", sm: "1.4rem" },
-              mt: 2,
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Call Us At :
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: "1rem", sm: "1.2rem" },
-              fontWeight: 600,
-              color: "#34495e",
-              mb: 2,
-            }}
-          >
-            0120-4461787
-          </Typography>
-
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              fontSize: { xs: "1.1rem", sm: "1.4rem" },
-              mt: 2,
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Mail Us At :
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: "1rem", sm: "1.1rem" },
-              color: "#34495e",
-              fontWeight: 500,
-            }}
-          >
-            support@instantjob.in
-          </Typography>
-        </Box>
-
-        {/* RIGHT FORM SECTION */}
-        <Box
-          sx={{
-            flex: 1,
-            maxWidth: { xs: "100%", md: "50%" },
-            p: { xs: 2, sm: 3 },
-            borderRadius: 4,
-            background: "rgba(255, 255, 255, 0.95)",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
-            border: "1px solid rgba(255,255,255,0.3)",
-          }}
-        >
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{
-              fontWeight: 800,
-              fontSize: { xs: "1.8rem", sm: "2.2rem" },
-              mb: 3,
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            CONTACT US
-          </Typography>
-
-          {error && (
-            <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
-              {error}
-            </Typography>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              name="fullName"
-              label="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-              margin="normal"
-              required
-            />
-            <Box
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Box textAlign="center">
+            <Typography
+              variant="h2"
               sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                gap: 2,
+                fontWeight: 800,
+                fontSize: { xs: "2.5rem", md: "3.5rem" },
+                mb: 2,
+                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
               }}
             >
-              <TextField
-                fullWidth
-                name="email"
-                label="Email ID"
-                value={formData.email}
-                onChange={handleChange}
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                name="mobileNo"
-                label="Mobile No"
-                value={formData.mobileNo}
-                onChange={handleChange}
-                margin="normal"
-                required
-              />
-            </Box>
-
-            <TextField
-              fullWidth
-              select
-              label="Query Type"
-              name="queryType"
-              value={formData.queryType}
-              onChange={handleChange}
-              margin="normal"
-              required
+              Get In Touch
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontSize: { xs: "1.1rem", md: "1.3rem" },
+                opacity: 0.9,
+                maxWidth: "600px",
+                mx: "auto",
+                lineHeight: 1.6,
+              }}
             >
-              <MenuItem value="general">General</MenuItem>
-              <MenuItem value="job">Job</MenuItem>
-              <MenuItem value="support">Support</MenuItem>
-              <MenuItem value="other">Others</MenuItem>
-            </TextField>
+              Connect with India's leading recruitment platform. We're here to help you find your next opportunity.
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
 
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              margin="normal"
-              multiline
-              rows={4}
-              required
-            />
-
-            <Box sx={{ textAlign: "right", mt: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
+      {/* Main Content */}
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
+        <Box
+          sx={{
+            display: { xs: "block", md: "flex" },
+            gap: 4,
+            alignItems: "stretch",
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: "100%", md: "33.33%" },
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "column" }, gap: 3, height: "100%", }}>
+              {/* Office Address Card */}
+              <Card
+                elevation={0}
                 sx={{
-                  px: 4,
-                  py: 1.5,
+                  p: 3,
+                  border: "1px solid #e0e7ff",
                   borderRadius: 3,
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  background: "linear-gradient(45deg, #667eea, #764ba2)",
+                  background: "linear-gradient(145deg, #f8faff 0%, #ffffff 100%)",
+                  transition: "all 0.3s ease",
                   "&:hover": {
-                    background: "linear-gradient(45deg, #5a67d8, #6b46c1)",
-                  },
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 12px 24px rgba(30, 60, 114, 0.15)",
+                    borderColor: "#1e3c72",
+                  }
                 }}
               >
-                Submit Query
-              </Button>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+                      color: "white",
+                      mr: 2,
+                    }}
+                  >
+                    <LocationOn />
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e3c72" }}>
+                    Corporate Office
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: "#64748b", lineHeight: 1.6 }}>
+                  911, 9th Floor, Tower-B, Advant IT Park, Sector-142, Noida, Uttar Pradesh, 201305, India
+                </Typography>
+              </Card>
+
+              {/* Phone Card */}
+              <Card
+                elevation={0}
+                sx={{
+                  p: 3,
+                  border: "1px solid #e0e7ff",
+                  borderRadius: 3,
+                  background: "linear-gradient(145deg, #f8faff 0%, #ffffff 100%)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 12px 24px rgba(30, 60, 114, 0.15)",
+                    borderColor: "#1e3c72",
+                  }
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      background: "linear-gradient(135deg, #059669, #10b981)",
+                      color: "white",
+                      mr: 2,
+                    }}
+                  >
+                    <Phone />
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e3c72" }}>
+                    Call Us
+                  </Typography>
+                </Box>
+                <Typography
+                  sx={{
+                    color: "#1e3c72",
+                    fontWeight: 600,
+                    fontSize: "1.2rem",
+                  }}
+                >
+                  0120-4461787
+                </Typography>
+                <Typography sx={{ color: "#64748b", fontSize: "0.9rem", mt: 1 }}>
+                  Mon - Fri, 9:00 AM - 6:00 PM
+                </Typography>
+              </Card>
+
+              {/* Email Card */}
+              <Card
+                elevation={0}
+                sx={{
+                  p: 3,
+                  border: "1px solid #e0e7ff",
+                  borderRadius: 3,
+                  background: "linear-gradient(145deg, #f8faff 0%, #ffffff 100%)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 12px 24px rgba(30, 60, 114, 0.15)",
+                    borderColor: "#1e3c72",
+                  }
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      background: "linear-gradient(135deg, #dc2626, #ef4444)",
+                      color: "white",
+                      mr: 2,
+                    }}
+                  >
+                    <Mail />
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e3c72" }}>
+                    Email Us
+                  </Typography>
+                </Box>
+                <Typography
+                  sx={{
+                    color: "#1e3c72",
+                    fontWeight: 600,
+                    fontSize: "1.1rem",
+                  }}
+                >
+                  support@instantjob.in
+                </Typography>
+                <Typography sx={{ color: "#64748b", fontSize: "0.9rem", mt: 1 }}>
+                  We'll respond within 24 hours
+                </Typography>
+              </Card>
             </Box>
-          </form>
+          </Box>
+
+          {/* Contact Form */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "66.66%" },
+              display: "flex",
+              flexDirection: "column",
+              mt: { xs: 4, md: 0 },
+            }}
+          >
+            <Card
+              elevation={0}
+              sx={{
+                flex: 1,
+                p: { xs: 3, md: 4 },
+                border: "1px solid #e0e7ff",
+                borderRadius: 3,
+                background: "linear-gradient(145deg, #ffffff 0%, #f8faff 100%)",
+                position: "relative",
+                overflow: "hidden",
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  width: "100px",
+                  height: "100px",
+                  background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+                  borderRadius: "0 0 0 100px",
+                  opacity: 0.1,
+                },
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: "1.8rem", md: "2.2rem" },
+                  mb: 1,
+                  color: "#1e3c72",
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                Send Us a Message
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#64748b",
+                  mb: 4,
+                  fontSize: "1.1rem",
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                Have questions about jobs, hiring, or our platform? We'd love to hear from you.
+              </Typography>
+
+              {error && (
+                <Box
+                  sx={{
+                    p: 2,
+                    mb: 3,
+                    borderRadius: 2,
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    color: "#dc2626",
+                  }}
+                >
+                  {error}
+                </Box>
+              )}
+
+              <form onSubmit={handleSubmit}>
+                <Box sx={{ mb: 3 }}>
+                  <TextField
+                    fullWidth
+                    name="fullName"
+                    label="Full Name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        background: "#ffffff",
+                        "&:hover fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#1e3c72",
+                      },
+                    }}
+                  />
+                </Box>
+
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      name="email"
+                      label="Email Address"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          background: "#ffffff",
+                          "&:hover fieldset": {
+                            borderColor: "#1e3c72",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#1e3c72",
+                          },
+                        },
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "#1e3c72",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      name="mobileNo"
+                      label="Mobile Number"
+                      value={formData.mobileNo}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          background: "#ffffff",
+                          "&:hover fieldset": {
+                            borderColor: "#1e3c72",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#1e3c72",
+                          },
+                        },
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "#1e3c72",
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mb: 3 }}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Query Type"
+                    name="queryType"
+                    value={formData.queryType}
+                    onChange={handleChange}
+                    required
+                    variant="outlined"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        background: "#ffffff",
+                        "&:hover fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#1e3c72",
+                      },
+                    }}
+                  >
+                    {queryTypeOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {option.icon}
+                          {option.label}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+
+                <Box sx={{ mb: 4 }}>
+                  <TextField
+                    fullWidth
+                    label="Message"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                    multiline
+                    rows={4}
+                    variant="outlined"
+                    placeholder="Tell us more about your inquiry..."
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        background: "#ffffff",
+                        "&:hover fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#1e3c72",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": {
+                        color: "#1e3c72",
+                      },
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ textAlign: "right" }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: 3,
+                      fontWeight: 600,
+                      fontSize: "1.1rem",
+                      background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+                      textTransform: "none",
+                      boxShadow: "0 4px 14px rgba(30, 60, 114, 0.4)",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        background: "linear-gradient(135deg, #1a365d 0%, #2563eb 100%)",
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 6px 20px rgba(30, 60, 114, 0.6)",
+                      },
+                    }}
+                  >
+                    Send Message
+                  </Button>
+                </Box>
+              </form>
+            </Card>
+          </Box>
+
         </Box>
-      </Box>
+      </Container>
 
       {/* Thank You Modal */}
       <Modal
@@ -283,56 +526,69 @@ const ContactUs = () => {
         aria-labelledby="thank-you-modal"
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
-        <Box
+        <Card
           sx={{
-            p: { xs: 3, sm: 4 },
+            p: { xs: 3, sm: 5 },
             borderRadius: 4,
-            background: "rgba(255, 255, 255, 0.95)",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
-            border: "1px solid rgba(255,255,255,0.3)",
-            textAlign: "center",
-            maxWidth: "600px",
+            maxWidth: "500px",
             width: "90%",
+            textAlign: "center",
+            background: "linear-gradient(145deg, #ffffff 0%, #f8faff 100%)",
+            border: "1px solid #e0e7ff",
+            boxShadow: "0 25px 50px rgba(30, 60, 114, 0.3)",
           }}
         >
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #10b981, #059669)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mx: "auto",
+              mb: 3,
+              color: "white",
+              fontSize: "2rem",
+            }}
+          >
+            ✓
+          </Box>
           <Typography
-            variant="h3"
+            variant="h4"
             id="thank-you-modal"
             sx={{
               fontWeight: 800,
-              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              fontSize: { xs: "1.8rem", sm: "2.2rem" },
               mb: 2,
-              background: "linear-gradient(45deg, #667eea, #764ba2)",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: "#1e3c72",
             }}
           >
             Thank You!
           </Typography>
           <Typography
             sx={{
-              fontSize: { xs: "1rem", sm: "1.2rem" },
-              color: "#34495e",
-              mb: 4,
+              fontSize: { xs: "1rem", sm: "1.1rem" },
+              color: "#64748b",
               lineHeight: 1.6,
             }}
           >
-            Your query has been successfully submitted. Our team will get back to
-            you soon.
+            Your message has been successfully sent. Our team will get back to you within 24 hours.
           </Typography>
-        </Box>
+        </Card>
       </Modal>
 
-      {/* Google Map + Footer Description */}
-      <Box sx={{ mt: 5, px: { xs: 2, md: 6 } }}>
-        {/* Google Map Embed */}
+      {/* Map and Company Description */}
+      <Box sx={{ mt: 8 }}>
+        {/* Google Map */}
         <Box
           sx={{
-            borderRadius: 2,
-            overflow: "hidden",
-            height: { xs: "300px", md: "450px" },
+            height: { xs: "300px", md: "400px" },
             width: "100%",
-            boxShadow: "0px 4px 16px rgba(0,0,0,0.15)",
+            borderRadius: { xs: 0, md: 3 },
+            overflow: "hidden",
+            boxShadow: { xs: "none", md: "0 8px 32px rgba(30, 60, 114, 0.15)" },
           }}
         >
           <iframe
@@ -343,26 +599,51 @@ const ContactUs = () => {
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          />
         </Box>
 
-        {/* Description Text */}
+        {/* Company Description */}
         <Box
           sx={{
-            backgroundColor: "#002d4c",
-            color: "#fff",
+            background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+            color: "white",
             textAlign: "center",
-            py: 3,
-            mt: 0,
-            fontSize: { xs: "0.9rem", md: "1rem" },
-            px: { xs: 2, md: 10 },
+            py: { xs: 4, md: 6 },
+            px: { xs: 3, md: 8 },
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>') repeat",
+            }
           }}
         >
-          Instant Job is a modern job platform built to simplify hiring and job
-          searching for today’s fast-moving world. Designed for both
-          professionals and companies, it offers a seamless way to discover
-          talent, explore real opportunities, and grow careers across every
-          sector.
+          <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+                mb: 3,
+              }}
+            >
+              About Instant Job
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: "1rem", md: "1.2rem" },
+                lineHeight: 1.8,
+                opacity: 0.9,
+              }}
+            >
+              Instant Job is India's premier recruitment platform, connecting top talent with leading companies across all industries. We leverage cutting-edge technology and deep market insights to make hiring faster, smarter, and more effective for businesses of all sizes.
+            </Typography>
+          </Container>
         </Box>
       </Box>
     </>

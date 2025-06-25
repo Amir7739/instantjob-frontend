@@ -179,7 +179,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto" }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto",
+            p: { xs: 2, md: 3 }, }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
           Dashboard

@@ -12,9 +12,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   const pathname = usePathname();
 
-  const hideFooterRoutes = ['/employer-dash', '/admin-dashboard']; // add more if needed
+  const hideFooterRoutes = ['/employer-dash', '/admin-dashboard']; 
 
-  const shouldShowFooter = !hideFooterRoutes.includes(pathname);
+  const shouldShowFooter =
+    !hideFooterRoutes.includes(pathname) && !pathname.startsWith('/cand-dash');
 
   return (
     <html lang="en">

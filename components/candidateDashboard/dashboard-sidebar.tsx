@@ -230,7 +230,7 @@ export function DashboardSidebar({ mobileOpen = false, handleDrawerToggle = () =
             bgcolor: 'background.paper',
             borderRight: '1px建 solid',
             borderColor: 'divider',
-            height: 'calc(100vh - 64px - 64px)', // Subtract header and footer
+            height: 'calc(100vh - 64px )', // Subtract header and footer
             top: '64px', // Below header
             zIndex: 1000, // Below header (1100), below footer (1300)
           },
@@ -252,7 +252,7 @@ export function DashboardSidebar({ mobileOpen = false, handleDrawerToggle = () =
         bgcolor: 'background.paper',
         borderRight: '1px solid',
         borderColor: 'divider',
-        height: 'calc(100vh - 64px - 64px)', // Subtract header and footer
+        height: 'calc(100vh - 64px )', // Subtract header and footer
         position: 'fixed',
         top: '64px', // Below header
         zIndex: 1000, // Below header (1100), below footer (1300)

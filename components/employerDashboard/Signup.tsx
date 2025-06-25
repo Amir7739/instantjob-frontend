@@ -29,7 +29,7 @@ import CustomSnackbar from "../CustomSnackbar";
 const SignupSchema = Yup.object().shape({
   companyName: Yup.string().required("Company name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
- password: Yup.string()
+  password: Yup.string()
     .required("Password is required")
     .min(8, "At least 8 characters")
     .matches(/[a-z]/, "One lowercase letter required")
@@ -45,7 +45,7 @@ const SignupSchema = Yup.object().shape({
 const EmployerSignupPage: React.FC = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
- const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -59,7 +59,7 @@ const EmployerSignupPage: React.FC = () => {
     setSuccessMessage(null);
   };
 
-  
+
 
   return (
     <AuthLayout title="Start Hiring – Sign Up Now">
@@ -74,17 +74,17 @@ const EmployerSignupPage: React.FC = () => {
         validationSchema={SignupSchema}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-              await signupEmployer({
-                companyName: values.companyName,
-                email: values.email,
-                password: values.password,
-                contactNumber: values.contactNumber,
-              });
-              setSuccessMessage("Thank You! Our team will verify your details and update you soon.");
-              setOpenSnackbar(true);
-              setTimeout(() => {
-                router.push("/employer-dash/login");
-              }, 3000);
+            await signupEmployer({
+              companyName: values.companyName,
+              email: values.email,
+              password: values.password,
+              contactNumber: values.contactNumber,
+            });
+            setSuccessMessage("Thank You! Our team will verify your details and update you soon.");
+            setOpenSnackbar(true);
+            setTimeout(() => {
+              router.push("/employer-dash/login");
+            }, 3000);
           } catch (err: any) {
             setError(err.response?.message || err.message || "Signup Failed");
             // setOpenSnackbar(true);
@@ -95,7 +95,7 @@ const EmployerSignupPage: React.FC = () => {
       >
         {({ errors, touched, isSubmitting }) => (
           <Form>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2}}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 , maxWidth:"100%" }}>
               {error && <Alert severity="error">{error}</Alert>}
               <Field name="companyName">
                 {({ field, meta }: any) => (
@@ -242,11 +242,11 @@ const EmployerSignupPage: React.FC = () => {
       </Formik>
 
       <CustomSnackbar
-          open={openSnackbar}
-          onClose={handleCloseSnackbar}
-          message={successMessage || error || ""}
-          severity={successMessage ? "success" : "error"}
-        />
+        open={openSnackbar}
+        onClose={handleCloseSnackbar}
+        message={successMessage || error || ""}
+        severity={successMessage ? "success" : "error"}
+      />
     </AuthLayout>
   );
 };
