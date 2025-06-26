@@ -139,7 +139,7 @@ const CandidateDataGrid: React.FC = () => {
       setSnackbarMessage('Candidate updated successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      console.log('Candidate updated:', response.data);
+      
     } catch (error: any) {
       setSnackbarMessage(error.message || 'Error updating candidate');
       setSnackbarSeverity('error');
@@ -164,7 +164,7 @@ const CandidateDataGrid: React.FC = () => {
       setSnackbarMessage('Candidate deleted successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      console.log(`Candidate ${candidateToDelete} deleted`);
+      
     } catch (error: any) {
       setSnackbarMessage(error.message || 'Error deleting candidate');
       setSnackbarSeverity('error');
@@ -438,13 +438,13 @@ const CandidateDataGrid: React.FC = () => {
       const response = await axiosInstance.get<ApiResponse>(`/get-all-bulk-candidate?page=${pageNum}`);
       const { candidates: newCandidates, total, page: currentPage, totalPages: totalPg } = response.data;
       
-      console.log(`Fetched page ${pageNum}, received ${newCandidates.length} candidates, total: ${total}`);
+      
       
       setCandidates((prev) => {
         const existingIds = new Set(prev.map(c => c._id));
         const uniqueNewCandidates = newCandidates.filter(c => !existingIds.has(c._id));
         const updatedList = [...prev, ...uniqueNewCandidates];
-        console.log(`Total candidates after fetch: ${updatedList.length}`);
+        
         return updatedList;
       });
       

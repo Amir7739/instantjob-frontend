@@ -127,12 +127,7 @@ export function RecommendedJobs({ limit }: RecommendedJobsProps) {
           `/candidate-dashboard/recommended/${candidateId}?page=${pageNum}&limit=9`
         );
         const data = response.data;
-        console.log(`Fetching page ${pageNum}:`, {
-          jobIds: data.jobs.map((job: Job) => job.id),
-          totalJobs: data.totalJobs,
-          totalPages: data.totalPages,
-          currentPage: data.currentPage,
-        });
+       
 
         if (!data.jobs || !Array.isArray(data.jobs)) {
           throw new Error("Invalid response format: jobs array missing");

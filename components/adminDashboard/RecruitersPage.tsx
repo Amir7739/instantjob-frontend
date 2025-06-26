@@ -85,7 +85,7 @@ const RecruitersPage = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get("/recruiter/get-all");
-        console.log("API Response:", response.data);
+
         const recruitersData = Array.isArray(response.data.recruiters)
           ? response.data.recruiters.filter(
               (recruiter) =>
@@ -158,7 +158,7 @@ const RecruitersPage = () => {
     }
     setLoading(true);
     try {
-      console.log("Form Data:", formData);
+      
       let response;
       if (isEditMode) {
         const updateData = { ...formData };
@@ -167,7 +167,7 @@ const RecruitersPage = () => {
           `/recruiter/update/${editRecruiterId}`,
           updateData
         );
-        console.log("Update Recruiter Response:", response.data);
+
         if (
           response.data.recruiter &&
           typeof response.data.recruiter === "object" &&
@@ -189,7 +189,7 @@ const RecruitersPage = () => {
         }
       } else {
         response = await axiosInstance.post("/recruiter/signup", formData);
-        console.log("New Recruiter Response:", response.data);
+        
         if (
           response.data.recruiter &&
           typeof response.data.recruiter === "object" &&
@@ -241,7 +241,7 @@ const RecruitersPage = () => {
       const response = await axiosInstance.delete(
         `/recruiter/delete/${deleteRecruiterId}`
       );
-      console.log("Delete Recruiter Response:", response.data);
+      
       setRecruiters((prev) =>
         prev.filter((rec) => rec._id !== deleteRecruiterId)
       );

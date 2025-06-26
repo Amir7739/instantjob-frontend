@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
   Box,
   Typography,
   Paper,
   TextField,
-  Select,
-  MenuItem,
   Button,
   InputAdornment,
   Card,
@@ -17,13 +14,7 @@ import {
   Avatar,
   Chip,
   IconButton,
-  FormControl,
-  InputLabel,
-  Slider,
-  Switch,
-  FormControlLabel,
   Divider,
-  Drawer,
   Skeleton,
 } from "@mui/material";
 import {
@@ -32,16 +23,16 @@ import {
   Person as PersonIcon,
   LocationOn as LocationIcon,
   Work as WorkIcon,
-  FilterList as FilterIcon,
-  Clear as ClearIcon,
   Bookmark as BookmarkIcon,
   Email as EmailIcon,
   Visibility as VisibilityIcon,
   SearchOff as SearchOffIcon,
+  FilterList as FilterIcon,
 } from "@mui/icons-material";
 import axiosInstance from "@/utils/axios";
+import CandSearchFilter from "./CandSearchFilter";
 
-// Define the Candidate interface based on API response
+// Define interfaces
 interface Candidate {
   _id: string;
   full_name: string;
@@ -58,10 +49,12 @@ interface Candidate {
   projects?: any[];
   createdAt: string;
   updatedAt: string;
+  totalExperience?: string; // Made optional to match API response
+  expectedSalary?: string; // Made optional to match API response
+  preferredJobType?: string; // Made optional to match API response
   __v?: number;
 }
 
-// Define the API response interface
 interface ApiResponse {
   message: string;
   candidates: Candidate[];
@@ -73,7 +66,16 @@ interface ApiResponse {
   };
 }
 
-// Mock search stats (updated dynamically from API)
+interface FilterOptions {
+  skills: string[];
+  cities: string[];
+  states: string[];
+  experienceRanges: string[];
+  jobTypes: string[];
+  salaryRanges: string[];
+}
+
+// Search stats
 const searchStats = {
   totalCandidates: 0,
   newThisWeek: 234,
@@ -87,97 +89,167 @@ const CandidateSearch: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    skills: [],
+    cities: [],
+    states: [],
+    experienceRanges: [],
+    jobTypes: [],
+    salaryRanges: [],
+  });
 
-  // Placeholder state for filters (disabled for now)
+  // Filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [skillFilter, setSkillFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-  const [experienceFilter, setExperienceFilter] = useState("");
-  const [salaryRange, setSalaryRange] = useState<number[]>([50, 200]);
+  const [skillFilter, setSkillFilter] = useState<string[]>([]);
+  const [cityFilter, setCityFilter] = useState<string[]>([]);
+  const [stateFilter, setStateFilter] = useState<string[]>([]);
+  const [experienceFilter, setExperienceFilter] = useState<string[]>([]);
+  const [jobTypeFilter, setJobTypeFilter] = useState<string[]>([]);
+  const [salaryFilter, setSalaryFilter] = useState<string[]>([]);
   const [availableOnly, setAvailableOnly] = useState(true);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-
-  const fetchCandidates = useCallback(async (pageNum: number) => {
-    setIsLoading(true);
+  
+  // Fetch filter options
+  const fetchFilterOptions = useCallback(async () => {
     try {
-      console.log("Fetching candidates with URL:", `/candidates/all-candidate?page=${pageNum}`);
-      const response = await axiosInstance.get<ApiResponse>("/candidates/all-candidate", {
-        params: { page: pageNum },
-      });
-      console.log("API Response:", response.data);
-      const data = response.data;
-      setCandidates((prev) =>
-        pageNum === 1 ? data.candidates : [...prev, ...data.candidates]
+      const response = await axiosInstance.get<FilterOptions>(
+        "/candidates/filter-options"
       );
-      if (data.pagination) {
-        setTotalPages(data.pagination.totalPages);
-        setHasMore(pageNum < (data.pagination.totalPages));
-        searchStats.totalCandidates = data.pagination.totalCandidates || data.candidates.length;
-      } else {
-        console.warn("Pagination data missing, defaulting to single page");
-        setTotalPages(1);
-        setHasMore(false);
-        searchStats.totalCandidates = data.candidates.length;
-      }
+      setFilterOptions(response.data.filters);
     } catch (error) {
-      console.error("Error fetching candidates:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching filter options:", error);
     }
   }, []);
 
+  // Fetch candidates with filters
+  const fetchCandidates = useCallback(
+    async (pageNum: number) => {
+      setIsLoading(true);
+      try {
+        const params = {
+          page: pageNum,
+          search: searchQuery || undefined,
+          skills: skillFilter.length > 0 ? skillFilter : undefined,
+          city: cityFilter.length > 0 ? cityFilter : undefined,
+          state: stateFilter.length > 0 ? stateFilter : undefined,
+          experience:
+            experienceFilter.length > 0 ? experienceFilter : undefined,
+          jobType: jobTypeFilter.length > 0 ? jobTypeFilter : undefined,
+          salary: salaryFilter.length > 0 ? salaryFilter : undefined,
+          status: availableOnly ? "Active" : undefined,
+        };
+
+        const response = await axiosInstance.get<ApiResponse>(
+          "/candidates/all-candidate",
+          {
+            params,
+          }
+        );
+        const data = response.data;
+        
+
+        // Validate response
+        if (!data.candidates || !Array.isArray(data.candidates)) {
+          console.warn("Invalid candidates array:", data.candidates);
+          setHasMore(false);
+          return;
+        }
+
+        // Sanitize candidates to ensure skills is an array
+        const sanitizedCandidates = data.candidates.map((candidate) => ({
+          ...candidate,
+          skills: Array.isArray(candidate.skills) ? candidate.skills : [],
+          totalExperience: candidate.totalExperience || "0 years",
+          expectedSalary: candidate.expectedSalary || "Not specified",
+          preferredJobType: candidate.preferredJobType || "Not specified",
+        }));
+
+        setCandidates((prev) =>
+          pageNum === 1
+            ? sanitizedCandidates
+            : [...prev, ...sanitizedCandidates]
+        );
+
+        if (data.pagination) {
+          setTotalPages(data.pagination.totalPages || 1);
+          setHasMore(pageNum < data.pagination.totalPages);
+          searchStats.totalCandidates =
+            data.pagination.totalCandidates || sanitizedCandidates.length;
+
+        } else {
+          console.warn("Pagination data missing:", data);
+          setTotalPages(1);
+          setHasMore(false);
+          searchStats.totalCandidates = sanitizedCandidates.length;
+        }
+      } catch (error) {
+        console.error("Error fetching candidates:", error);
+        setHasMore(false);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      searchQuery,
+      skillFilter,
+      cityFilter,
+      stateFilter,
+      experienceFilter,
+      jobTypeFilter,
+      salaryFilter,
+      availableOnly,
+    ]
+  );
+
+  // Trigger fetchCandidates when page changes
   useEffect(() => {
     fetchCandidates(page);
   }, [page, fetchCandidates]);
 
+  // Initial fetch for filter options
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [fetchFilterOptions]);
+
   const loadMore = () => {
+    
     if (page < totalPages && !isLoading) {
       setPage((prev) => prev + 1);
     }
   };
 
-  // Placeholder handlers for filters (to be implemented later)
   const handleSearch = () => {
-    // Disabled for now
-  };
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSkillFilter("");
-    setLocationFilter("");
-    setExperienceFilter("");
-    setSalaryRange([50, 200]);
-    setAvailableOnly(true);
+    
     setPage(1);
     setCandidates([]);
     fetchCandidates(1);
   };
 
-  const getMatchColor = (score: number) => {
+  const getMatchColor = (mockMatchScore: () => number) => {
+    const score = mockMatchScore();
     if (score >= 90) return "#10B981";
     if (score >= 75) return "#F59E0B";
     return "#6B7280";
   };
 
-  // Calculate experience years (mocked since experience array is empty)
   const calculateExperience = (experience: any[]) => {
-    return "0 years"; // Since experience is empty in API response
+    return experience.length > 0
+      ? experience[0].currentlyWorking
+        ? "Current"
+        : "Past"
+      : "0 years";
   };
 
-  // Format location
   const formatLocation = (candidate: Candidate) => {
     return candidate.city && candidate.state
       ? `${candidate.city}, ${candidate.state}`
       : candidate.city || "Remote";
   };
 
-  // Mock salary range (since no experience data)
-  const mockSalary = () => "$60k - $80k"; // Default since experience is empty
+  const mockSalary = () => "$60k - $80k";
 
-  // Mock match score
   const mockMatchScore = () => Math.floor(Math.random() * (100 - 70) + 70);
 
-  // Skeleton component for loading state
   const CandidateSkeleton = () => (
     <Card sx={{ p: 3, borderRadius: 3, mb: 3 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
@@ -220,7 +292,6 @@ const CandidateSearch: React.FC = () => {
         m: { xs: 2, md: 3 },
       }}
     >
-      {/* Header Section */}
       <Box
         sx={{
           display: "flex",
@@ -246,7 +317,6 @@ const CandidateSearch: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Search Bar - Top (Disabled) */}
       <Paper
         elevation={3}
         sx={{ p: 3, borderRadius: 3, mb: 2, mx: { xs: 2, md: 0 } }}
@@ -264,7 +334,7 @@ const CandidateSearch: React.FC = () => {
             label="Search by name, skills, or keywords"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            disabled
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -273,17 +343,13 @@ const CandidateSearch: React.FC = () => {
               ),
             }}
             sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
+              "& .MuiOutlinedInput-root": { borderRadius: 2 },
             }}
           />
-
           <Button
             variant="contained"
             startIcon={<SearchIcon />}
             onClick={handleSearch}
-            disabled
             sx={{
               bgcolor: "#4F46E5",
               "&:hover": { bgcolor: "#4338CA" },
@@ -295,7 +361,6 @@ const CandidateSearch: React.FC = () => {
           >
             Search
           </Button>
-
           <Button
             sx={{
               display: { xs: "flex", md: "none" },
@@ -303,14 +368,12 @@ const CandidateSearch: React.FC = () => {
               alignSelf: "flex-end",
             }}
             onClick={() => setMobileFilterOpen(true)}
-            disabled
           >
             <FilterIcon />
           </Button>
         </Box>
       </Paper>
 
-      {/* Main Content Layout */}
       <Box
         sx={{
           display: "flex",
@@ -320,402 +383,30 @@ const CandidateSearch: React.FC = () => {
           mx: { xs: 2, md: 0 },
         }}
       >
-        {/* Left Sidebar - Filters (Disabled) */}
-        <Box
-          sx={{
-            width: "300px",
-            flexShrink: 0,
-            display: { xs: "none", md: "block" },
-          }}
-        >
-          <Paper
-            elevation={3}
-            sx={{ p: 3, borderRadius: 3, position: "sticky", top: 20 }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 3,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  color: "#1F2937",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <FilterIcon sx={{ color: "#4F46E5" }} />
-                Filters
-              </Typography>
-              <Button
-                variant="text"
-                size="small"
-                startIcon={<ClearIcon />}
-                onClick={clearFilters}
-                sx={{ color: "#6B7280" }}
-                disabled
-              >
-                Clear
-              </Button>
-            </Box>
+        <CandSearchFilter
+          filterOptions={filterOptions}
+          skillFilter={skillFilter}
+          setSkillFilter={setSkillFilter}
+          cityFilter={cityFilter}
+          setCityFilter={setCityFilter}
+          stateFilter={stateFilter}
+          setStateFilter={setStateFilter}
+          experienceFilter={experienceFilter}
+          setExperienceFilter={setExperienceFilter}
+          jobTypeFilter={jobTypeFilter}
+          setJobTypeFilter={setJobTypeFilter}
+          salaryFilter={salaryFilter}
+          setSalaryFilter={setSalaryFilter}
+          availableOnly={availableOnly}
+          setAvailableOnly={setAvailableOnly}
+          setPage={setPage}
+          setCandidates={setCandidates}
+          fetchCandidates={fetchCandidates}
+          searchStats={searchStats}
+          mobileFilterOpen={mobileFilterOpen}
+          setMobileFilterOpen={setMobileFilterOpen}
+        />
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <FormControl fullWidth>
-                <InputLabel>Skills</InputLabel>
-                <Select
-                  value={skillFilter}
-                  label="Skills"
-                  onChange={(e) => setSkillFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Skills</MenuItem>
-                  <MenuItem value="React">React</MenuItem>
-                  <MenuItem value="Node.js">Node.js</MenuItem>
-                  <MenuItem value="Python">Python</MenuItem>
-                  <MenuItem value="TypeScript">TypeScript</MenuItem>
-                  <MenuItem value="Vue.js">Vue.js</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth>
-                <InputLabel>Location</InputLabel>
-                <Select
-                  value={locationFilter}
-                  label="Location"
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Locations</MenuItem>
-                  <MenuItem value="Delhi">Delhi</MenuItem>
-                  <MenuItem value="Mumbai">Mumbai</MenuItem>
-                  <MenuItem value="Bangalore">Bangalore</MenuItem>
-                  <MenuItem value="Hyderabad">Hyderabad</MenuItem>
-                  <MenuItem value="Chennai">Chennai</MenuItem>
-                  <MenuItem value="Ahmedabad">Ahmedabad</MenuItem>
-                  <MenuItem value="Remote">Remote</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth>
-                <InputLabel>Experience</InputLabel>
-                <Select
-                  value={experienceFilter}
-                  label="Experience"
-                  onChange={(e) => setExperienceFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Experience</MenuItem>
-                  <MenuItem value="0-2">0-2 Years</MenuItem>
-                  <MenuItem value="2-5">2-5 Years</MenuItem>
-                  <MenuItem value="5+">5+ Years</MenuItem>
-                </Select>
-              </FormControl>
-
-              <Box>
-                <Typography variant="body2" sx={{ mb: 1, color: "#374151" }}>
-                  Salary Range (Annual)
-                </Typography>
-                <Box sx={{ px: 1 }}>
-                  <Slider
-                    value={salaryRange}
-                    onChange={(_, newValue) =>
-                      setSalaryRange(newValue as number[])
-                    }
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={(value) => `$${value}k`}
-                    min={30}
-                    max={300}
-                    sx={{
-                      color: "#4F46E5",
-                      "& .MuiSlider-thumb": { width: 20, height: 20 },
-                    }}
-                    disabled
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 1,
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary">
-                      ${salaryRange[0]}k
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      ${salaryRange[1]}k
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={availableOnly}
-                    onChange={(e) => setAvailableOnly(e.target.checked)}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#4F46E5",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                        backgroundColor: "#4F46E5",
-                      },
-                    }}
-                    disabled
-                  />
-                }
-                label="Active candidates only"
-              />
-            </Box>
-
-            <Divider sx={{ my: 3 }} />
-            <Box>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: "bold", mb: 2, color: "#1F2937" }}
-              >
-                Search Statistics
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Total Candidates
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    {searchStats.totalCandidates.toLocaleString()}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    New This Week
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#10B981" }}
-                  >
-                    {searchStats.newThisWeek}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Active Searches
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#4F46E5" }}
-                  >
-                    {searchStats.activeSearches}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </Paper>
-        </Box>
-
-        {/* Mobile Filter Drawer (Disabled) */}
-        <Drawer
-          anchor="left"
-          open={mobileFilterOpen}
-          onClose={() => setMobileFilterOpen(false)}
-          sx={{
-            "& .MuiDrawer-paper": { width: "80%", maxWidth: "300px", p: 2 },
-          }}
-        >
-          <Box sx={{ p: 1 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold", color: "#1F2937" }}
-              >
-                Filters
-              </Typography>
-              <IconButton onClick={() => setMobileFilterOpen(false)}>
-                <ClearIcon />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <FormControl fullWidth>
-                <InputLabel>Skills</InputLabel>
-                <Select
-                  value={skillFilter}
-                  label="Skills"
-                  onChange={(e) => setSkillFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Skills</MenuItem>
-                  <MenuItem value="React">React</MenuItem>
-                  <MenuItem value="Node.js">Node.js</MenuItem>
-                  <MenuItem value="Python">Python</MenuItem>
-                  <MenuItem value="TypeScript">TypeScript</MenuItem>
-                  <MenuItem value="Vue.js">Vue.js</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth>
-                <InputLabel>Location</InputLabel>
-                <Select
-                  value={locationFilter}
-                  label="Location"
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Locations</MenuItem>
-                  <MenuItem value="Delhi">Delhi</MenuItem>
-                  <MenuItem value="Mumbai">Mumbai</MenuItem>
-                  <MenuItem value="Bangalore">Bangalore</MenuItem>
-                  <MenuItem value="Hyderabad">Hyderabad</MenuItem>
-                  <MenuItem value="Chennai">Chennai</MenuItem>
-                  <MenuItem value="Ahmedabad">Ahmedabad</MenuItem>
-                  <MenuItem value="Remote">Remote</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth>
-                <InputLabel>Experience</InputLabel>
-                <Select
-                  value={experienceFilter}
-                  label="Experience"
-                  onChange={(e) => setExperienceFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-                  disabled
-                >
-                  <MenuItem value="">All Experience</MenuItem>
-                  <MenuItem value="0-2">0-2 Years</MenuItem>
-                  <MenuItem value="2-5">2-5 Years</MenuItem>
-                  <MenuItem value="5+">5+ Years</MenuItem>
-                </Select>
-              </FormControl>
-
-              <Box>
-                <Typography variant="body2" sx={{ mb: 1, color: "#374151" }}>
-                  Salary Range (Annual)
-                </Typography>
-                <Box sx={{ px: 1 }}>
-                  <Slider
-                    value={salaryRange}
-                    onChange={(_, newValue) =>
-                      setSalaryRange(newValue as number[])
-                    }
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={(value) => `$${value}k`}
-                    min={30}
-                    max={300}
-                    sx={{
-                      color: "#4F46E5",
-                      "& .MuiSlider-thumb": { width: 20, height: 20 },
-                    }}
-                    disabled
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 1,
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary">
-                      ${salaryRange[0]}k
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      ${salaryRange[1]}k
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={availableOnly}
-                    onChange={(e) => setAvailableOnly(e.target.checked)}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#4F46E5",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                        backgroundColor: "#4F46E5",
-                      },
-                    }}
-                    disabled
-                  />
-                }
-                label="Active candidates only"
-              />
-            </Box>
-
-            <Divider sx={{ my: 3 }} />
-            <Box>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: "bold", mb: 2, color: "#1F2937" }}
-              >
-                Search Statistics
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Total Candidates
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    {searchStats.totalCandidates.toLocaleString()}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    New This Week
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#10B981" }}
-                  >
-                    {searchStats.newThisWeek}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Active Searches
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#4F46E5" }}
-                  >
-                    {searchStats.activeSearches}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-            <Button
-              variant="text"
-              size="small"
-              startIcon={<ClearIcon />}
-              onClick={clearFilters}
-              sx={{ color: "#6B7280", mt: 2 }}
-              disabled
-            >
-              Clear Filters
-            </Button>
-          </Box>
-        </Drawer>
-
-        {/* Right Content - Search Results */}
         <Box sx={{ flex: 1, overflowY: "auto", height: "calc(100vh - 80px)" }}>
           <Paper elevation={3} sx={{ borderRadius: 3, overflow: "hidden" }}>
             <Box
@@ -742,9 +433,9 @@ const CandidateSearch: React.FC = () => {
                     textAlign: { xs: "left", sm: "inherit" },
                   }}
                 >
-                  Search Results ({candidates.length} candidates found)
+                  Search Results ({searchStats.totalCandidates.toLocaleString()}{" "}
+                  candidates found)
                 </Typography>
-
                 <Button
                   variant="outlined"
                   startIcon={<DownloadIcon />}
@@ -767,6 +458,7 @@ const CandidateSearch: React.FC = () => {
               hasMore={hasMore}
               loader={
                 <Box sx={{ p: 3 }}>
+                  <Typography>Loading more candidates...</Typography>
                   <CandidateSkeleton />
                   <CandidateSkeleton />
                 </Box>
@@ -782,7 +474,11 @@ const CandidateSearch: React.FC = () => {
             >
               <Box
                 id="scrollableDiv"
-                sx={{ p: 3, maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
+                sx={{
+                  p: 3,
+                  maxHeight: "calc(100vh - 200px)",
+                  overflowY: "auto",
+                }}
               >
                 {candidates.length > 0 ? (
                   <Grid container spacing={3}>
@@ -822,7 +518,11 @@ const CandidateSearch: React.FC = () => {
                               }}
                             >
                               <Avatar
-                                sx={{ width: 48, height: 48, bgcolor: "#4F46E5" }}
+                                sx={{
+                                  width: 48,
+                                  height: 48,
+                                  bgcolor: "#4F46E5",
+                                }}
                               >
                                 <PersonIcon />
                               </Avatar>
@@ -857,8 +557,8 @@ const CandidateSearch: React.FC = () => {
                             <Chip
                               label={`${mockMatchScore()}% Match`}
                               sx={{
-                                bgcolor: `${getMatchColor(mockMatchScore())}20`,
-                                color: getMatchColor(mockMatchScore()),
+                                bgcolor: `${getMatchColor(mockMatchScore)}20`,
+                                color: getMatchColor(mockMatchScore),
                                 fontWeight: "bold",
                               }}
                             />
@@ -876,7 +576,7 @@ const CandidateSearch: React.FC = () => {
                               }}
                             />
                           </Box>
-                          {/* 
+
                           <Box
                             sx={{
                               display: "flex",
@@ -886,14 +586,19 @@ const CandidateSearch: React.FC = () => {
                             }}
                           >
                             {candidate.skills.length > 0 ? (
-                              candidate.skills.slice(0, 3).map((skill, index) => (
-                                <Chip
-                                  key={index}
-                                  label={skill}
-                                  size="small"
-                                  sx={{ bgcolor: "#F1F5F9", color: "#475569" }}
-                                />
-                              ))
+                              candidate.skills
+                                .slice(0, 3)
+                                .map((skill, index) => (
+                                  <Chip
+                                    key={index}
+                                    label={skill}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: "#F1F5F9",
+                                      color: "#475569",
+                                    }}
+                                  />
+                                ))
                             ) : (
                               <Chip
                                 label="No Skills"
@@ -908,7 +613,7 @@ const CandidateSearch: React.FC = () => {
                                 sx={{ bgcolor: "#E0E7FF", color: "#4338CA" }}
                               />
                             )}
-                          </Box> */}
+                          </Box>
 
                           <Box
                             sx={{
@@ -936,8 +641,9 @@ const CandidateSearch: React.FC = () => {
                           >
                             <WorkIcon sx={{ fontSize: 16, color: "#6B7280" }} />
                             <Typography variant="body2" color="text.secondary">
-                              {calculateExperience(candidate.experience)} •{" "}
-                              {mockSalary()}
+                              {candidate.totalExperience ||
+                                calculateExperience(candidate.experience)}{" "}
+                              • {candidate.expectedSalary || mockSalary()}
                             </Typography>
                           </Box>
 
@@ -972,7 +678,9 @@ const CandidateSearch: React.FC = () => {
                             </Box>
                             <Typography variant="body2" color="text.secondary">
                               Active{" "}
-                              {new Date(candidate.updatedAt).toLocaleDateString()}
+                              {new Date(
+                                candidate.updatedAt
+                              ).toLocaleDateString()}
                             </Typography>
                           </Box>
                         </Card>
@@ -1005,7 +713,7 @@ const CandidateSearch: React.FC = () => {
                       color="text.secondary"
                       sx={{ mb: 3 }}
                     >
-                      No candidates available at the moment.
+                      Try adjusting your filters or search terms.
                     </Typography>
                   </Box>
                 )}

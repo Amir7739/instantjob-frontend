@@ -37,7 +37,6 @@ const EmployerDashboard: React.FC = () => {
   }, []);
 
   const handleSetActiveTab = useCallback((tab: string) => {
-    console.log(`Setting active tab: ${tab}`);
     setActiveTab(tab);
   }, []);
 

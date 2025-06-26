@@ -117,12 +117,6 @@ export function SavedJobs({ limit }: SavedJobsProps) {
           9
         );
         const data = response;
-        console.log(`Fetching saved jobs page ${pageNum}:`, {
-          jobIds: data.jobs.map((job: Job) => job.id),
-          totalJobs: data.totalJobs,
-          totalPages: data.totalPages,
-          currentPage: data.currentPage,
-        });
 
         if (!data.jobs || !Array.isArray(data.jobs)) {
           throw new Error("Invalid response format: jobs array missing");

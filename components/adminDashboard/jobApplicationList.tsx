@@ -60,8 +60,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       setError(null);
       try {
         const response = await fetchInitialJobApplications();
-        console.log('Initial job applications response:', response);
-        console.log('Total job applications set to:', response.totalJobApplications);
+        
         setJobApplications(response.data);
         setTotalJobs(response.totalJobApplications);
       } catch (error: any) {
@@ -86,9 +85,9 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
       try {
         setIsLoading(true);
         const page = Math.floor(jobApplications.length / 10) + 1;
-        console.log('Fetching more job applications, page:', page);
+        
         const response = await fetchMoreJobApplications(page);
-        console.log('More job applications response:', response);
+        
         if (response.data.length > 0) {
           setJobApplications((prev) => {
             const newApplications = response.data.filter(
@@ -97,7 +96,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
             return [...prev, ...newApplications];
           });
         } else {
-          console.log('No more job applications to load');
+          
           if (jobApplications.length < totalJobs) {
             console.warn(`Expected more applications but received none. Current: ${jobApplications.length}, Total: ${totalJobs}`);
           }

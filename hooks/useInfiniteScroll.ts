@@ -20,15 +20,15 @@ export const useInfiniteScroll = (token: string | null, limit: number = 10): Inf
 
   const fetchCandidates = useCallback(async (pageToFetch: number = page) => {
     if (!token || loading || !hasMore) {
-      console.log("Skipping fetch:", { token: !!token, loading, hasMore });
+      
       return;
     }
 
-    console.log(`Fetching candidates for page ${pageToFetch}, limit ${limit}`);
+    
     setLoading(true);
     try {
       const response = await fetchRecruiterCandidates(token, pageToFetch, limit);
-      console.log("API Response:", response);
+      
 
       // Ensure no duplicates by checking _id
       setCandidates((prev) => {
@@ -48,7 +48,7 @@ export const useInfiniteScroll = (token: string | null, limit: number = 10): Inf
   }, [token, page, limit, loading, hasMore]);
 
   const refresh = useCallback(() => {
-    console.log("Refreshing candidate list");
+    
     setCandidates([]);
     setPage(1);
     setHasMore(true);
@@ -75,7 +75,7 @@ export const useInfiniteScroll = (token: string | null, limit: number = 10): Inf
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100
       ) {
-        console.log("Reached bottom, loading more...");
+        
         fetchCandidates();
       }
     }, 300), // 300ms debounce

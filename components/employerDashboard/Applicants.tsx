@@ -57,15 +57,15 @@ const Applicants = () => {
         setInitialLoading(false);
         return;
       }
-      console.log(`Fetching applicants for page ${pageNum}`);
+
       const response = await fetchRecentApplicants(employerId, pageNum);
-      console.log("API Response:", response);
+      
       setApplicants((prev) => {
         const newApplicants =
           pageNum === 1
             ? response.applicants
             : [...prev, ...response.applicants];
-        console.log("Updated applicants:", newApplicants);
+        
         return newApplicants;
       });
       setTotalPages(response.pagination.totalPages);

@@ -81,11 +81,6 @@ const CandidateList = ({
         const response = showInactive
           ? await fetchInitialInActiveCandidates()
           : await fetchInitialCandidates();
-        console.log("Initial candidates response:", response);
-        console.log(
-          "Total candidates set to:",
-          response.pagination.totalCandidates
-        );
         setCandidates(response.candidates);
         setTotalCandidates(response.pagination.totalCandidates);
       } catch (error) {
@@ -109,15 +104,15 @@ const CandidateList = ({
     try {
       setIsLoading(true);
       const page = Math.floor(candidates.length / 10) + 1;
-      console.log("Fetching more candidates, page:", page);
+      
       const response = showInactive
         ? await fetchMoreInActiveCandidates(page)
         : await fetchMoreCandidates(page);
-      console.log("More candidates response:", response);
+      
       if (response.candidates.length > 0) {
         setCandidates((prev) => [...prev, ...response.candidates]);
       } else {
-        console.log("No more candidates to load");
+        
         if (candidates.length < totalCandidates) {
           console.warn(
             `Expected more candidates but received none. Current: ${candidates.length}, Total: ${totalCandidates}`

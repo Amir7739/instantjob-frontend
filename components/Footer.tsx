@@ -207,6 +207,8 @@ const Footer = () => {
                           ? "/policy"
                           : item === "Careers"
                           ? "/careers"
+                          : item === "Blog"
+                          ? "/blogs"
                           : "#"
                       }
                       style={{ textDecoration: "none" }}
