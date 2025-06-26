@@ -114,7 +114,6 @@ export function AppliedJobs({ limit }: AppliedJobsProps) {
           9
         );
         const data = response;
--
 
         if (!data.jobs || !Array.isArray(data.jobs)) {
           throw new Error("Invalid response format: jobs array missing");
