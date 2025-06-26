@@ -152,7 +152,7 @@ const CandidateForm = () => {
             },
           }
         );
-        console.log("Server response:", response.data);
+        
         if (response.status === 201) {
           setModalOpen(true); // Show Thank You modal
           formik.resetForm();

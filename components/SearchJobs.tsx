@@ -149,12 +149,6 @@ export function SearchJobs({ limit }: SearchJobsProps) {
           pageNum,
           9
         );
-        console.log(`Fetched ${type} jobs page ${pageNum}:`, {
-          jobIds: data.jobs?.map((job: Job) => job.id) || [],
-          totalJobs: data.totalJobs,
-          totalPages: data.totalPages,
-          currentPage: data.currentPage,
-        });
 
         // Handle empty or invalid response
         if (!data.jobs || !Array.isArray(data.jobs)) {

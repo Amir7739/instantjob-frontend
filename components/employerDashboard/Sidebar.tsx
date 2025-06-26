@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <ListItemButton
                 selected={activeTab === tab}
                 onClick={() => {
-                  console.log(`Clicked tab: ${tab}`); // Debug log
+                  
                   setActiveTab(tab);
                   if (isMobile) toggleSidebar();
                 }}
