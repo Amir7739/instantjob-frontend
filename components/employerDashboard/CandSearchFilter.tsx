@@ -198,7 +198,7 @@ const CandSearchFilter: React.FC<CandSearchFilterProps> = ({
         {renderFilterSelect("Experience", experienceFilter, filterOptions.experienceRanges, setExperienceFilter)}
         {renderFilterSelect("Job Type", jobTypeFilter, filterOptions.jobTypes, setJobTypeFilter)}
         {renderFilterSelect("Salary Range", salaryFilter, filterOptions.salaryRanges, setSalaryFilter)}
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Switch
               checked={availableOnly}
@@ -222,7 +222,7 @@ const CandSearchFilter: React.FC<CandSearchFilterProps> = ({
           }
           label="Active candidates only"
           sx={{ color: "#1F2937", fontWeight: 500 }}
-        />
+        /> */}
       </Box>
     ),
     [
@@ -327,7 +327,7 @@ const CandSearchFilter: React.FC<CandSearchFilterProps> = ({
                   {searchStats.totalCandidates.toLocaleString()}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              {/* <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
                   New This Week
                 </Typography>
@@ -337,18 +337,8 @@ const CandSearchFilter: React.FC<CandSearchFilterProps> = ({
                 >
                   {searchStats.newThisWeek}
                 </Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
-                  Active Searches
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, color: "#4F46E5" }}
-                >
-                  {searchStats.activeSearches}
-                </Typography>
-              </Box>
+              </Box> */}
+              
             </Box>
           </Box>
         </Paper>

@@ -16,7 +16,10 @@ import {
   IconButton,
   Divider,
   Skeleton,
+  Tooltip,
+  Snackbar,
 } from "@mui/material";
+import { Alert as MuiAlert } from "@mui/material";
 import {
   Search as SearchIcon,
   GetApp as DownloadIcon,
@@ -28,11 +31,13 @@ import {
   Visibility as VisibilityIcon,
   SearchOff as SearchOffIcon,
   FilterList as FilterIcon,
+  Group as GroupIcon,
 } from "@mui/icons-material";
 import axiosInstance from "@/utils/axios";
 import CandSearchFilter from "./CandSearchFilter";
+import { useRouter } from "next/navigation";
 
-// Define interfaces
+// [Existing interfaces unchanged]
 interface Candidate {
   _id: string;
   full_name: string;
@@ -49,10 +54,12 @@ interface Candidate {
   projects?: any[];
   createdAt: string;
   updatedAt: string;
-  totalExperience?: string; // Made optional to match API response
-  expectedSalary?: string; // Made optional to match API response
-  preferredJobType?: string; // Made optional to match API response
+  totalExperience?: string;
+  expectedSalary?: string;
+  preferredJobType?: string;
+  resumeUrl?: string;
   __v?: number;
+  isSaved?: boolean;
 }
 
 interface ApiResponse {
@@ -75,12 +82,11 @@ interface FilterOptions {
   salaryRanges: string[];
 }
 
-// Search stats
-const searchStats = {
+const initialSearchStats = {
   totalCandidates: 0,
   newThisWeek: 234,
   activeSearches: 8,
-  resumesDownloaded: 45,
+  resumesDownloaded: 0,
 };
 
 const CandidateSearch: React.FC = () => {
@@ -97,8 +103,7 @@ const CandidateSearch: React.FC = () => {
     jobTypes: [],
     salaryRanges: [],
   });
-
-  // Filter states
+  const [searchStats, setSearchStats] = useState(initialSearchStats);
   const [searchQuery, setSearchQuery] = useState("");
   const [skillFilter, setSkillFilter] = useState<string[]>([]);
   const [cityFilter, setCityFilter] = useState<string[]>([]);
@@ -108,20 +113,104 @@ const CandidateSearch: React.FC = () => {
   const [salaryFilter, setSalaryFilter] = useState<string[]>([]);
   const [availableOnly, setAvailableOnly] = useState(true);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  
-  // Fetch filter options
+  const [isSavedView, setIsSavedView] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
+  const router = useRouter();
+
+  const handleViewProfile = (candidateId: string) => {
+    router.push(`/candidate-profile/${candidateId}`);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   const fetchFilterOptions = useCallback(async () => {
     try {
       const response = await axiosInstance.get<FilterOptions>(
         "/candidates/filter-options"
       );
-      setFilterOptions(response.data.filters);
+      setFilterOptions(response.data.filters || response.data);
     } catch (error) {
       console.error("Error fetching filter options:", error);
     }
   }, []);
 
-  // Fetch candidates with filters
+  const fetchSavedStatus = useCallback(
+    async (candidateId: string, employerId: string) => {
+      try {
+        const response = await axiosInstance.get<{ isSave: boolean }>(
+          `/resume-save-status/${candidateId}/${employerId}`
+        );
+        return response.data.isSave;
+      } catch (error) {
+        console.error(
+          `Error fetching save status for candidate ${candidateId}:`,
+          error
+        );
+        return false;
+      }
+    },
+    []
+  );
+
+  const fetchSavedCandidates = useCallback(async () => {
+    const employerId = localStorage.getItem("id");
+    if (!employerId) {
+      setSnackbarMessage("Please log in as an employer to view saved candidates.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.get<{ count: number; data: Candidate[] }>(
+        `/get-saved-candidates/${employerId}`
+      );
+      const data = response.data;
+
+      if (!data.data || !Array.isArray(data.data)) {
+        console.warn("Invalid saved candidates array:", data.data);
+        setHasMore(false);
+        return;
+      }
+
+      const sanitizedCandidates = data.data.map((candidate) => ({
+        ...candidate,
+        skills: Array.isArray(candidate.skills) ? candidate.skills : [],
+        totalExperience: candidate.totalExperience || "0 years",
+        expectedSalary: candidate.expectedSalary || "Not specified",
+        preferredJobType: candidate.preferredJobType || "Not specified",
+        resumeUrl: candidate.resumeUrl || "",
+        isSaved: true,
+      }));
+
+      setCandidates(sanitizedCandidates);
+      setTotalPages(1);
+      setHasMore(false);
+      setSearchStats((prev) => ({
+        ...prev,
+        totalCandidates: sanitizedCandidates.length,
+      }));
+      setIsSavedView(true);
+    } catch (error) {
+      console.error("Error fetching saved candidates:", error);
+      setSnackbarMessage("Failed to fetch saved candidates.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Moved fetchCandidates before fetchAllCandidates
   const fetchCandidates = useCallback(
     async (pageNum: number) => {
       setIsLoading(true);
@@ -139,30 +228,38 @@ const CandidateSearch: React.FC = () => {
           status: availableOnly ? "Active" : undefined,
         };
 
+        const employerId = localStorage.getItem("id");
         const response = await axiosInstance.get<ApiResponse>(
           "/candidates/all-candidate",
-          {
-            params,
-          }
+          { params }
         );
         const data = response.data;
-        
 
-        // Validate response
         if (!data.candidates || !Array.isArray(data.candidates)) {
           console.warn("Invalid candidates array:", data.candidates);
           setHasMore(false);
           return;
         }
 
-        // Sanitize candidates to ensure skills is an array
-        const sanitizedCandidates = data.candidates.map((candidate) => ({
-          ...candidate,
-          skills: Array.isArray(candidate.skills) ? candidate.skills : [],
-          totalExperience: candidate.totalExperience || "0 years",
-          expectedSalary: candidate.expectedSalary || "Not specified",
-          preferredJobType: candidate.preferredJobType || "Not specified",
-        }));
+        const savedStatusPromises = data.candidates.map(async (candidate) => {
+          const isSaved = employerId
+            ? await fetchSavedStatus(candidate._id, employerId)
+            : false;
+          return { ...candidate, isSaved };
+        });
+
+        const sanitizedCandidates = await Promise.all(savedStatusPromises).then(
+          (candidates) =>
+            candidates.map((candidate) => ({
+              ...candidate,
+              skills: Array.isArray(candidate.skills) ? candidate.skills : [],
+              totalExperience: candidate.totalExperience || "0 years",
+              expectedSalary: candidate.expectedSalary || "Not specified",
+              preferredJobType: candidate.preferredJobType || "Not specified",
+              resumeUrl: candidate.resumeUrl || "",
+              isSaved: candidate.isSaved || false,
+            }))
+        );
 
         setCandidates((prev) =>
           pageNum === 1
@@ -173,14 +270,19 @@ const CandidateSearch: React.FC = () => {
         if (data.pagination) {
           setTotalPages(data.pagination.totalPages || 1);
           setHasMore(pageNum < data.pagination.totalPages);
-          searchStats.totalCandidates =
-            data.pagination.totalCandidates || sanitizedCandidates.length;
-
+          setSearchStats((prev) => ({
+            ...prev,
+            totalCandidates:
+              data.pagination.totalCandidates || sanitizedCandidates.length,
+          }));
         } else {
           console.warn("Pagination data missing:", data);
           setTotalPages(1);
           setHasMore(false);
-          searchStats.totalCandidates = sanitizedCandidates.length;
+          setSearchStats((prev) => ({
+            ...prev,
+            totalCandidates: sanitizedCandidates.length,
+          }));
         }
       } catch (error) {
         console.error("Error fetching candidates:", error);
@@ -198,32 +300,172 @@ const CandidateSearch: React.FC = () => {
       jobTypeFilter,
       salaryFilter,
       availableOnly,
+      fetchSavedStatus,
     ]
   );
 
-  // Trigger fetchCandidates when page changes
-  useEffect(() => {
-    fetchCandidates(page);
-  }, [page, fetchCandidates]);
+  // Moved fetchAllCandidates after fetchCandidates
+  const fetchAllCandidates = useCallback(() => {
+    setPage(1);
+    setCandidates([]);
+    setIsSavedView(false);
+    fetchCandidates(1);
+  }, [fetchCandidates]); // fetchCandidates is now defined before this
 
-  // Initial fetch for filter options
+  // [Rest of the functions unchanged]
+  useEffect(() => {
+    if (!isSavedView) {
+      fetchCandidates(page);
+    }
+  }, [page, fetchCandidates, isSavedView]);
+
   useEffect(() => {
     fetchFilterOptions();
   }, [fetchFilterOptions]);
 
   const loadMore = () => {
-    
-    if (page < totalPages && !isLoading) {
+    if (page < totalPages && !isLoading && !isSavedView) {
       setPage((prev) => prev + 1);
     }
   };
 
   const handleSearch = () => {
-    
     setPage(1);
     setCandidates([]);
+    setIsSavedView(false);
     fetchCandidates(1);
   };
+
+  const handleDownloadResume = async (candidate: Candidate) => {
+    if (!candidate.resumeUrl) {
+      alert("Resume not available for this candidate.");
+      return;
+    }
+
+    const employerId = localStorage.getItem("id");
+    if (!employerId) {
+      alert("Please log in as an employer to download resumes.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post("/resume-download", {
+        candidateId: candidate._id,
+        employerId,
+      });
+
+      if (response.status === 201) {
+        setSearchStats((prev) => ({
+          ...prev,
+          resumesDownloaded: prev.resumesDownloaded + 1,
+        }));
+
+        const link = document.createElement("a");
+        link.href = candidate.resumeUrl;
+        link.download = `${candidate.full_name}_resume.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert("Failed to log resume download: " + response.data.message);
+      }
+    } catch (error: any) {
+      console.error("Error downloading resume:", error);
+      alert(
+        error.response?.data?.message ||
+          "An error occurred while downloading the resume."
+      );
+    }
+  };
+
+  const fetchResumeDownloadStats = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get<{ totalDownloads: number }>(
+        "/resume-download-stats"
+      );
+      setSearchStats((prev) => ({
+        ...prev,
+        resumesDownloaded: response.data.totalDownloads,
+      }));
+    } catch (error) {
+      console.error("Error fetching resume download stats:", error);
+    }
+  }, []);
+
+  const handleEmailClick = (email: string) => {
+    window.location.href = `mailto:${email}`;
+  };
+
+  const toggleSaveCandidate = async (
+    candidateId: string,
+    currentIsSaved: boolean
+  ) => {
+    const employerId = localStorage.getItem("id");
+    if (!employerId) {
+      setSnackbarMessage(
+        "Please log in as an employer to save/unsave resumes."
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      const endpoint = currentIsSaved ? "/candidate-unsave" : "/candidate-save";
+      const response = await axiosInstance.post(endpoint, {
+        candidateId,
+        employerId,
+      });
+      if (response.status === 200 || response.status === 201) {
+        setCandidates((prev) => {
+          if (isSavedView && currentIsSaved) {
+            return prev.filter((candidate) => candidate._id !== candidateId);
+          }
+          return prev.map((candidate) =>
+            candidate._id === candidateId
+              ? { ...candidate, isSaved: !currentIsSaved }
+              : candidate
+          );
+        });
+        setSearchStats((prev) => ({
+          ...prev,
+          totalCandidates: isSavedView && currentIsSaved 
+            ? prev.totalCandidates - 1 
+            : prev.totalCandidates,
+        }));
+        setSnackbarMessage(
+          `Candidate ${currentIsSaved ? "unsaved" : "saved"} successfully`
+        );
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else {
+        setSnackbarMessage(
+          `Failed to ${currentIsSaved ? "unsave" : "save"} candidate: ${
+            response.data.message
+          }`
+        );
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+    } catch (error: any) {
+      console.error(
+        `Error ${currentIsSaved ? "unsaving" : "saving"} candidate:`,
+        error
+      );
+      setSnackbarMessage(
+        error.response?.data?.message ||
+          `An error occurred while ${
+            currentIsSaved ? "unsaving" : "saving"
+          } the candidate.`
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchResumeDownloadStats();
+  }, [fetchResumeDownloadStats]);
 
   const getMatchColor = (mockMatchScore: () => number) => {
     const score = mockMatchScore();
@@ -282,6 +524,7 @@ const CandidateSearch: React.FC = () => {
     </Card>
   );
 
+  // [JSX remains unchanged]
   return (
     <Box
       sx={{
@@ -309,10 +552,12 @@ const CandidateSearch: React.FC = () => {
             variant="h4"
             sx={{ fontWeight: "bold", color: "#1F2937" }}
           >
-            Candidate Search
+            {isSavedView ? "Saved Candidates" : "Candidate Search"}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Find and connect with top talent for your positions
+            {isSavedView
+              ? "View your saved candidates"
+              : "Find and connect with top talent for your positions"}
           </Typography>
         </Box>
       </Box>
@@ -345,6 +590,7 @@ const CandidateSearch: React.FC = () => {
             sx={{
               "& .MuiOutlinedInput-root": { borderRadius: 2 },
             }}
+            disabled={isSavedView}
           />
           <Button
             variant="contained"
@@ -358,6 +604,7 @@ const CandidateSearch: React.FC = () => {
               borderRadius: 2,
               minWidth: { xs: "100%", md: "150px" },
             }}
+            disabled={isSavedView}
           >
             Search
           </Button>
@@ -368,6 +615,7 @@ const CandidateSearch: React.FC = () => {
               alignSelf: "flex-end",
             }}
             onClick={() => setMobileFilterOpen(true)}
+            disabled={isSavedView}
           >
             <FilterIcon />
           </Button>
@@ -425,30 +673,38 @@ const CandidateSearch: React.FC = () => {
                   gap: 2,
                 }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#1F2937",
-                    textAlign: { xs: "left", sm: "inherit" },
-                  }}
-                >
-                  Search Results ({searchStats.totalCandidates.toLocaleString()}{" "}
-                  candidates found)
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<DownloadIcon />}
-                  sx={{
-                    color: "#10B981",
-                    borderColor: "#10B981",
-                    "&:hover": { borderColor: "#059669", color: "#059669" },
-                    borderRadius: 2,
-                    alignSelf: { xs: "flex-start", sm: "auto" },
-                  }}
-                >
-                  Downloaded ({searchStats.resumesDownloaded})
-                </Button>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<DownloadIcon />}
+                    sx={{
+                      color: "#10B981",
+                      borderColor: "#10B981",
+                      "&:hover": { borderColor: "#059669", color: "#059669" },
+                      borderRadius: 2,
+                      alignSelf: { xs: "flex-start", sm: "auto" },
+                    }}
+                  >
+                    Downloaded Resumes ({searchStats.resumesDownloaded})
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={isSavedView ? <GroupIcon /> : <BookmarkIcon />}
+                    sx={{
+                      color: isSavedView ? "#4F46E5" : "#FFD700",
+                      borderColor: isSavedView ? "#4F46E5" : "#FFD700",
+                      "&:hover": {
+                        borderColor: isSavedView ? "#4338CA" : "#E5C100",
+                        color: isSavedView ? "#4338CA" : "#E5C100",
+                      },
+                      borderRadius: 2,
+                      alignSelf: { xs: "flex-start", sm: "auto" },
+                    }}
+                    onClick={isSavedView ? fetchAllCandidates : fetchSavedCandidates}
+                  >
+                    {isSavedView ? "All Candidates" : "Saved Candidates"}
+                  </Button>
+                </Box>
               </Box>
             </Box>
 
@@ -541,9 +797,30 @@ const CandidateSearch: React.FC = () => {
                                 </Typography>
                               </Box>
                             </Box>
-                            <IconButton sx={{ color: "#6B7280" }}>
-                              <BookmarkIcon />
-                            </IconButton>
+                            <Tooltip
+                              title={
+                                candidate.isSaved
+                                  ? "Unsave Candidate"
+                                  : "Save Candidate"
+                              }
+                              arrow
+                            >
+                              <IconButton
+                                sx={{
+                                  color: candidate.isSaved
+                                    ? "#FFD700"
+                                    : "#6B7280",
+                                }}
+                                onClick={() =>
+                                  toggleSaveCandidate(
+                                    candidate._id,
+                                    candidate.isSaved || false
+                                  )
+                                }
+                              >
+                                <BookmarkIcon />
+                              </IconButton>
+                            </Tooltip>
                           </Box>
 
                           <Box
@@ -657,24 +934,39 @@ const CandidateSearch: React.FC = () => {
                             }}
                           >
                             <Box sx={{ display: "flex", gap: 1 }}>
-                              <IconButton
-                                size="small"
-                                sx={{ bgcolor: "#EEF2FF", color: "#4F46E5" }}
-                              >
-                                <VisibilityIcon fontSize="small" />
-                              </IconButton>
-                              <IconButton
-                                size="small"
-                                sx={{ bgcolor: "#F0FDF4", color: "#16A34A" }}
-                              >
-                                <EmailIcon fontSize="small" />
-                              </IconButton>
-                              <IconButton
-                                size="small"
-                                sx={{ bgcolor: "#FEF3C7", color: "#D97706" }}
-                              >
-                                <DownloadIcon fontSize="small" />
-                              </IconButton>
+                              <Tooltip title="View full profile" arrow>
+                                <IconButton
+                                  size="small"
+                                  sx={{ bgcolor: "#EEF2FF", color: "#4F46E5" }}
+                                  onClick={() =>
+                                    handleViewProfile(candidate._id)
+                                  }
+                                >
+                                  <VisibilityIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Send mail" arrow>
+                                <IconButton
+                                  size="small"
+                                  sx={{ bgcolor: "#F0FDF4", color: "#16A34A" }}
+                                  onClick={() =>
+                                    handleEmailClick(candidate.email)
+                                  }
+                                >
+                                  <EmailIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Download Resume" arrow>
+                                <IconButton
+                                  size="small"
+                                  sx={{ bgcolor: "#FEF3C7", color: "#D97706" }}
+                                  onClick={() =>
+                                    handleDownloadResume(candidate)
+                                  }
+                                >
+                                  <DownloadIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
                             </Box>
                             <Typography variant="body2" color="text.secondary">
                               Active{" "}
@@ -721,6 +1013,20 @@ const CandidateSearch: React.FC = () => {
             </InfiniteScroll>
           </Paper>
         </Box>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <MuiAlert
+            onClose={handleSnackbarClose}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </MuiAlert>
+        </Snackbar>
       </Box>
     </Box>
   );
