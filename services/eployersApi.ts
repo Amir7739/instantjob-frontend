@@ -32,6 +32,18 @@ interface EmployerResponse {
   employer: Employer;
 }
 
+interface UpdateEmployerResponse {
+  status: string;
+  message: string;
+  employer: Employer;
+}
+
+interface UpdatePasswordResponse {
+  status: string;
+  message: string;
+}
+
+
 export interface Job {
   id: string;
   title: string;
@@ -451,5 +463,77 @@ export const updateJobStatus = async (
   } catch (error: any) {
     console.error("Error in updateJobStatus:", error);
     throw new Error(error.response?.data?.message || "Error updating job status");
+  }
+};
+
+export const updateEmployer = async (
+  id: string,
+  data: Partial<Employer>
+): Promise<Employer> => {
+  try {
+    const response: AxiosResponse<UpdateEmployerResponse> = await axiosInstance.put(
+      `/employers/update-employer-profile/${id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to update employer");
+    }
+
+    const { employer } = response.data;
+    return {
+      ...employer,
+      id: employer._id || employer.id || id,
+      name: employer.name ?? "",
+      email: employer.email ?? "",
+      companyName: employer.companyName ?? "",
+      companyLogo: employer.companyLogo ?? "",
+      website: employer.website ?? "",
+      industry: employer.industry ?? "",
+      location: employer.location ?? "",
+      contactNumber: employer.contactNumber ?? "",
+      companySize: employer.companySize ?? "",
+      bio: employer.bio ?? "",
+      verified: employer.verified ?? false,
+      createdAt: employer.createdAt ?? "",
+      updatedAt: employer.updatedAt ?? "",
+    };
+  } catch (error: any) {
+    console.error("Error in updateEmployer:", error);
+    throw new Error(
+      error.response?.data?.message || "Error updating employer details"
+    );
+  }
+};
+
+export const updateEmployerPassword = async (
+  id: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
+  try {
+    const response: AxiosResponse<UpdatePasswordResponse> = await axiosInstance.put(
+      `/employers/update-password/${id}`,
+      { currentPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (response.data.status !== "success") {
+      throw new Error(response.data.message || "Failed to update password");
+    }
+  } catch (error: any) {
+    console.error("Error in updateEmployerPassword:", error);
+    throw new Error(
+      error.response?.data?.message || "Error updating employer password"
+    );
   }
 };
