@@ -366,6 +366,7 @@ const JobApplication = ({ getStatusColor = (status) => (status === 'Active' ? 's
         <>
           <DataGrid
             showToolbar
+            checkboxSelection 
             key={jobApplications.length}
             rows={rows}
             columns={columns}
