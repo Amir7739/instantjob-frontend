@@ -14,6 +14,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/material/styles";
@@ -68,8 +72,9 @@ const RecruitersPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [deleteRecruiterId, setDeleteRecruiterId] = useState(null);
+  const [openStatusModal, setOpenStatusModal] = useState(false);
+  const [statusRecruiterId, setStatusRecruiterId] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("active");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -85,7 +90,6 @@ const RecruitersPage = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get("/recruiter/get-all");
-
         const recruitersData = Array.isArray(response.data.recruiters)
           ? response.data.recruiters.filter(
               (recruiter) =>
@@ -158,7 +162,6 @@ const RecruitersPage = () => {
     }
     setLoading(true);
     try {
-      
       let response;
       if (isEditMode) {
         const updateData = { ...formData };
@@ -167,7 +170,6 @@ const RecruitersPage = () => {
           `/recruiter/update/${editRecruiterId}`,
           updateData
         );
-
         if (
           response.data.recruiter &&
           typeof response.data.recruiter === "object" &&
@@ -189,7 +191,6 @@ const RecruitersPage = () => {
         }
       } else {
         response = await axiosInstance.post("/recruiter/signup", formData);
-        
         if (
           response.data.recruiter &&
           typeof response.data.recruiter === "object" &&
@@ -225,36 +226,41 @@ const RecruitersPage = () => {
     }
   };
 
-  const handleOpenDeleteDialog = (id) => {
-    setDeleteRecruiterId(id);
-    setOpenDeleteDialog(true);
+  const handleOpenStatusModal = (id) => {
+    setStatusRecruiterId(id);
+    const recruiter = recruiters.find((rec) => rec._id === id);
+    setSelectedStatus(recruiter?.status || "active");
+    setOpenStatusModal(true);
   };
 
-  const handleCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-    setDeleteRecruiterId(null);
+  const handleCloseStatusModal = () => {
+    setOpenStatusModal(false);
+    setStatusRecruiterId(null);
+    setSelectedStatus("active");
   };
 
-  const handleDelete = async () => {
+  const handleStatusUpdate = async () => {
     setLoading(true);
     try {
       const response = await axiosInstance.delete(
-        `/recruiter/delete/${deleteRecruiterId}`
+        `/recruiter/delete/${statusRecruiterId}`,
+        { data: { status: selectedStatus } }
       );
-      
       setRecruiters((prev) =>
-        prev.filter((rec) => rec._id !== deleteRecruiterId)
+        prev.map((rec) =>
+          rec._id === statusRecruiterId ? { ...rec, status: selectedStatus } : rec
+        )
       );
-      handleCloseDeleteDialog();
+      handleCloseStatusModal();
       setSnackbar({
         open: true,
-        message: "Recruiter deleted successfully",
+        message: `Recruiter status updated to ${selectedStatus} successfully`,
         severity: "success",
       });
     } catch (error) {
-      console.error("Error deleting recruiter:", error);
+      console.error("Error updating recruiter status:", error);
       const errorMessage =
-        error.response?.data?.message || "Failed to delete recruiter";
+        error.response?.data?.message || "Failed to update recruiter status";
       setError(errorMessage);
       setSnackbar({
         open: true,
@@ -350,6 +356,17 @@ const RecruitersPage = () => {
       ),
     },
     {
+      field: "status",
+      headerName: "Status",
+      flex: 0.8,
+      minWidth: 150,
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ textTransform: "capitalize" }}>
+          {params.value || "N/A"}
+        </Typography>
+      ),
+    },
+    {
       field: "actions",
       headerName: "Actions",
       width: 100,
@@ -367,10 +384,10 @@ const RecruitersPage = () => {
             <EditIcon />
           </IconButton>
           <IconButton
-            onClick={() => handleOpenDeleteDialog(params.row._id)}
+            onClick={() => handleOpenStatusModal(params.row._id)}
             color="error"
             size="small"
-            title="Delete"
+            title="Update Status"
           >
             <DeleteIcon />
           </IconButton>
@@ -435,7 +452,7 @@ const RecruitersPage = () => {
             },
             "& .MuiDataGrid-columnHeaders": {
               backgroundColor: "grey.100",
-              borderBottom: "2px solid",
+              borderBottom: "2px",
               borderColor: "divider",
             },
             "& .MuiDataGrid-columnHeaderTitle": {
@@ -456,7 +473,7 @@ const RecruitersPage = () => {
           }}
         >
           <DataGrid
-          showToolbar
+            showToolbar
             rows={recruiters}
             columns={columns}
             getRowId={(row) =>
@@ -644,32 +661,106 @@ const RecruitersPage = () => {
         </ModalBox>
       </Modal>
 
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-dialog-title"
+      <Modal
+        open={openStatusModal}
+        onClose={handleCloseStatusModal}
+        aria-labelledby="status-modal-title"
+        sx={{
+          "& .MuiBackdrop-root": {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(4px)",
+          },
+        }}
       >
-        <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this recruiter? This action cannot
-            be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} variant="outlined">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDelete}
-            variant="contained"
-            color="error"
-            autoFocus
+        <ModalBox>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Avatar sx={{ bgcolor: "primary.main" }}>
+                <EditIcon />
+              </Avatar>
+              <Box>
+                <Typography id="status-modal-title" variant="h5" fontWeight="bold">
+                  Update Recruiter Status
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Set the status of the recruiter
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton
+              onClick={handleCloseStatusModal}
+              sx={{
+                "&:hover": {
+                  bgcolor: "action.hover",
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <Divider />
+
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="status-select-label">Status</InputLabel>
+            <Select
+              labelId="status-select-label"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              label="Status"
+              disabled={loading}
+              sx={{ borderRadius: 2 }}
+            >
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+
+          <Divider />
+
+          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleStatusUpdate}
+              fullWidth
+              disabled={loading}
+              size="large"
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: "bold",
+                fontSize: "1rem",
+              }}
+            >
+              {loading ? "Updating..." : "Update Status"}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleCloseStatusModal}
+              fullWidth
+              disabled={loading}
+              size="large"
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: "bold",
+                fontSize: "1rem",
+              }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </ModalBox>
+      </Modal>
 
       <CustomSnackbar
         open={snackbar.open}
